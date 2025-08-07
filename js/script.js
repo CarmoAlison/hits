@@ -86,20 +86,32 @@ let cart = [];
 // User Management
 let currentUser = null;
 
-// Check for saved user on load
+// Modifique a função checkSavedUser para esta versão
 function checkSavedUser() {
     const savedUser = localStorage.getItem('foxAcaiUser');
     if (savedUser) {
         try {
-            currentUser = JSON.parse(savedUser);
-            updateUserUI();
+            const user = JSON.parse(savedUser);
             
-            // Prefill checkout form if user is logged in
-            if (currentUser && document.getElementById('name')) {
-                document.getElementById('name').value = currentUser.name || '';
-                if (currentUser.email) {
-                    // You could add email field to form if needed
+            // Verifica se o token ainda é válido (simplificado)
+            if (user.token && user.email) {
+                currentUser = user;
+                updateUserUI();
+                
+                // Configura o Google Sign-In para não pedir confirmação novamente
+                google.accounts.id.initialize({
+                    client_id: DRIVE_CLIENT_ID,
+                    callback: handleGoogleLogin,
+                    auto_select: true
+                });
+                
+                // Preenche o formulário se existir
+                if (document.getElementById('name')) {
+                    document.getElementById('name').value = user.name || '';
                 }
+            } else {
+                // Dados inválidos, remove do storage
+                localStorage.removeItem('foxAcaiUser');
             }
         } catch (e) {
             console.error('Error parsing user data:', e);
@@ -108,7 +120,34 @@ function checkSavedUser() {
     }
 }
 
-// Handle Google Login
+
+// Adicione esta função de inicialização do Google Sign-In
+function initializeGoogleSignIn() {
+    if (typeof google !== 'undefined') {
+        google.accounts.id.initialize({
+            client_id: DRIVE_CLIENT_ID,
+            callback: handleGoogleLogin,
+            auto_select: true, // Tenta selecionar automaticamente
+            ux_mode: 'popup'
+        });
+        
+        // Se já tiver um usuário logado, não mostra o botão
+        if (!currentUser) {
+            google.accounts.id.renderButton(
+                document.getElementById('googleLoginButton'),
+                { theme: 'outline', size: 'large' }
+            );
+            
+            // Mostra o one-tap sign-in se apropriado
+            google.accounts.id.prompt();
+        }
+    } else {
+        // Tenta novamente após 1 segundo se a API não estiver carregada
+        setTimeout(initializeGoogleSignIn, 1000);
+    }
+}
+
+// Substitua a função handleGoogleLogin por esta versão melhorada
 function handleGoogleLogin(response) {
     // Decode the JWT token to get user info
     const decodeJwtResponse = (token) => {
@@ -133,14 +172,21 @@ function handleGoogleLogin(response) {
             id: userData.sub,
             name: userData.name || 'Usuário Google',
             email: userData.email,
-            avatar: userData.picture || 'https://lh3.googleusercontent.com/a/default-user'
+            avatar: userData.picture || 'https://lh3.googleusercontent.com/a/default-user',
+            token: response.credential // Armazena o token para validação
         };
         
-        currentUser = user;
+        // Armazena os dados do usuário de forma mais completa
         localStorage.setItem('foxAcaiUser', JSON.stringify(user));
+        
+        // Atualiza o usuário atual e a UI
+        currentUser = user;
         updateUserUI();
         
-        // Prefill checkout form
+        // Dispara o evento de login para o Google
+        google.accounts.id.disableAutoSelect();
+        
+        // Preenche o formulário automaticamente
         if (document.getElementById('name')) {
             document.getElementById('name').value = user.name;
         }
@@ -634,6 +680,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Verificar usuário logado
     checkSavedUser();
+    initializeGoogleSignIn();
     
     // Atualizar carrinho
     updateCart();
@@ -643,6 +690,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (logoutBtn) {
         logoutBtn.addEventListener('click', logout);
     }
+
+       
 });
 
 // Função global para o callback do Google
