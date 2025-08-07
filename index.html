@@ -28,29 +28,30 @@
                     <li><a href="#contact">Contato</a></li>
                 </ul>
             </nav>
+            <div class="google-login-container" id="googleLoginContainer">
+            <div id="g_id_onload"
+                data-client_id="545456833601-lfljgnojnu49inmabnlba3f9he86nl4e.apps.googleusercontent.com"
+                data-context="signin"
+                data-ux_mode="popup"
+                data-callback="handleGoogleLogin"
+                data-auto_prompt="false">
+            </div>
+            <div id="googleLoginButton" class="g_id_signin"
+                data-type="standard"
+                data-shape="rectangular"
+                data-theme="outline"
+                data-text="signin_with"
+                data-size="large"
+                data-logo_alignment="left">
+            </div>
+            </div>
             <button class="mobile-menu-btn" id="menuBtn">
                 <i class="fas fa-bars"></i>
             </button>
         </div>
     </header>
     <!-- Google Login Button -->
-   <div class="google-login-container" id="googleLoginContainer">
-    <div id="g_id_onload"
-         data-client_id="545456833601-lfljgnojnu49inmabnlba3f9he86nl4e.apps.googleusercontent.com"
-         data-context="signin"
-         data-ux_mode="popup"
-         data-callback="handleGoogleLogin"
-         data-auto_prompt="false">
-    </div>
-    <div id="googleLoginButton" class="g_id_signin"
-         data-type="standard"
-         data-shape="rectangular"
-         data-theme="outline"
-         data-text="signin_with"
-         data-size="large"
-         data-logo_alignment="left">
-    </div>
-</div>
+   
 
 <!-- User Info (shown when logged in) -->
 <div class="user-info-container" id="userInfoContainer" style="display: none;">
