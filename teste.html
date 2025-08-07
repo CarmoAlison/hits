@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login com Google</title>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            display: flex;
+            max-width: 1000px;
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .left-panel {
+            flex: 1;
+            background: linear-gradient(to bottom right, #4285F4, #34A853);
+            color: white;
+            padding: 50px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        
+        .left-panel h2 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+        
+        .left-panel p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+        
+        .features {
+            text-align: left;
+            width: 100%;
+            max-width: 300px;
+        }
+        
+        .feature {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .feature i {
+            margin-right: 10px;
+            font-size: 1.2rem;
+            color: #FDBC2D;
+        }
+        
+        .right-panel {
+            flex: 1;
+            padding: 50px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .login-container {
+            width: 100%;
+            max-width: 350px;
+            margin: 0 auto;
+        }
+        
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .logo i {
+            font-size: 3.5rem;
+            color: #4285F4;
+        }
+        
+        .logo h1 {
+            color: #333;
+            font-size: 2.2rem;
+            margin-top: 10px;
+        }
+        
+        .login-form {
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus {
+            border-color: #4285F4;
+            outline: none;
+        }
+        
+        .remember {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .remember input {
+            margin-right: 10px;
+        }
+        
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(to right, #4285F4, #34A853);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .login-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(66, 133, 244, 0.4);
+        }
+        
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 25px 0;
+        }
+        
+        .divider::before,
+        .divider::after {
+            content: "";
+            flex: 1;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .divider span {
+            padding: 0 15px;
+            color: #777;
+            font-size: 0.9rem;
+        }
+        
+        .google-login {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 25px;
+        }
+        
+        #googleSignIn {
+            background: #fff;
+            color: #757575;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s;
+        }
+        
+        #googleSignIn:hover {
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        #googleSignIn img {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+        }
+        
+        .user-info {
+            text-align: center;
+            display: none;
+        }
+        
+        .user-info img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 4px solid #4285F4;
+            margin-bottom: 20px;
+            object-fit: cover;
+        }
+        
+        .user-info h2 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .user-info p {
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .logout-btn {
+            margin-top: 20px;
+            padding: 12px 30px;
+            background: linear-gradient(to right, #EA4335, #FBBC05);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        
+        .logout-btn:hover {
+            transform: translateY(-3px);
+        }
+        
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            color: #777;
+            font-size: 0.9rem;
+        }
+        
+        .footer a {
+            color: #4285F4;
+            text-decoration: none;
+        }
+        
+        .footer a:hover {
+            text-decoration: underline;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .left-panel {
+                padding: 30px 20px;
+            }
+            
+            .right-panel {
+                padding: 40px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="left-panel">
+            <h2>Bem-vindo de Volta!</h2>
+            <p>Faça login com sua conta do Google para acessar todos os recursos da nossa plataforma.</p>
+            
+            <div class="features">
+                <div class="feature">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Login rápido e seguro</span>
+                </div>
+                <div class="feature">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Sem necessidade de senhas</span>
+                </div>
+                <div class="feature">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Permaneça conectado neste dispositivo</span>
+                </div>
+                <div class="feature">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Protegido pela segurança do Google</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="right-panel">
+            <div class="login-container">
+                <div class="logo">
+                    <i class="fas fa-lock"></i>
+                    <h1>Login</h1>
+                </div>
+                
+                <!-- Login Form -->
+                <div class="login-form" id="loginForm">
+                    <div class="form-group">
+                        <label for="email">E-mail</label>
+                        <input type="email" id="email" placeholder="seu@email.com">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password">Senha</label>
+                        <input type="password" id="password" placeholder="••••••••">
+                    </div>
+                    
+                    <div class="remember">
+                        <input type="checkbox" id="remember">
+                        <label for="remember">Manter-me conectado</label>
+                    </div>
+                    
+                    <button class="login-btn">Entrar</button>
+                </div>
+                
+                <div class="divider">
+                    <span>OU</span>
+                </div>
+                
+                <!-- Google Login Button -->
+                <div class="google-login">
+                    <button id="googleSignIn">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google Logo">
+                        Entrar com Google
+                    </button>
+                </div>
+                
+                <!-- User Info (Shown after login) -->
+                <div class="user-info" id="userInfo">
+                    <img id="userPhoto" src="" alt="User Photo">
+                    <h2 id="userName"></h2>
+                    <p id="userEmail"></p>
+                    <button class="logout-btn" id="logoutBtn">Sair</button>
+                </div>
+                
+                <div class="footer">
+                    <p>Não tem uma conta? <a href="#">Cadastre-se</a></p>
+                    <p><a href="#">Esqueceu sua senha?</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Verifica se o usuário já está logado ao carregar a página
+        document.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('google_token');
+            
+            if (token) {
+                // Decodifica o token JWT para obter as informações do usuário
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                showUserInfo(payload);
+            }
+        });
+        
+        // Função para mostrar as informações do usuário
+        function showUserInfo(userData) {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('googleSignIn').style.display = 'none';
+            
+            const userInfo = document.getElementById('userInfo');
+            userInfo.style.display = 'block';
+            
+            document.getElementById('userName').textContent = userData.name || 'Usuário Google';
+            document.getElementById('userEmail').textContent = userData.email || 'email@exemplo.com';
+            
+            // Se houver foto de perfil
+            if (userData.picture) {
+                document.getElementById('userPhoto').src = userData.picture;
+            }
+        }
+        
+        // Função para lidar com o login do Google
+        function handleGoogleLogin(response) {
+            // Armazena o token no localStorage para manter o login
+            localStorage.setItem('google_token', response.credential);
+            
+            // Decodifica o token para obter os dados do usuário
+            const userData = JSON.parse(atob(response.credential.split('.')[1]));
+            
+            // Mostra as informações do usuário na página
+            showUserInfo(userData);
+        }
+        
+        // Configura o botão de login do Google
+        window.onload = function() {
+            google.accounts.id.initialize({
+                client_id: "545456833601-lfljgnojnu49inmabnlba3f9he86nl4e.apps.googleusercontent.com", // Substitua pelo seu Client ID
+                callback: handleGoogleLogin
+            });
+            
+            google.accounts.id.renderButton(
+                document.getElementById("googleSignIn"),
+                { theme: "outline", size: "large" } 
+            );
+        };
+        
+        // Configura o botão de logout
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            // Remove o token do localStorage
+            localStorage.removeItem('google_token');
+            
+            // Esconde as informações do usuário
+            document.getElementById('userInfo').style.display = 'none';
+            
+            // Mostra o formulário de login novamente
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('googleSignIn').style.display = 'flex';
+        });
+        
+        // Simula o login com email/senha (apenas para demonstração)
+        document.querySelector('.login-btn').addEventListener('click', (e) => {
+            e.preventDefault();
+            alert('Este é apenas um exemplo visual. Para um login real, use o botão do Google.');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FoxAçaí - O Melhor Açaí da Região</title>
+    <link rel="stylesheet" href="./css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://apis.google.com/js/api.js"></script>
+</head>
+
+<body>
+    <!-- Header -->
+    <header>
+        <div class="header-container">
+            <div class="logo">
+                <h1>Fox<span>Açaí</span></h1>
+            </div>
+            <nav id="navbar">
+                <ul>
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#products">Produtos</a></li>
+                    <li><a href="#about">Sobre</a></li>
+                    <li><a href="#contact">Contato</a></li>
+                </ul>
+            </nav>
+            <button class="mobile-menu-btn" id="menuBtn">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </header>
+    <!-- Google Login Button -->
+    <div class="google-login-container" id="googleLoginContainer">
+        <div id="g_id_onload"
+            data-client_id="545456833601-lfljgnojnu49inmabnlba3f9he86nl4e.apps.googleusercontent.com"
+            data-context="signin"
+            data-ux_mode="popup"
+            data-callback="handleGoogleLogin"
+            data-auto_prompt="false">
+        </div>
+        <div class="g_id_signin"
+            data-type="standard"
+            data-shape="rectangular"
+            data-theme="outline"
+            data-text="signin_with"
+            data-size="large"
+            data-logo_alignment="left">
+        </div>
+    </div>
+
+<!-- User Info (shown when logged in) -->
+<div class="user-info-container" id="userInfoContainer" style="display: none;">
+    <img id="userAvatar" class="user-avatar" src="" alt="User Avatar">
+    <span id="userName"></span>
+    <button id="logoutBtn" class="btn logout-btn">Sair</button>
+</div>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="hero-content">
+            <h2>O Melhor Açaí da Região!</h2>
+            <p>Experimente nosso açaí cremoso e saboroso, feito com frutas frescas e ingredientes de qualidade. Entrega
+                rápida e preço justo!</p>
+            <button class="btn" id="menuBtn">Ver Cardápio</button>
+        </div>
+    </section>
+
+    <!-- Products Section -->
+    <section class="products" id="products">
+        <div class="section-title">
+            <h2>Nossos Copos Especiais</h2>
+        </div>
+        <div class="products-container">
+            <!-- Product 1 -->
+            <div class="product-card">
+                <div class="product-img">
+                    <img src="https://images.unsplash.com/photo-1603532648955-a039f2e5da2f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80"
+                        alt="Açaí 300ml">
+                </div>
+                <div class="product-info">
+                    <h3>Copo 300ml</h3>
+                    <div class="price">R$ 12,00</div>
+                    <div class="restrictions">
+                        <p><i class="fas fa-check-circle"></i> 2 cremes</p>
+                        <p><i class="fas fa-check-circle"></i> 1 cobertura</p>
+                        <p><i class="fas fa-check-circle"></i> 1 fruta</p>
+                        <p><i class="fas fa-check-circle"></i> 3 acompanhamentos</p>
+                    </div>
+                    <div class="product-actions">
+                        <div class="quantity">
+                            <button class="decrement">-</button>
+                            <span>1</span>
+                            <button class="increment">+</button>
+                        </div>
+                        <button class="add-to-cart" data-product="Copo 300ml" data-price="12.00">
+                            <i class="fas fa-shopping-cart"></i> Adicionar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product 2 -->
+            <div class="product-card">
+                <div class="product-img">
+                    <img src="https://images.unsplash.com/photo-1626082927389-8a5e4a9f1434?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80"
+                        alt="Açaí 400ml">
+                </div>
+                <div class="product-info">
+                    <h3>Copo 400ml</h3>
+                    <div class="price">R$ 16,00</div>
+                    <div class="restrictions">
+                        <p><i class="fas fa-check-circle"></i> 2 cremes</p>
+                        <p><i class="fas fa-check-circle"></i> 1 cobertura</p>
+                        <p><i class="fas fa-check-circle"></i> 1 fruta</p>
+                        <p><i class="fas fa-check-circle"></i> 3 acompanhamentos</p>
+                    </div>
+                    <div class="product-actions">
+                        <div class="quantity">
+                            <button class="decrement">-</button>
+                            <span>1</span>
+                            <button class="increment">+</button>
+                        </div>
+                        <button class="add-to-cart" data-product="Copo 400ml" data-price="16.00">
+                            <i class="fas fa-shopping-cart"></i> Adicionar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product 3 -->
+            <div class="product-card">
+                <div class="product-img">
+                    <img src="https://images.unsplash.com/photo-1602526430782-0a8a7d5af9d5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80"
+                        alt="Açaí 500ml">
+                </div>
+                <div class="product-info">
+                    <h3>Copo 500ml</h3>
+                    <div class="price">R$ 18,00</div>
+                    <div class="restrictions">
+                        <p><i class="fas fa-check-circle"></i> 2 cremes</p>
+                        <p><i class="fas fa-check-circle"></i> 1 cobertura</p>
+                        <p><i class="fas fa-check-circle"></i> 2 frutas</p>
+                        <p><i class="fas fa-check-circle"></i> 5 acompanhamentos</p>
+                    </div>
+                    <div class="product-actions">
+                        <div class="quantity">
+                            <button class="decrement">-</button>
+                            <span>1</span>
+                            <button class="increment">+</button>
+                        </div>
+                        <button class="add-to-cart" data-product="Copo 500ml" data-price="18.00">
+                            <i class="fas fa-shopping-cart"></i> Adicionar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="products" id="customize">
+        <div class="section-title">
+            <h2>Personalize Seu Açaí</h2>
+        </div>
+        <div class="customize-options">
+            <!-- Opções serão preenchidas via JavaScript -->
+        </div>
+    </section>
+
+    <section class="products" id="combos">
+        <div class="section-title">
+            <h2>Combos Especiais</h2>
+        </div>
+        <div class="products-container">
+            <!-- Combos serão preenchidos via JavaScript -->
+        </div>
+    </section>
+
+    <section class="products" id="snacks">
+        <div class="section-title">
+            <h2>Salgados</h2>
+        </div>
+        <div class="products-container">
+            <!-- Salgados serão preenchidos via JavaScript -->
+        </div>
+    </section>
+
+    <!-- Floating Cart -->
+    <div class="floating-cart" id="floatingCart">
+        <div class="cart-icon">
+            <i class="fas fa-shopping-cart"></i>
+            <span class="cart-count">0</span>
+        </div>
+    </div>
+
+    <!-- Cart Modal -->
+    <div class="modal" id="cartModal">
+        <div class="modal-content">
+            <span class="close-modal" id="closeCart">&times;</span>
+            <h2 class="modal-title">Seu Carrinho</h2>
+            <div class="cart-items" id="cartItems">
+                <!-- Cart items will be added here dynamically -->
+                <div class="empty-cart">
+                    <p>Seu carrinho está vazio</p>
+                </div>
+            </div>
+            <div class="cart-total">
+                <span class="total-label">Total:</span>
+                <span class="total-price" id="cartTotal">R$ 0,00</span>
+            </div>
+            <button class="btn checkout-btn" id="checkoutBtn">Finalizar Pedido</button>
+        </div>
+    </div>
+
+    <!-- Checkout Modal -->
+    <div class="modal" id="checkoutModal">
+        <div class="modal-content">
+            <span class="close-modal" id="closeCheckout">&times;</span>
+            <h2 class="modal-title">Finalizar Pedido</h2>
+            <form id="checkoutForm" class="checkout-form">
+                <div class="form-group full-width">
+                    <label for="name">Nome Completo</label>
+                    <input type="text" id="name" required>
+                </div>
+                <div class="form-group full-width">
+                    <label for="address">Endereço Completo</label>
+                    <input type="text" id="address" required>
+                </div>
+                <div class="form-group">
+                    <label for="deliveryLocation">Local de Entrega</label>
+                    <select id="deliveryLocation" required>
+                        <option value="">Selecione...</option>
+                        <option value="Macau">Macau</option>
+                        <option value="Ilha I">Ilha I</option>
+                        <option value="Ilha II">Ilha II</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="paymentMethod">Forma de Pagamento</label>
+                    <select id="paymentMethod" required>
+                        <option value="">Selecione...</option>
+                        <option value="Dinheiro">Dinheiro</option>
+                        <option value="Cartão de Crédito">Cartão de Crédito</option>
+                        <option value="Cartão de Débito">Cartão de Débito</option>
+                        <option value="PIX">PIX</option>
+                    </select>
+                </div>
+                <div class="form-group full-width">
+                    <label for="notes">Observações</label>
+                    <textarea id="notes" rows="3"></textarea>
+                </div>
+                <button type="submit" class="btn checkout-btn">Enviar Pedido</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Customize Modal -->
+    <div class="modal" id="customizeModal">
+        <div class="modal-content">
+            <span class="close-modal" id="closeCustomize">&times;</span>
+            <h2 class="modal-title">Personalize seu Açaí</h2>
+            <div class="customize-options">
+                <div class="option-group">
+                    <div class="option-title">
+                        <span>Cremes</span>
+                        <span class="option-limit">(Escolha até 2)</span>
+                    </div>
+                    <div class="option-items">
+                        <div class="option-item">
+                            <input type="checkbox" id="cream1" name="creme">
+                            <label for="cream1">Leite Condensado</label>
+                        </div>
+                        <div class="option-item">
+                            <input type="checkbox" id="cream2" name="creme">
+                            <label for="cream2">Creme de Leite</label>
+                        </div>
+                        <div class="option-item">
+                            <input type="checkbox" id="cream3" name="creme">
+                            <label for="cream3">Leite em Pó</label>
+                        </div>
+                        <div class="option-item">
+                            <input type="checkbox" id="cream4" name="creme">
+                            <label for="cream4">Ninho</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="option-group">
+                    <div class="option-title">
+                        <span>Coberturas</span>
+                        <span class="option-limit">(Escolha até 1)</span>
+                    </div>
+                    <div class="option-items">
+                        <div class="option-item">
+                            <input type="checkbox" id="topping1" name="cobertura">
+                            <label for="topping1">Calda de Chocolate</label>
+                        </div>
+                        <div class="option-item">
+                            <input type="checkbox" id="topping2" name="cobertura">
+                            <label for="topping2">Calda de Morango</label>
+                        </div>
+                        <div class="option-item">
+                            <input type="checkbox" id="topping3" name="cobertura">
+                            <label for="topping3">Calda de Caramelo</label>
+                        </div>
+                        <div class="option-item">
+                            <input type="checkbox" id="topping4" name="cobertura">
+                            <label for="topping4">Calda de Uva</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="option-group">
+                    <div class="option-title">
+                        <span>Frutas</span>
+                        <span class="option-limit">(Escolha até 1)</span>
+                    </div>
+                    <div class="option-items">
+                        <div class="option-item">
+                            <input type="checkbox" id="fruit1" name="fruta">
+                            <label for="fruit1">Banana</label>
+                        </div>
+                        <div class="option-item">
+                            <input type="checkbox" id="fruit2" name="fruta">
+                            <label for="fruit2">Morango</label>
+                        </div>
+                        <div class="option-item">
+                            <input type="checkbox" id="fruit3" name="fruta">
+                            <label for="fruit3">Kiwi</label>
+                        </div>
+                        <div class="option-item">
+                            <input type="checkbox" id="fruit4" name="fruta">
+                            <label for="fruit4">Uva</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="option-group">
+                    <div class="option-title">
+                        <span>Acompanhamentos</span>
+                        <span class="option-limit">(Escolha até 3)</span>
+                    </div>
+                    <div class="option-items">
+                        <div class="option-item">
+                            <input type="checkbox" id="side1" name="acompanhamento">
+                            <label for="side1">Granola</label>
+                        </div>
+                        <div class="option-item">
+                            <input type="checkbox" id="side2" name="acompanhamento">
+                            <label for="side2">Paçoca</label>
+                        </div>
+                        <div class="option-item">
+                            <input type="checkbox" id="side3" name="acompanhamento">
+                            <label for="side3">Amendoim</label>
+                        </div>
+                        <div class="option-item">
+                            <input type="checkbox" id="side4" name="acompanhamento">
+                            <label for="side4">Confete</label>
+                        </div>
+                        <div class="option-item">
+                            <input type="checkbox" id="side5" name="acompanhamento">
+                            <label for="side5">Chocolate em Pó</label>
+                        </div>
+                        <div class="option-item">
+                            <input type="checkbox" id="side6" name="acompanhamento">
+                            <label for="side6">Flocos de Arroz</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="customize-actions">
+                <button class="btn btn-outline" id="cancelCustomize">Cancelar</button>
+                <button class="btn" id="saveCustomize">Salvar Personalização</button>
+            </div>
+        </div>
+    </div>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <div class="loading-text">Enviando pedido e gerando PDF...</div>
+        </div>
+    </div>
+
+    <script src="./js/script.js"></script>
+</body>
+
+</html>
