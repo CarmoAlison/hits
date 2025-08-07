@@ -637,11 +637,13 @@ nav ul li a:hover {
         margin: 20px auto;
         padding: 20px;
     }
+    .google-login-container{
+        width: 150px;
+    }
 }
 
 /* Google Login Styles */
 .google-login-container {
-    position: fixed;
     top: 20px;
     right: 20px;
     z-index: 1000;
