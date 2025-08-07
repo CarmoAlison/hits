@@ -17,17 +17,17 @@ const saveCustomize = document.getElementById('saveCustomize');
 const cartCount = document.querySelector('.cart-count');
 const loadingOverlay = document.getElementById('loadingOverlay');
 
-// Configurações (USE SUAS CREDENCIAIS)
+// Configurações
 const DRIVE_API_KEY = 'AIzaSyBLZCkFO-APNRsnGJ6Jb5llkbzraejCxck';
 const DRIVE_CLIENT_ID = '545456833601-lfljgnojnu49inmabnlba3f9he86nl4e.apps.googleusercontent.com';
 const WHATSAPP_NUMBER = '5584996002433';
-const DRIVE_FOLDER_ID = '1mXHIHacz3fgrhVT2LbbopFPbouXLNW8P'; // ID da sua pasta
+const DRIVE_FOLDER_ID = '1mXHIHacz3fgrhVT2LbbopFPbouXLNW8P';
 
 const customizeSection = document.getElementById('customize');
 const combosSection = document.getElementById('combos');
 const snacksSection = document.getElementById('snacks');
 
-// Dados para as novas seções
+// Dados para as seções
 const customizationOptions = {
     bases: [
         { id: 'base1', name: 'Açaí Tradicional', price: 0 },
@@ -86,70 +86,33 @@ let cart = [];
 // User Management
 let currentUser = null;
 
-// Modifique a função checkSavedUser para esta versão
+// Check for saved user on load
 function checkSavedUser() {
     const savedUser = localStorage.getItem('foxAcaiUser');
     if (savedUser) {
         try {
             const user = JSON.parse(savedUser);
-            
-            // Verifica se o token ainda é válido (simplificado)
-            if (user.token && user.email) {
+            if (user && user.email) {
                 currentUser = user;
                 updateUserUI();
+                initializeGoogleSignIn(true); // Já está logado
                 
-                // Configura o Google Sign-In para não pedir confirmação novamente
-                google.accounts.id.initialize({
-                    client_id: DRIVE_CLIENT_ID,
-                    callback: handleGoogleLogin,
-                    auto_select: true
-                });
-                
-                // Preenche o formulário se existir
+                // Prefill checkout form
                 if (document.getElementById('name')) {
                     document.getElementById('name').value = user.name || '';
                 }
-            } else {
-                // Dados inválidos, remove do storage
-                localStorage.removeItem('foxAcaiUser');
+                return true;
             }
         } catch (e) {
             console.error('Error parsing user data:', e);
-            localStorage.removeItem('foxAcaiUser');
         }
+        localStorage.removeItem('foxAcaiUser');
     }
+    return false;
 }
 
-
-// Adicione esta função de inicialização do Google Sign-In
-function initializeGoogleSignIn() {
-    if (typeof google !== 'undefined') {
-        google.accounts.id.initialize({
-            client_id: DRIVE_CLIENT_ID,
-            callback: handleGoogleLogin,
-            auto_select: true, // Tenta selecionar automaticamente
-            ux_mode: 'popup'
-        });
-        
-        // Se já tiver um usuário logado, não mostra o botão
-        if (!currentUser) {
-            google.accounts.id.renderButton(
-                document.getElementById('googleLoginButton'),
-                { theme: 'outline', size: 'large' }
-            );
-            
-            // Mostra o one-tap sign-in se apropriado
-            google.accounts.id.prompt();
-        }
-    } else {
-        // Tenta novamente após 1 segundo se a API não estiver carregada
-        setTimeout(initializeGoogleSignIn, 1000);
-    }
-}
-
-// Substitua a função handleGoogleLogin por esta versão melhorada
+// Handle Google Login
 function handleGoogleLogin(response) {
-    // Decode the JWT token to get user info
     const decodeJwtResponse = (token) => {
         try {
             const base64Url = token.split('.')[1];
@@ -173,25 +136,45 @@ function handleGoogleLogin(response) {
             name: userData.name || 'Usuário Google',
             email: userData.email,
             avatar: userData.picture || 'https://lh3.googleusercontent.com/a/default-user',
-            token: response.credential // Armazena o token para validação
+            token: response.credential
         };
         
-        // Armazena os dados do usuário de forma mais completa
-        localStorage.setItem('foxAcaiUser', JSON.stringify(user));
-        
-        // Atualiza o usuário atual e a UI
         currentUser = user;
+        localStorage.setItem('foxAcaiUser', JSON.stringify(user));
         updateUserUI();
         
-        // Dispara o evento de login para o Google
-        google.accounts.id.disableAutoSelect();
-        
-        // Preenche o formulário automaticamente
+        // Prefill checkout form
         if (document.getElementById('name')) {
             document.getElementById('name').value = user.name;
         }
+        
+        // Disable auto-select after successful login
+        google.accounts.id.disableAutoSelect();
     } else {
         alert('Não foi possível obter informações do usuário. Tente novamente.');
+    }
+}
+
+// Initialize Google Sign-In
+function initializeGoogleSignIn(isLoggedIn = false) {
+    if (typeof google !== 'undefined') {
+        google.accounts.id.initialize({
+            client_id: DRIVE_CLIENT_ID,
+            callback: handleGoogleLogin,
+            auto_select: isLoggedIn,
+            ux_mode: 'popup'
+        });
+        
+        if (!isLoggedIn) {
+            google.accounts.id.prompt(notification => {
+                if (notification.isNotDisplayed() || notification.isSkipped()) {
+                    // Mostra o botão normal se o one-tap não for mostrado
+                    document.getElementById('googleLoginContainer').style.display = 'block';
+                }
+            });
+        }
+    } else {
+        setTimeout(() => initializeGoogleSignIn(isLoggedIn), 100);
     }
 }
 
@@ -215,23 +198,17 @@ function updateUserUI() {
 
 // Logout function
 function logout() {
-    // Sign out from Google
     google.accounts.id.disableAutoSelect();
-    
     currentUser = null;
     localStorage.removeItem('foxAcaiUser');
     updateUserUI();
+    initializeGoogleSignIn();
     
-    // Clear user-specific data
+    // Clear user data from form
     if (document.getElementById('name')) {
         document.getElementById('name').value = '';
     }
-    
-    // Show login button again
-    const loginContainer = document.getElementById('googleLoginContainer');
-    if (loginContainer) loginContainer.style.display = 'block';
 }
-
 // Função para renderizar as opções de personalização
 function renderCustomizationOptions() {
     const optionsContainer = customizeSection.querySelector('.customize-options');
@@ -472,10 +449,9 @@ async function uploadToDrive(pdfBlob, fileName) {
         tokenClient.requestAccessToken();
     });
 }
-
 // Event Delegation for Dynamic Elements
 document.addEventListener('click', function(e) {
-    // Mobile Menu Toggle
+   // Mobile Menu Toggle
     if (e.target === menuBtn || e.target.closest('#menuBtn')) {
         navbar.classList.toggle('active');
     }
@@ -589,13 +565,17 @@ document.addEventListener('click', function(e) {
     }
 });
 
-// Finalizar pedido
+// Finalizar pedido - Modificado para usar dados do usuário logado
 checkoutForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     loadingOverlay.style.display = 'flex';
     
     try {
-        // Obter dados - usa informações do usuário se estiver logado
+        // Se não estiver logado, verifica se tem dados salvos
+        if (!currentUser) {
+            checkSavedUser();
+        }
+        
         const orderDetails = {
             name: currentUser ? currentUser.name : document.getElementById('name').value,
             address: document.getElementById('address').value,
@@ -604,11 +584,10 @@ checkoutForm.addEventListener('submit', async (e) => {
             notes: document.getElementById('notes').value,
             items: [...cart],
             total: cart.reduce((sum, item) => sum + (item.price * item.quantity), 0),
-            userId: currentUser ? currentUser.id : null,
             userEmail: currentUser ? currentUser.email : null
         };
         
-        // Validar campos obrigatórios
+        // Validação dos campos obrigatórios
         if (!orderDetails.name || !orderDetails.address || !orderDetails.deliveryLocation || !orderDetails.paymentMethod) {
             throw new Error('Por favor, preencha todos os campos obrigatórios');
         }
@@ -627,7 +606,7 @@ checkoutForm.addEventListener('submit', async (e) => {
                      `*Local:* ${orderDetails.deliveryLocation}%0A` +
                      `*Pagamento:* ${orderDetails.paymentMethod}%0A`;
         
-        if (currentUser) {
+        if (currentUser && currentUser.email) {
             message += `*Email:* ${currentUser.email}%0A`;
         }
         
@@ -640,8 +619,6 @@ checkoutForm.addEventListener('submit', async (e) => {
         
         if (pdfLink) {
             message += `%0A*COMPROVANTE:* ${pdfLink}`;
-        } else {
-            message += `%0A(Erro ao gerar comprovante)`;
         }
         
         // Limpar e redirecionar
@@ -673,25 +650,22 @@ document.addEventListener('DOMContentLoaded', () => {
     jsPDFScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
     document.head.appendChild(jsPDFScript);
     
+    // Verifica se já está logado
+    const isLoggedIn = checkSavedUser();
+    
+    // Inicializa o Google Sign-In
+    initializeGoogleSignIn(isLoggedIn);
+    
     // Renderizar seções
     renderCustomizationOptions();
     renderCombos();
     renderSnacks();
     
-    // Verificar usuário logado
-    checkSavedUser();
-    initializeGoogleSignIn();
-    
     // Atualizar carrinho
     updateCart();
     
     // Adicionar evento de logout
-    const logoutBtn = document.getElementById('logoutBtn');
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', logout);
-    }
-
-       
+    document.getElementById('logoutBtn')?.addEventListener('click', logout);
 });
 
 // Função global para o callback do Google
