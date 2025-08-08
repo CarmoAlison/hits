@@ -27,22 +27,56 @@ const customizeSection = document.getElementById('customize');
 const combosSection = document.getElementById('combos');
 const snacksSection = document.getElementById('snacks');
 
+// Elementos da nova seção de personalização
+const selectedBaseEl = document.getElementById('selected-base');
+const selectedToppingsEl = document.getElementById('selected-toppings');
+const selectedFruitsEl = document.getElementById('selected-fruits');
+const customTotalEl = document.getElementById('custom-total');
+const addCustomToCartBtn = document.getElementById('addCustomToCart');
+
 // Dados para as seções
 const customizationOptions = {
+    Copos: [
+        { id: 'Cop300', name: 'Copo 300ml', price: 12 },
+        { id: 'Cop400', name: 'Copo 400ml', price: 16 },
+        { id: 'Cop500', name: 'Copo 500ml', price: 18 },
+    ],
     bases: [
         { id: 'base1', name: 'Açaí Tradicional', price: 0 },
-        { id: 'base2', name: 'Açaí com Banana', price: 2 },
-        { id: 'base3', name: 'Açaí com Leite Ninho', price: 3 }
+        { id: 'base2', name: 'Ninho', price: 0 },
+        { id: 'base3', name: 'Ninho trunfado', price: 0 },
+        { id: 'base4', name: 'Chocomalte', price: 0 },
+        { id: 'base5', name: 'Cupuaçu', price: 0 },
     ],
     toppings: [
-        { id: 'top1', name: 'Granola', price: 1.5 },
-        { id: 'top2', name: 'Paçoca', price: 2 },
-        { id: 'top3', name: 'Leite Condensado', price: 2.5 }
+        { id: 'top1', name: 'Leite em pó', price: 0 },
+        { id: 'top2', name: 'Farinha Láctea', price: 0 },
+        { id: 'top3', name: 'Flocos de Arroz', price: 0 },
+        { id: 'top4', name: 'M&M', price: 0 },
+        { id: 'top5', name: 'ChocoPower', price: 0 },
+        { id: 'top6', name: 'Granola', price: 0 },
+        { id: 'top7', name: 'Paçoca', price: 0 },
+        { id: 'top8', name: 'Granulado', price: 0 },
+        { id: 'top9', name: 'Coco', price: 0 },
+        { id: 'top10', name: 'Amendoim', price: 0 },
+        { id: 'top11', name: 'Gota de chocolate', price: 0 },
+        { id: 'top12', name: 'Canudinho', price: 0 },
+        { id: 'top13', name: 'Chocoball', price: 0 },
+        { id: 'top14', name: 'Creme de avelã', price: 0 },
+        { id: 'top15', name: 'Ovomaltine', price: 0 }
     ],
     fruits: [
-        { id: 'fruit1', name: 'Banana', price: 1 },
-        { id: 'fruit2', name: 'Morango', price: 2 },
-        { id: 'fruit3', name: 'Kiwi', price: 2.5 }
+        { id: 'fruit1', name: 'Banana', price: 0 },
+        { id: 'fruit2', name: 'Morango', price: 0 },
+        { id: 'fruit3', name: 'Kiwi', price: 0 }
+    ],
+    adicionais: [
+        { id: 'Adic1', name: 'Nutella', price: 3.5 },
+        { id: 'Adic2', name: 'Oreo', price: 2 },
+        { id: 'Adic3', name: 'kit Kat', price: 3 },
+        { id: 'Adic4', name: 'Castanha', price: 2 },
+        { id: 'Adic5', name: 'Creme de leitinho', price: 3 },
+        { id: 'Adic6', name: 'Batom', price: 2 }
     ]
 };
 
@@ -82,6 +116,14 @@ const snacks = [
 
 // Cart Data
 let cart = [];
+
+// Estado da personalização
+let customBase = customizationOptions.bases[0];
+let customCopo = customizationOptions.Copos[0];
+let customToppings = [];
+let customFruits = [];
+let customAdicionais = [];
+let customQuantity = 1;
 
 // User Management
 let currentUser = null;
@@ -209,48 +251,288 @@ function logout() {
         document.getElementById('name').value = '';
     }
 }
-// Função para renderizar as opções de personalização
-function renderCustomizationOptions() {
+
+// Função para renderizar a seção de personalização
+function renderCustomizationSection() {
     const optionsContainer = customizeSection.querySelector('.customize-options');
     
     let html = `
-    <div class="option-group">
-        <h3>Base do Açaí</h3>
-        ${customizationOptions.bases.map(option => `
-            <label>
-                <input type="radio" name="base" value="${option.id}" data-price="${option.price}" 
-                       ${option.id === 'base1' ? 'checked' : ''}>
-                ${option.name} ${option.price > 0 ? `(+R$ ${option.price.toFixed(2)})` : ''}
-            </label>
-        `).join('')}
-    </div>
-    
-    <div class="option-group">
-        <h3>Coberturas</h3>
-        ${customizationOptions.toppings.map(option => `
-            <label>
-                <input type="checkbox" name="topping" value="${option.id}" data-price="${option.price}">
-                ${option.name} (+R$ ${option.price.toFixed(2)})
-            </label>
-        `).join('')}
-    </div>
-    
-    <div class="option-group">
-        <h3>Frutas</h3>
-        ${customizationOptions.fruits.map(option => `
-            <label>
-                <input type="checkbox" name="fruit" value="${option.id}" data-price="${option.price}">
-                ${option.name} (+R$ ${option.price.toFixed(2)})
-            </label>
-        `).join('')}
-    </div>
-    
-    <button id="saveCustomization" class="btn">Salvar Personalização</button>`;
+    <div class="customize-container">
+        <!-- Coluna da Esquerda - Opções -->
+        <div class="customize-options-column">
+            <div class="option-group">
+                <h3>Copos</h3>
+                <div class="options-grid">
+                    ${customizationOptions.Copos.map(option => `
+                        <div class="option-item ${customCopo.id === option.id ? 'selected' : ''}" 
+                             data-type="copo" data-id="${option.id}">
+                            <input type="radio" name="copo" value="${option.id}" 
+                                   ${customCopo.id === option.id ? 'checked' : ''}>
+                            ${option.name} ${option.price > 0 ? `(+R$ ${option.price.toFixed(2)})` : ''}
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+            
+            <div class="option-group">
+                <h3>Cremes</h3>
+                <div class="options-grid">
+                    ${customizationOptions.bases.map(option => `
+                        <div class="option-item ${customBase.id === option.id ? 'selected' : ''}" 
+                             data-type="base" data-id="${option.id}">
+                            <input type="radio" name="base" value="${option.id}" 
+                                   ${customBase.id === option.id ? 'checked' : ''}>
+                            ${option.name}
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+            
+            <div class="option-group">
+                <h3>Coberturas</h3>
+                <div class="options-grid">
+                    ${customizationOptions.toppings.map(option => `
+                        <div class="option-item ${customToppings.some(t => t.id === option.id) ? 'selected' : ''}" 
+                             data-type="topping" data-id="${option.id}">
+                            <input type="checkbox" name="topping" value="${option.id}" 
+                                   ${customToppings.some(t => t.id === option.id) ? 'checked' : ''}>
+                            ${option.name}
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+            
+            <div class="option-group">
+                <h3>Frutas</h3>
+                <div class="options-grid">
+                    ${customizationOptions.fruits.map(option => `
+                        <div class="option-item ${customFruits.some(f => f.id === option.id) ? 'selected' : ''}" 
+                             data-type="fruit" data-id="${option.id}">
+                            <input type="checkbox" name="fruit" value="${option.id}" 
+                                   ${customFruits.some(f => f.id === option.id) ? 'checked' : ''}>
+                            ${option.name}
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+            
+            <div class="option-group">
+                <h3>Adicionais</h3>
+                <div class="options-grid">
+                    ${customizationOptions.adicionais.map(option => `
+                        <div class="option-item ${customAdicionais.some(a => a.id === option.id) ? 'selected' : ''}" 
+                             data-type="adicional" data-id="${option.id}">
+                            <input type="checkbox" name="adicional" value="${option.id}">
+                            ${option.name} (+R$ ${option.price.toFixed(2)})
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Coluna da Direita - Resumo e Preço -->
+        <div class="customize-summary">
+            <h3>Seu Açaí Personalizado</h3>
+            <div class="summary-content">
+                <div class="summary-item">
+                    <span class="item-name">Copo:</span>
+                    <span id="selected-copo">${customCopo.name}</span>
+                </div>
+                <div class="summary-item">
+                    <span class="item-name">Creme:</span>
+                    <span id="selected-base">${customBase.name}</span>
+                </div>
+                <div class="summary-item">
+                    <span class="item-name">Coberturas:</span>
+                    <span id="selected-toppings">${customToppings.length > 0 ? customToppings.map(t => t.name).join(', \n') : '-'}</span>
+                </div>
+                <div class="summary-item">
+                    <span class="item-name">Frutas:</span>
+                    <span id="selected-fruits">${customFruits.length > 0 ? customFruits.map(f => f.name).join(', ') : '-'}</span>
+                </div>
+                <div class="summary-item">
+                    <span class="item-name">Adicionais:</span>
+                    <span id="selected-adicionais">${customAdicionais.length > 0 ? customAdicionais.map(a => a.name).join(', ') : '-'}</span>
+                </div>
+                <div class="summary-total">
+                    <span>Total:</span>
+                    <span id="custom-total">R$ ${calculateCustomTotal().toFixed(2)}</span>
+                </div>
+            </div>
+            <div class="quantity-control">
+                <button class="decrement">-</button>
+                <span>${customQuantity}</span>
+                <button class="increment">+</button>
+            </div>
+            <button id="addCustomToCart" class="btn">
+                <i class="fas fa-shopping-cart"></i> Adicionar ao Carrinho
+            </button>
+        </div>
+    </div>`;
     
     optionsContainer.innerHTML = html;
     
-    // Adiciona evento ao botão de salvar
-    document.getElementById('saveCustomization').addEventListener('click', saveCustomization);
+    // Adiciona eventos aos botões
+    document.getElementById('addCustomToCart').addEventListener('click', addCustomToCart);
+    
+    // Atualiza eventos de seleção
+    document.querySelectorAll('.option-item').forEach(item => {
+        item.addEventListener('click', handleOptionSelection);
+    });
+    
+    // Eventos de quantidade
+    document.querySelector('.quantity-control .increment').addEventListener('click', () => {
+        customQuantity++;
+        document.querySelector('.quantity-control span').textContent = customQuantity;
+        updateCustomSummary();
+    });
+    
+    document.querySelector('.quantity-control .decrement').addEventListener('click', () => {
+        if (customQuantity > 1) {
+            customQuantity--;
+            document.querySelector('.quantity-control span').textContent = customQuantity;
+            updateCustomSummary();
+        }
+    });
+}
+
+// Calcular total do açaí personalizado
+function calculateCustomTotal() {
+    let total = customBase.price;
+    customToppings.forEach(t => total += t.price);
+    customFruits.forEach(f => total += f.price);
+    customAdicionais.forEach(a => total += a.price);
+    return total * customQuantity;
+}
+
+// Atualizar resumo da personalização
+function updateCustomSummary() {
+    if (document.getElementById('selected-copo')) {
+        document.getElementById('selected-copo').textContent = customCopo.name;
+    }
+    if (document.getElementById('selected-base')) {
+        document.getElementById('selected-base').textContent = customBase.name;
+    }
+    if (document.getElementById('selected-toppings')) {
+        document.getElementById('selected-toppings').textContent = 
+            customToppings.length > 0 ? customToppings.map(t => t.name).join(', ') : '-';
+    }
+    if (document.getElementById('selected-fruits')) {
+        document.getElementById('selected-fruits').textContent = 
+            customFruits.length > 0 ? customFruits.map(f => f.name).join(', ') : '-';
+    }
+    if (document.getElementById('selected-adicionais')) {
+        document.getElementById('selected-adicionais').textContent = 
+            customAdicionais.length > 0 ? customAdicionais.map(a => a.name).join(', ') : '-';
+    }
+    if (document.getElementById('custom-total')) {
+        document.getElementById('custom-total').textContent = 
+            `R$ ${calculateCustomTotal().toFixed(2)}`;
+    }
+}
+
+// Copo de 300ml
+//  Dois cremes
+//  Três acompanhamento
+//  Uma Fruta
+//  Uma cobertura
+// Copo de 400ml
+//  Dois cremes
+//  Três acompanhamento
+//  Duas Fruta
+//  Uma cobertura
+// Copo de 500ml
+//  Dois cremes
+//  Cinco acompanhamento
+//  Duas Fruta
+//  Uma cobertura
+// Manipular seleção de opções
+function handleOptionSelection(e) {
+    const optionItem = e.currentTarget;
+    const type = optionItem.dataset.type;
+    const id = optionItem.dataset.id;
+    
+    if (type === 'copo' || type === 'base') {
+        // Seleção única (radio)
+        document.querySelectorAll(`.option-item[data-type="${type}"]`).forEach(item => {
+            item.classList.remove('selected');
+        });
+        optionItem.classList.add('selected');
+        
+        if (type === 'copo') {
+            customBase = customizationOptions.Copos.find(c => c.id === id);
+        } else {
+            customBase = customizationOptions.bases.find(b => b.id === id);
+        }
+    } else {
+        // Seleção múltipla (checkbox)
+        optionItem.classList.toggle('selected');
+        
+        if (type === 'topping') {
+            const topping = customizationOptions.toppings.find(t => t.id === id);
+            const index = customToppings.findIndex(t => t.id === id);
+            
+            if (index !== -1) {
+                customToppings.splice(index, 1);
+            } else {
+                customToppings.push(topping);
+            }
+        } else if (type === 'fruit') {
+            const fruit = customizationOptions.fruits.find(f => f.id === id);
+            const index = customFruits.findIndex(f => f.id === id);
+            
+            if (index !== -1) {
+                customFruits.splice(index, 1);
+            } else {
+                customFruits.push(fruit);
+            }
+        } else if (type === 'adicional') {
+            const adicional = customizationOptions.adicionais.find(a => a.id === id);
+            const index = customAdicionais.findIndex(a => a.id === id);
+            
+            if (index !== -1) {
+                customAdicionais.splice(index, 1);
+            } else {
+                customAdicionais.push(adicional);
+            }
+        }
+    }
+    
+    updateCustomSummary();
+}
+
+// Adicionar açaí personalizado ao carrinho
+function addCustomToCart() {
+    // Calcular preço total
+    const totalPrice = calculateCustomTotal();
+    
+    // Criar descrição do produto
+    let description = `Açaí Personalizado (${customBase.name})`;
+    
+    if (customToppings.length > 0) {
+        description += ` com ${customToppings.map(t => t.name).join(', ')}`;
+    }
+    
+    if (customFruits.length > 0) {
+        description += ` e ${customFruits.map(f => f.name).join(', ')}`;
+    }
+    
+    if (customAdicionais.length > 0) {
+        description += ` + ${customAdicionais.map(a => a.name).join(', ')}`;
+    }
+    
+    // Adicionar ao carrinho
+    cart.push({
+        product: description,
+        price: totalPrice / customQuantity, // Preço unitário
+        quantity: customQuantity
+    });
+    
+    // Atualizar carrinho e mostrar
+    updateCart();
+    cartModal.style.display = 'block';
+    
+    alert('Açaí personalizado adicionado ao carrinho!');
 }
 
 // Função para renderizar combos
@@ -309,7 +591,7 @@ function renderSnacks() {
     `).join('');
 }
 
-// Função para salvar personalização
+// Função para salvar personalização (modal)
 function saveCustomization() {
     const selectedBase = document.querySelector('input[name="base"]:checked');
     const selectedToppings = [...document.querySelectorAll('input[name="topping"]:checked')];
@@ -449,6 +731,7 @@ async function uploadToDrive(pdfBlob, fileName) {
         tokenClient.requestAccessToken();
     });
 }
+
 // Event Delegation for Dynamic Elements
 document.addEventListener('click', function(e) {
    // Mobile Menu Toggle
@@ -657,7 +940,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeGoogleSignIn(isLoggedIn);
     
     // Renderizar seções
-    renderCustomizationOptions();
+    renderCustomizationSection(); // Nova função para a seção de personalização
     renderCombos();
     renderSnacks();
     

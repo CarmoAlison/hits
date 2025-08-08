@@ -16,9 +16,12 @@
 <body>
     <!-- Header -->
     <header>
+        <!-- Efeito de partículas -->
         <div class="header-container">
             <div class="logo">
-                <h1>Fox<span>Açaí</span></h1>
+                <img src="assets/logos/Logo-cabeca-hits.png" alt="">
+                <hr>
+                <h1>Açaí <span>Hits</span></h1>
             </div>
             <nav id="navbar">
                 <ul>
@@ -27,48 +30,30 @@
                     <li><a href="#about">Sobre</a></li>
                     <li><a href="#contact">Contato</a></li>
                 </ul>
+
             </nav>
-            <div class="google-login-container" id="googleLoginContainer">
-            <div id="g_id_onload"
-                data-client_id="545456833601-lfljgnojnu49inmabnlba3f9he86nl4e.apps.googleusercontent.com"
-                data-context="signin"
-                data-ux_mode="popup"
-                data-callback="handleGoogleLogin"
-                data-auto_prompt="false">
-            </div>
-            <div id="googleLoginButton" class="g_id_signin"
-                data-type="standard"
-                data-shape="rectangular"
-                data-theme="outline"
-                data-text="signin_with"
-                data-size="large"
-                data-logo_alignment="left">
-            </div>
-            </div>
             <button class="mobile-menu-btn" id="menuBtn">
                 <i class="fas fa-bars"></i>
             </button>
         </div>
     </header>
-    <!-- Google Login Button -->
-   
-
-<!-- User Info (shown when logged in) -->
-<div class="user-info-container" id="userInfoContainer" style="display: none;">
-    <img id="userAvatar" class="user-avatar" src="" alt="User Avatar">
-    <span id="userName"></span>
-    <button id="logoutBtn" class="btn logout-btn">Sair</button>
-</div>
 
     <!-- Hero Section -->
     <section class="hero" id="home">
         <div class="hero-content">
+            <img src="./assets/logos/Logo-cabeca-hits.png" alt="">
             <h2>O Melhor Açaí da Região!</h2>
             <p>Experimente nosso açaí cremoso e saboroso, feito com frutas frescas e ingredientes de qualidade. Entrega
                 rápida e preço justo!</p>
-            <button class="btn" id="menuBtn">Ver Cardápio</button>
+            <div class="button-hero">
+                <a href=""><button class="btn" id="menuBtn">Especiais</button></a>
+                <a href=""><button class="btn" id="menuBtn">Personalizar</button></a>
+                <a href=""><button class="btn" id="menuBtn">Combos</button></a>
+                <a href=""><button class="btn" id="menuBtn">Salgados</button></a>
+            </div>
         </div>
     </section>
+    
 
     <!-- Products Section -->
     <section class="products" id="products">
@@ -162,14 +147,39 @@
         </div>
     </section>
 
-    <section class="products" id="customize">
-        <div class="section-title">
-            <h2>Personalize Seu Açaí</h2>
-        </div>
+    <!-- Nova seção de personalização -->
+<section class="products" id="customize">
+    <div class="section-title">
+        <h2>Personalize Seu Açaí</h2>
+    </div>
+    <div class="customize-container">
+        <!-- Coluna da Esquerda - Opções -->
         <div class="customize-options">
-            <!-- Opções serão preenchidas via JavaScript -->
+            <div class="option-group">
+                <h3>Base do Açaí</h3>
+                <div class="options-grid">
+                    <!-- Bases serão preenchidas via JavaScript -->
+                </div>
+            </div>
+            
+            <div class="option-group">
+                <h3>Coberturas</h3>
+                <div class="options-grid">
+                    <!-- Coberturas serão preenchidas via JavaScript -->
+                </div>
+            </div>
+            
+            <div class="option-group">
+                <h3>Frutas</h3>
+                <div class="options-grid">
+                    <!-- Frutas serão preenchidas via JavaScript -->
+                </div>
+            </div>
         </div>
-    </section>
+    </div>
+</section>
+
+
 
     <section class="products" id="combos">
         <div class="section-title">
