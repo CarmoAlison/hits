@@ -1195,6 +1195,10 @@ checkoutForm.addEventListener('submit', async (e) => {
             checkSavedUser();
         }
 
+        const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        const deliveryLocation = document.getElementById('deliveryLocation').value;
+        const deliveryFee = calculateDeliveryFee(subtotal, deliveryLocation);
+
         const orderDetails = {
             name: currentUser ? currentUser.name : document.getElementById('name').value,
             address: document.getElementById('address').value,
@@ -1202,6 +1206,9 @@ checkoutForm.addEventListener('submit', async (e) => {
             paymentMethod: document.getElementById('paymentMethod').value,
             notes: document.getElementById('notes').value,
             items: [...cart],
+            subtotal: subtotal,
+            deliveryFee: deliveryFee,
+            total: subtotal + deliveryFee,
             total: cart.reduce((sum, item) => sum + (item.price * item.quantity), 0),
             userEmail: currentUser ? currentUser.email : null
         };
@@ -1223,7 +1230,10 @@ checkoutForm.addEventListener('submit', async (e) => {
             `*Cliente:* ${orderDetails.name}%0A` +
             `*Endereço:* ${orderDetails.address}%0A` +
             `*Local:* ${orderDetails.deliveryLocation}%0A` +
-            `*Pagamento:* ${orderDetails.paymentMethod}%0A`;
+            `*Pagamento:* ${orderDetails.paymentMethod}%0A` +
+            `*Subtotal:* R$ ${orderDetails.subtotal.toFixed(2)}%0A` +
+            `*Taxa de entrega:* R$ ${orderDetails.deliveryFee.toFixed(2)}%0A` + // Nova linha
+            `*Total:* R$ ${orderDetails.total.toFixed(2)}%0A%0A`
 
         if (currentUser && currentUser.email) {
             message += `*Email:* ${currentUser.email}%0A`;
