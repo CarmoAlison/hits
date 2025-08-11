@@ -92,14 +92,14 @@ const combos = [
         name: 'Combo Família',
         price: 45,
         description: '2 Açaís 500ml + 2 Salgados',
-        image: './assets/produtos/FERREIRO.jpg'
+        image: './assets/produtos/COMBO1.jpg'
     },
     {
         id: 'combo2',
         name: 'Combo Casal',
         price: 30,
         description: '2 Açaís 400ml + 1 Salgado',
-        image: './assets/produtos/FERREIRO.jpg'
+        image: './assets/produtos/COMBO1.jpg'
     }
 ];
 
@@ -171,7 +171,7 @@ function showLimitMessage(type, max) {
         cobertura: `Máximo de ${max} coberturas selecionadas!`
     };
 
-    alert(messages[type]);  
+    alert(messages[type]);
 }
 
 // Cart Data
@@ -482,8 +482,37 @@ function renderCustomizationSection() {
     let html = `
 
     <div class="customize-header">
-    </div>
-    <div class="customize-header2">
+        <img src="./assets/logos/Logo-cabeca-hits.png" alt="Açaí Hits Logo">
+        <h2>Instruções</h2>
+        <div class="customize-header2">
+            <div class="listagem-customizar">
+                <p>Copo de 300ml</p>
+                <ul>
+                    <li>2 Cremes</li>
+                    <li>1 Cobertura</li>
+                    <li>1 Fruta</li>
+                    <li>3 Acompanhamentos</li>
+                </ul>
+            </div>
+            <div class="listagem-customizar">
+                <p>Copo de 400ml</p>
+                <ul>
+                    <li>2 Cremes</li>
+                    <li>1 Cobertura</li>
+                    <li>2 Frutas</li>
+                    <li>3 Acompanhamentos</li>
+                </ul>
+            </div>
+            <div class="listagem-customizar">
+                <p>Copo de 500ml</p>
+                <ul>
+                    <li>2 Cremes</li>
+                    <li>1 Cobertura</li>
+                    <li>2 Fruta</li>
+                    <li>5 Acompanhamentos</li>
+                </ul>
+            </div>
+        </div>
     </div>
 
     <div class="customize-container">
