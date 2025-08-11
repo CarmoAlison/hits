@@ -77,6 +77,12 @@ const customizationOptions = {
         { id: 'Adic4', name: 'Castanha', price: 2 },
         { id: 'Adic5', name: 'Creme de leitinho', price: 3 },
         { id: 'Adic6', name: 'Batom', price: 2 }
+    ],
+    cobertura: [
+        { id: 'cober1', name: 'Leite condensado', price: 0 },
+        { id: 'cober2', name: 'Chocolate', price: 0 },
+        { id: 'cober3', name: 'Morango', price: 0 },
+        { id: 'cober4', name: 'Uva', price: 0 },
     ]
 };
 
@@ -86,43 +92,98 @@ const combos = [
         name: 'Combo Família',
         price: 45,
         description: '2 Açaís 500ml + 2 Salgados',
-        image: 'https://images.unsplash.com/photo-1563805042-7684c019e1cb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80'
+        image: './assets/produtos/FERREIRO.jpg'
     },
     {
         id: 'combo2',
         name: 'Combo Casal',
         price: 30,
         description: '2 Açaís 400ml + 1 Salgado',
-        image: 'https://images.unsplash.com/photo-1563805042-7684c019e1cb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80'
+        image: './assets/produtos/FERREIRO.jpg'
     }
 ];
 
 const snacks = [
     {
         id: 'snack1',
-        name: 'Tapioca',
-        price: 8,
-        description: 'Tapioca recheada com queijo e presunto',
-        image: 'https://images.unsplash.com/photo-1604329760661-e71dc83f8f26?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80'
+        name: 'Coxinha de Frango',
+        price: 6,
+        description: 'Coxinha recheado com frango',
+        image: './assets/produtos/coxinha.jpg'
     },
     {
         id: 'snack2',
-        name: 'Pão de Queijo',
-        price: 5,
-        description: 'Pão de queijo caseiro',
-        image: 'https://images.unsplash.com/photo-1604329760661-e71dc83f8f26?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80'
+        name: 'Coxinha de carne',
+        price: 6,
+        description: 'Coxinha de carne de sol',
+        image: './assets/produtos/coxinha.jpg'
+    },
+    {
+        id: 'snack3',
+        name: 'Pastel de forno',
+        price: 6,
+        description: 'Pastel assado recheado com frango',
+        image: './assets/produtos/pasteldeforno.jpg'
+    },
+    {
+        id: 'snack4',
+        name: 'Empada de Frango',
+        price: 6,
+        description: 'Empada recheada com frango',
+        image: './assets/produtos/empada.jpg'
+    },
+    {
+        id: 'snack5',
+        name: 'Enroladinho',
+        price: 6,
+        description: 'Enrroladinho de queijo e presunto',
+        image: './assets/produtos/enroladinho.jpg'
     }
 ];
+
+const restrictions = {
+    Cop300: { // 300ml
+        base: 2,
+        topping: 3,
+        fruit: 1,
+        cobertura: 1
+    },
+    Cop400: { // 400ml
+        base: 2,
+        topping: 3,
+        fruit: 2,
+        cobertura: 1
+    },
+    Cop500: { // 500ml
+        base: 2,
+        topping: 5,
+        fruit: 2,
+        cobertura: 1
+    }
+};
+
+// Função auxiliar para mostrar mensagens de limite
+function showLimitMessage(type, max) {
+    const messages = {
+        base: `Máximo de ${max} cremes selecionados!`,
+        topping: `Máximo de ${max} acompanhamentos selecionados!`,
+        fruit: `Máximo de ${max} frutas selecionadas!`,
+        cobertura: `Máximo de ${max} coberturas selecionadas!`
+    };
+
+    alert(messages[type]);  
+}
 
 // Cart Data
 let cart = [];
 
 // Estado da personalização
-let customBase = customizationOptions.bases[0];
+let customBase = [];
 let customCopo = customizationOptions.Copos[0];
 let customToppings = [];
 let customFruits = [];
 let customAdicionais = [];
+let customCobertura = [];
 let customQuantity = 1;
 
 // User Management
@@ -138,7 +199,7 @@ function checkSavedUser() {
                 currentUser = user;
                 updateUserUI();
                 initializeGoogleSignIn(true); // Já está logado
-                
+
                 // Prefill checkout form
                 if (document.getElementById('name')) {
                     document.getElementById('name').value = user.name || '';
@@ -153,25 +214,43 @@ function checkSavedUser() {
     return false;
 }
 
+function calculateDeliveryFee(subtotal, deliveryLocation) {
+    if (deliveryLocation === 'Ilha I' && subtotal < 26) {
+        return 5;
+    } else if (deliveryLocation === 'Ilha II' && subtotal < 36) {
+        return 7;
+    }
+    return 0;
+}
+function updateCheckoutTotal() {
+    const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const deliveryLocation = document.getElementById('deliveryLocation').value;
+    const deliveryFee = calculateDeliveryFee(subtotal, deliveryLocation);
+
+    document.getElementById('checkoutSubtotal').textContent = `R$ ${subtotal.toFixed(2)}`;
+    document.getElementById('checkoutDeliveryFee').textContent = `R$ ${deliveryFee.toFixed(2)}`;
+    document.getElementById('checkoutTotal').textContent = `R$ ${(subtotal + deliveryFee).toFixed(2)}`;
+}
+
 // Handle Google Login
 function handleGoogleLogin(response) {
     const decodeJwtResponse = (token) => {
         try {
             const base64Url = token.split('.')[1];
             const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-            const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+            const jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
                 return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
             }).join(''));
-            
+
             return JSON.parse(jsonPayload);
         } catch (e) {
             console.error('Error decoding JWT:', e);
             return null;
         }
     };
-    
+
     const userData = decodeJwtResponse(response.credential);
-    
+
     if (userData) {
         const user = {
             id: userData.sub,
@@ -180,16 +259,16 @@ function handleGoogleLogin(response) {
             avatar: userData.picture || 'https://lh3.googleusercontent.com/a/default-user',
             token: response.credential
         };
-        
+
         currentUser = user;
         localStorage.setItem('foxAcaiUser', JSON.stringify(user));
         updateUserUI();
-        
+
         // Prefill checkout form
         if (document.getElementById('name')) {
             document.getElementById('name').value = user.name;
         }
-        
+
         // Disable auto-select after successful login
         google.accounts.id.disableAutoSelect();
     } else {
@@ -206,7 +285,7 @@ function initializeGoogleSignIn(isLoggedIn = false) {
             auto_select: isLoggedIn,
             ux_mode: 'popup'
         });
-        
+
         if (!isLoggedIn) {
             google.accounts.id.prompt(notification => {
                 if (notification.isNotDisplayed() || notification.isSkipped()) {
@@ -224,7 +303,7 @@ function initializeGoogleSignIn(isLoggedIn = false) {
 function updateUserUI() {
     const loginContainer = document.getElementById('googleLoginContainer');
     const userInfoContainer = document.getElementById('userInfoContainer');
-    
+
     if (currentUser) {
         if (loginContainer) loginContainer.style.display = 'none';
         if (userInfoContainer) {
@@ -245,18 +324,168 @@ function logout() {
     localStorage.removeItem('foxAcaiUser');
     updateUserUI();
     initializeGoogleSignIn();
-    
+
     // Clear user data from form
     if (document.getElementById('name')) {
         document.getElementById('name').value = '';
     }
 }
+// Toast não-bloqueante
+function createToast(message, duration = 2200) {
+    const t = document.createElement('div');
+    t.className = 'acai-toast';
+    t.textContent = message;
+    document.body.appendChild(t);
+    // forçar reflow para enable transition
+    requestAnimationFrame(() => t.classList.add('visible'));
+    setTimeout(() => {
+        t.classList.remove('visible');
+        setTimeout(() => t.remove(), 300);
+    }, duration);
+}
+
+// pequeno flash de negação
+function flashItem(item) {
+    if (!item) return;
+    item.classList.add('deny');
+    item.addEventListener('animationend', () => item.classList.remove('deny'), { once: true });
+}
+
+// Sincroniza classes no DOM com o estado atual (sempre execute depois de mudar customBase/customToppings/etc)
+function syncOptionClasses() {
+    document.querySelectorAll('.option-item').forEach(el => {
+        const type = el.dataset.type;
+        const id = el.dataset.id;
+        el.classList.remove('selected', 'checked');
+
+        if (type === 'copo') {
+            if (customCopo && customCopo.id === id) el.classList.add('selected');
+        } else if (type === 'base') {
+            if (customBase.some(c => c.id === id)) el.classList.add('selected');
+        } else if (type === 'topping') {
+            if (customToppings.some(t => t.id === id)) el.classList.add('checked');
+        } else if (type === 'fruit') {
+            if (customFruits.some(f => f.id === id)) el.classList.add('selected');
+        } else if (type === 'cobertura') {
+            if (customCobertura.some(r => r.id === id)) el.classList.add('selected');
+        } else if (type === 'adicional') {
+            if (customAdicionais.some(a => a.id === id)) el.classList.add('selected');
+        }
+    });
+}
+
+// Aplica cortes (quando trocar copo) e faz toasts informando remoções
+function trimSelectionsToRestriction(newRestriction) {
+    let removed = false;
+    if (customBase.length > newRestriction.base) {
+        customBase = customBase.slice(0, newRestriction.base);
+        removed = true;
+    }
+    if (customToppings.length > newRestriction.topping) {
+        customToppings = customToppings.slice(0, newRestriction.topping);
+        removed = true;
+    }
+    if (customFruits.length > newRestriction.fruit) {
+        customFruits = customFruits.slice(0, newRestriction.fruit);
+        removed = true;
+    }
+    if (customCobertura.length > newRestriction.cobertura) {
+        customCobertura = customCobertura.slice(0, newRestriction.cobertura);
+        removed = true;
+    }
+    if (removed) createToast('Algumas seleções foram removidas por trocar o copo (limite).');
+}
+
+// Substitua sua função handleOptionSelection pela versão abaixo
+function handleOptionSelection(e) {
+    const optionItem = e.currentTarget || e.target.closest('.option-item');
+    if (!optionItem) return;
+    const type = optionItem.dataset.type;
+    const id = optionItem.dataset.id;
+
+    // Obter restrições do copo atual
+    const restriction = restrictions[customCopo.id];
+
+    // Descobrir se a ação é adicionar (se ainda não está marcado)
+    const currentlyMarked = optionItem.classList.contains('selected') || optionItem.classList.contains('checked');
+    const isAdding = !currentlyMarked;
+
+    // Validações: se estiver tentando adicionar e já atingiu limite, bloqueia e mostra mensagem
+    if (isAdding) {
+        if (type === 'base' && customBase.length >= restriction.base) {
+            createToast(`Máximo de ${restriction.base} cremes selecionados!`);
+            flashItem(optionItem);
+            return;
+        }
+        if (type === 'topping' && customToppings.length >= restriction.topping) {
+            createToast(`Máximo de ${restriction.topping} acompanhamentos selecionados!`);
+            flashItem(optionItem);
+            return;
+        }
+        if (type === 'fruit' && customFruits.length >= restriction.fruit) {
+            createToast(`Máximo de ${restriction.fruit} frutas selecionadas!`);
+            flashItem(optionItem);
+            return;
+        }
+        if (type === 'cobertura' && customCobertura.length >= restriction.cobertura) {
+            createToast(`Máximo de ${restriction.cobertura} coberturas selecionadas!`);
+            flashItem(optionItem);
+            return;
+        }
+    }
+
+    // Atualiza estado primeiro, depois DOM via syncOptionClasses()
+    if (type === 'copo') {
+        // troca de copo (único)
+        customCopo = customizationOptions.Copos.find(c => c.id === id);
+        // Ajusta as seleções caso excedam as novas restrições
+        const newR = restrictions[customCopo.id];
+        trimSelectionsToRestriction(newR);
+    } else if (type === 'base') {
+        const itemObj = customizationOptions.bases.find(c => c.id === id);
+        const idx = customBase.findIndex(c => c.id === id);
+        if (idx !== -1) customBase.splice(idx, 1);
+        else customBase.push(itemObj);
+    } else if (type === 'topping') {
+        const itemObj = customizationOptions.toppings.find(t => t.id === id);
+        const idx = customToppings.findIndex(t => t.id === id);
+        if (idx !== -1) customToppings.splice(idx, 1);
+        else customToppings.push(itemObj);
+    } else if (type === 'fruit') {
+        const itemObj = customizationOptions.fruits.find(f => f.id === id);
+        const idx = customFruits.findIndex(f => f.id === id);
+        if (idx !== -1) customFruits.splice(idx, 1);
+        else customFruits.push(itemObj);
+    } else if (type === 'adicional') {
+        const itemObj = customizationOptions.adicionais.find(a => a.id === id);
+        const idx = customAdicionais.findIndex(a => a.id === id);
+        if (idx !== -1) customAdicionais.splice(idx, 1);
+        else customAdicionais.push(itemObj);
+    } else if (type === 'cobertura') {
+        const itemObj = customizationOptions.cobertura.find(r => r.id === id);
+        const idx = customCobertura.findIndex(r => r.id === id);
+        if (idx !== -1) customCobertura.splice(idx, 1);
+        else customCobertura.push(itemObj);
+    }
+
+    // Sincroniza as classes com o estado atualizado e atualiza resumo
+    syncOptionClasses();
+    updateCustomSummary();
+}
+
+
 
 // Função para renderizar a seção de personalização
 function renderCustomizationSection() {
     const optionsContainer = customizeSection.querySelector('.customize-options');
-    
+
     let html = `
+
+    <div class="customize-header">
+    </div>
+    <div class="customize-header2">
+    </div>
+
     <div class="customize-container">
         <!-- Coluna da Esquerda - Opções -->
         <div class="customize-options-column">
@@ -266,8 +495,6 @@ function renderCustomizationSection() {
                     ${customizationOptions.Copos.map(option => `
                         <div class="option-item ${customCopo.id === option.id ? 'selected' : ''}" 
                              data-type="copo" data-id="${option.id}">
-                            <input type="radio" name="copo" value="${option.id}" 
-                                   ${customCopo.id === option.id ? 'checked' : ''}>
                             ${option.name} ${option.price > 0 ? `(+R$ ${option.price.toFixed(2)})` : ''}
                         </div>
                     `).join('')}
@@ -278,10 +505,8 @@ function renderCustomizationSection() {
                 <h3>Cremes</h3>
                 <div class="options-grid">
                     ${customizationOptions.bases.map(option => `
-                        <div class="option-item ${customBase.id === option.id ? 'selected' : ''}" 
+                        <div class="option-item ${customBase.some(c => c.id === option.id) ? 'selected' : ''}"
                              data-type="base" data-id="${option.id}">
-                            <input type="radio" name="base" value="${option.id}" 
-                                   ${customBase.id === option.id ? 'checked' : ''}>
                             ${option.name}
                         </div>
                     `).join('')}
@@ -289,13 +514,11 @@ function renderCustomizationSection() {
             </div>
             
             <div class="option-group">
-                <h3>Coberturas</h3>
+                <h3>Acompanhamentos</h3>
                 <div class="options-grid">
                     ${customizationOptions.toppings.map(option => `
-                        <div class="option-item ${customToppings.some(t => t.id === option.id) ? 'selected' : ''}" 
+                        <div class="option-item ${customToppings.some(t => t.id === option.id) ? 'checked' : ''}" 
                              data-type="topping" data-id="${option.id}">
-                            <input type="checkbox" name="topping" value="${option.id}" 
-                                   ${customToppings.some(t => t.id === option.id) ? 'checked' : ''}>
                             ${option.name}
                         </div>
                     `).join('')}
@@ -308,8 +531,18 @@ function renderCustomizationSection() {
                     ${customizationOptions.fruits.map(option => `
                         <div class="option-item ${customFruits.some(f => f.id === option.id) ? 'selected' : ''}" 
                              data-type="fruit" data-id="${option.id}">
-                            <input type="checkbox" name="fruit" value="${option.id}" 
-                                   ${customFruits.some(f => f.id === option.id) ? 'checked' : ''}>
+                            ${option.name}
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+
+            <div class="option-group">
+                <h3>Cobertura</h3>
+                <div class="options-grid">
+                    ${customizationOptions.cobertura.map(option => `
+                        <div class="option-item ${customCobertura.some(r => r.id === option.id) ? 'selected' : ''}" 
+                             data-type="cobertura" data-id="${option.id}">
                             ${option.name}
                         </div>
                     `).join('')}
@@ -322,7 +555,6 @@ function renderCustomizationSection() {
                     ${customizationOptions.adicionais.map(option => `
                         <div class="option-item ${customAdicionais.some(a => a.id === option.id) ? 'selected' : ''}" 
                              data-type="adicional" data-id="${option.id}">
-                            <input type="checkbox" name="adicional" value="${option.id}">
                             ${option.name} (+R$ ${option.price.toFixed(2)})
                         </div>
                     `).join('')}
@@ -340,7 +572,7 @@ function renderCustomizationSection() {
                 </div>
                 <div class="summary-item">
                     <span class="item-name">Creme:</span>
-                    <span id="selected-base">${customBase.name}</span>
+                    <span id="selected-base">${customBase.length > 0 ? customBase.map(c => c.name).join(', \n') : '-'}</span>
                 </div>
                 <div class="summary-item">
                     <span class="item-name">Coberturas:</span>
@@ -349,6 +581,10 @@ function renderCustomizationSection() {
                 <div class="summary-item">
                     <span class="item-name">Frutas:</span>
                     <span id="selected-fruits">${customFruits.length > 0 ? customFruits.map(f => f.name).join(', ') : '-'}</span>
+                </div>
+                <div class="summary-item">
+                    <span class="item-name">Cobertura:</span>
+                    <span id="selected-cobertura">${customCobertura.length > 0 ? customCobertura.map(r => r.name).join(', ') : '-'}</span>
                 </div>
                 <div class="summary-item">
                     <span class="item-name">Adicionais:</span>
@@ -369,24 +605,24 @@ function renderCustomizationSection() {
             </button>
         </div>
     </div>`;
-    
+
     optionsContainer.innerHTML = html;
-    
+
     // Adiciona eventos aos botões
     document.getElementById('addCustomToCart').addEventListener('click', addCustomToCart);
-    
+
     // Atualiza eventos de seleção
     document.querySelectorAll('.option-item').forEach(item => {
         item.addEventListener('click', handleOptionSelection);
     });
-    
+
     // Eventos de quantidade
     document.querySelector('.quantity-control .increment').addEventListener('click', () => {
         customQuantity++;
         document.querySelector('.quantity-control span').textContent = customQuantity;
         updateCustomSummary();
     });
-    
+
     document.querySelector('.quantity-control .decrement').addEventListener('click', () => {
         if (customQuantity > 1) {
             customQuantity--;
@@ -398,10 +634,15 @@ function renderCustomizationSection() {
 
 // Calcular total do açaí personalizado
 function calculateCustomTotal() {
-    let total = customBase.price;
+    let total = customCopo.price; // Começa com o preço do copo
+
+    // Adiciona preços dos componentes
+    customBase.forEach(c => total += c.price);
     customToppings.forEach(t => total += t.price);
     customFruits.forEach(f => total += f.price);
+    customCobertura.forEach(r => total += r.price);
     customAdicionais.forEach(a => total += a.price);
+
     return total * customQuantity;
 }
 
@@ -411,25 +652,32 @@ function updateCustomSummary() {
         document.getElementById('selected-copo').textContent = customCopo.name;
     }
     if (document.getElementById('selected-base')) {
-        document.getElementById('selected-base').textContent = customBase.name;
+        document.getElementById('selected-base').textContent =
+            customBase.length > 0 ? customBase.map(c => c.name).join(', ') : '-';
     }
     if (document.getElementById('selected-toppings')) {
-        document.getElementById('selected-toppings').textContent = 
+        document.getElementById('selected-toppings').textContent =
             customToppings.length > 0 ? customToppings.map(t => t.name).join(', ') : '-';
     }
     if (document.getElementById('selected-fruits')) {
-        document.getElementById('selected-fruits').textContent = 
+        document.getElementById('selected-fruits').textContent =
             customFruits.length > 0 ? customFruits.map(f => f.name).join(', ') : '-';
     }
+    if (document.getElementById('selected-cobertura')) {
+        document.getElementById('selected-cobertura').textContent =
+            customCobertura.length > 0 ? customCobertura.map(r => r.name).join(', ') : '-';
+    }
     if (document.getElementById('selected-adicionais')) {
-        document.getElementById('selected-adicionais').textContent = 
+        document.getElementById('selected-adicionais').textContent =
             customAdicionais.length > 0 ? customAdicionais.map(a => a.name).join(', ') : '-';
     }
     if (document.getElementById('custom-total')) {
-        document.getElementById('custom-total').textContent = 
+        document.getElementById('custom-total').textContent =
             `R$ ${calculateCustomTotal().toFixed(2)}`;
     }
 }
+
+
 
 // Copo de 300ml
 //  Dois cremes
@@ -451,53 +699,126 @@ function handleOptionSelection(e) {
     const optionItem = e.currentTarget;
     const type = optionItem.dataset.type;
     const id = optionItem.dataset.id;
-    
-    if (type === 'copo' || type === 'base') {
-        // Seleção única (radio)
+
+    // Obter restrições para o copo atual
+    const restriction = restrictions[customCopo.id];
+
+    // Verificar se está tentando adicionar um novo item
+    const isAdding = !optionItem.classList.contains('selected');
+
+    if (isAdding) {
+        // Verificar limites antes de adicionar
+        switch (type) {
+            case 'base':
+                if (customBase.length >= restriction.base) {
+                    showLimitMessage('base', restriction.base);
+                    return;
+                }
+                break;
+
+            case 'topping':
+                if (customToppings.length >= restriction.topping) {
+                    showLimitMessage('topping', restriction.topping);
+                    return;
+                }
+                break;
+
+            case 'fruit':
+                if (customFruits.length >= restriction.fruit) {
+                    showLimitMessage('fruit', restriction.fruit);
+                    return;
+                }
+                break;
+
+            case 'cobertura':
+                if (customCobertura.length >= restriction.cobertura) {
+                    showLimitMessage('cobertura', restriction.cobertura);
+                    return;
+                }
+                break;
+        }
+    }
+
+    // Processar a seleção
+    if (type === 'copo') {
+        // Seleção única para copos
         document.querySelectorAll(`.option-item[data-type="${type}"]`).forEach(item => {
             item.classList.remove('selected');
         });
         optionItem.classList.add('selected');
-        
-        if (type === 'copo') {
-            customBase = customizationOptions.Copos.find(c => c.id === id);
-        } else {
-            customBase = customizationOptions.bases.find(b => b.id === id);
+        customCopo = customizationOptions.Copos.find(c => c.id === id);
+
+        // Aplicar novas restrições ao trocar o copo
+        const newRestriction = restrictions[customCopo.id];
+
+        // Remover itens excedentes
+        if (customBase.length > newRestriction.base) {
+            customBase.splice(newRestriction.base);
         }
-    } else {
-        // Seleção múltipla (checkbox)
+
+        if (customToppings.length > newRestriction.topping) {
+            customToppings.splice(newRestriction.topping);
+        }
+
+        if (customFruits.length > newRestriction.fruit) {
+            customFruits.splice(newRestriction.fruit);
+        }
+
+        if (customCobertura.length > newRestriction.cobertura) {
+            customCobertura.splice(newRestriction.cobertura);
+        }
+
+    } else if (type === 'base') {
+        // Seleção múltipla para cremes com limite
         optionItem.classList.toggle('selected');
-        
-        if (type === 'topping') {
-            const topping = customizationOptions.toppings.find(t => t.id === id);
-            const index = customToppings.findIndex(t => t.id === id);
-            
-            if (index !== -1) {
-                customToppings.splice(index, 1);
-            } else {
-                customToppings.push(topping);
-            }
-        } else if (type === 'fruit') {
-            const fruit = customizationOptions.fruits.find(f => f.id === id);
-            const index = customFruits.findIndex(f => f.id === id);
-            
-            if (index !== -1) {
-                customFruits.splice(index, 1);
-            } else {
-                customFruits.push(fruit);
-            }
-        } else if (type === 'adicional') {
-            const adicional = customizationOptions.adicionais.find(a => a.id === id);
-            const index = customAdicionais.findIndex(a => a.id === id);
-            
-            if (index !== -1) {
-                customAdicionais.splice(index, 1);
-            } else {
-                customAdicionais.push(adicional);
-            }
+
+        const base = customizationOptions.bases.find(c => c.id === id);
+        const index = customBase.findIndex(c => c.id === id);
+
+        if (index !== -1) {
+            customBase.splice(index, 1);
+        } else {
+            customBase.push(base);
+        }
+
+    } else if (type === 'topping') {
+        const topping = customizationOptions.toppings.find(t => t.id === id);
+        const index = customToppings.findIndex(t => t.id === id);
+
+        if (index !== -1) {
+            customToppings.splice(index, 1);
+        } else {
+            customToppings.push(topping);
+        }
+
+    } else if (type === 'fruit') {
+        const fruit = customizationOptions.fruits.find(f => f.id === id);
+        const index = customFruits.findIndex(f => f.id === id);
+
+        if (index !== -1) {
+            customFruits.splice(index, 1);
+        } else {
+            customFruits.push(fruit);
+        }
+    } else if (type === 'adicional') {
+        const adicional = customizationOptions.adicionais.find(a => a.id === id);
+        const index = customAdicionais.findIndex(a => a.id === id);
+
+        if (index !== -1) {
+            customAdicionais.splice(index, 1);
+        } else {
+            customAdicionais.push(adicional);
+        }
+    } else if (type === 'cobertura') { // CORREÇÃO AQUI
+        const cobertura = customizationOptions.cobertura.find(r => r.id === id);
+        const index = customCobertura.findIndex(r => r.id === id);
+
+        if (index !== -1) {
+            customCobertura.splice(index, 1);
+        } else {
+            customCobertura.push(cobertura);
         }
     }
-    
     updateCustomSummary();
 }
 
@@ -505,40 +826,53 @@ function handleOptionSelection(e) {
 function addCustomToCart() {
     // Calcular preço total
     const totalPrice = calculateCustomTotal();
-    
-    // Criar descrição do produto
-    let description = `Açaí Personalizado (${customBase.name})`;
-    
-    if (customToppings.length > 0) {
-        description += ` com ${customToppings.map(t => t.name).join(', ')}`;
+
+    // Criar descrição completa
+    let description = `Açaí Personalizado (${customCopo.name})`;
+
+    if (customBase.length > 0) {
+        description += ` com ${customBase.map(c => c.name).join(', ')}`;
     }
-    
+
     if (customFruits.length > 0) {
         description += ` e ${customFruits.map(f => f.name).join(', ')}`;
     }
-    
-    if (customAdicionais.length > 0) {
-        description += ` + ${customAdicionais.map(a => a.name).join(', ')}`;
+
+    if (customToppings.length > 0) {
+        description += ` | Acompanhamento: <br> ${customToppings.map(t => t.name).join(', ')}`;
     }
-    
+    if (customCobertura.length > 0) {
+        description += `\n | Cobertura: ${customCobertura.map(r => r.name).join(', ')}`;
+    }
+
+    if (customCobertura.length > 0) {
+        description += `\n | Extra: ${customCobertura.map(c => c.name).join(', ')}`;
+    }
+
+    if (customAdicionais.length > 0) {
+        description += `\n | Adicionais: ${customAdicionais.map(a => a.name).join(', ')}`;
+    }
+
+
     // Adicionar ao carrinho
     cart.push({
         product: description,
         price: totalPrice / customQuantity, // Preço unitário
         quantity: customQuantity
     });
-    
+
+
     // Atualizar carrinho e mostrar
     updateCart();
     cartModal.style.display = 'block';
-    
+
     alert('Açaí personalizado adicionado ao carrinho!');
 }
 
 // Função para renderizar combos
 function renderCombos() {
     const container = combosSection.querySelector('.products-container');
-    
+
     container.innerHTML = combos.map(combo => `
         <div class="product-card">
             <div class="product-img">
@@ -566,7 +900,7 @@ function renderCombos() {
 // Função para renderizar salgados
 function renderSnacks() {
     const container = snacksSection.querySelector('.products-container');
-    
+
     container.innerHTML = snacks.map(snack => `
         <div class="product-card">
             <div class="product-img">
@@ -596,13 +930,15 @@ function saveCustomization() {
     const selectedBase = document.querySelector('input[name="base"]:checked');
     const selectedToppings = [...document.querySelectorAll('input[name="topping"]:checked')];
     const selectedFruits = [...document.querySelectorAll('input[name="fruit"]:checked')];
-    
+    const selectedCobertura = [...document.querySelectorAll('input[name="Cpbertura"]:checked')];
+
     // Calcular preço adicional
     let extraPrice = 0;
     extraPrice += parseFloat(selectedBase.dataset.price);
     selectedToppings.forEach(t => extraPrice += parseFloat(t.dataset.price));
     selectedFruits.forEach(f => extraPrice += parseFloat(f.dataset.price));
-    
+    selectedCobertura.forEach(r => extraPrice += parseFloat(r.dataset.price));
+
     // Aqui você pode salvar essas informações no item do carrinho
     alert(`Personalização salva! Adicional: R$ ${extraPrice.toFixed(2)}`);
     customizeModal.style.display = 'none';
@@ -612,7 +948,7 @@ function saveCustomization() {
 function updateCart() {
     // Update cart count
     cartCount.textContent = cart.reduce((total, item) => total + item.quantity, 0);
-    
+
     // Update cart items
     cartItems.innerHTML = '';
     if (cart.length === 0) {
@@ -636,7 +972,7 @@ function updateCart() {
             cartItems.appendChild(cartItem);
         });
     }
-    
+
     // Update total
     const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     cartTotal.textContent = `R$ ${total.toFixed(2)}`;
@@ -646,16 +982,16 @@ function updateCart() {
 async function generatePDF(orderDetails) {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
-    
+
     // Configurações
     doc.setFont('helvetica');
     doc.setTextColor(40, 40, 40);
-    
+
     // Cabeçalho
     doc.setFontSize(18);
     doc.setTextColor(111, 38, 205);
     doc.text('FOX AÇAÍ - COMPROVANTE', 105, 20, { align: 'center' });
-    
+
     // Informações do cliente
     doc.setFontSize(12);
     doc.text(`Data: ${new Date().toLocaleString('pt-BR')}`, 20, 30);
@@ -666,11 +1002,11 @@ async function generatePDF(orderDetails) {
     if (currentUser) {
         doc.text(`Usuário: ${currentUser.email}`, 20, 80);
     }
-    
+
     // Itens
     doc.setFontSize(14);
     doc.text('ITENS DO PEDIDO', 20, 90);
-    
+
     let y = 100;
     orderDetails.items.forEach(item => {
         doc.setFontSize(12);
@@ -678,15 +1014,15 @@ async function generatePDF(orderDetails) {
         doc.text(`R$ ${(item.price * item.quantity).toFixed(2)}`, 180, y, { align: 'right' });
         y += 10;
     });
-    
+
     // Total
     doc.setFontSize(14);
     doc.text(`TOTAL: R$ ${orderDetails.total.toFixed(2)}`, 180, y + 20, { align: 'right' });
-    
+
     // Rodapé
     doc.setFontSize(10);
     doc.text('Obrigado pela preferência!', 105, 280, { align: 'center' });
-    
+
     return doc.output('blob');
 }
 
@@ -698,17 +1034,17 @@ async function uploadToDrive(pdfBlob, fileName) {
             scope: 'https://www.googleapis.com/auth/drive.file',
             callback: async (tokenResponse) => {
                 const accessToken = tokenResponse.access_token;
-                
+
                 const metadata = {
                     name: fileName,
                     mimeType: 'application/pdf',
                     parents: [DRIVE_FOLDER_ID]
                 };
-                
+
                 const formData = new FormData();
                 formData.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
                 formData.append('file', pdfBlob);
-                
+
                 try {
                     const response = await fetch(
                         `https://www.googleapis.com/upload/drive/v3/files?key=${DRIVE_API_KEY}&uploadType=multipart`,
@@ -718,7 +1054,7 @@ async function uploadToDrive(pdfBlob, fileName) {
                             body: formData
                         }
                     );
-                    
+
                     const file = await response.json();
                     resolve(`https://drive.google.com/file/d/${file.id}/view`);
                 } catch (error) {
@@ -727,60 +1063,60 @@ async function uploadToDrive(pdfBlob, fileName) {
                 }
             }
         });
-        
+
         tokenClient.requestAccessToken();
     });
 }
 
 // Event Delegation for Dynamic Elements
-document.addEventListener('click', function(e) {
-   // Mobile Menu Toggle
+document.addEventListener('click', function (e) {
+    // Mobile Menu Toggle
     if (e.target === menuBtn || e.target.closest('#menuBtn')) {
         navbar.classList.toggle('active');
     }
-    
+
     // Floating Cart Click
     if (e.target === floatingCart || e.target.closest('#floatingCart')) {
         cartModal.style.display = 'block';
     }
-    
+
     // Close Cart Modal
     if (e.target === closeCart || e.target.closest('#closeCart')) {
         cartModal.style.display = 'none';
     }
-    
+
     // Open Checkout Modal
     if (e.target === checkoutBtn || e.target.closest('#checkoutBtn')) {
         cartModal.style.display = 'none';
         checkoutModal.style.display = 'block';
     }
-    
+
     // Close Checkout Modal
     if (e.target === closeCheckout || e.target.closest('#closeCheckout')) {
         checkoutModal.style.display = 'none';
     }
-    
+
     // Close Customize Modal
     if (e.target === closeCustomize || e.target.closest('#closeCustomize')) {
         customizeModal.style.display = 'none';
     }
-    
+
     // Cancel Customization
     if (e.target === cancelCustomize || e.target.closest('#cancelCustomize')) {
         customizeModal.style.display = 'none';
     }
-    
+
     // Save Customization
     if (e.target === saveCustomize || e.target.closest('#saveCustomize')) {
         customizeModal.style.display = 'none';
         alert('Personalização salva com sucesso!');
     }
-    
+
     // Logout Button
     if (e.target.id === 'logoutBtn' || e.target.closest('#logoutBtn')) {
         logout();
     }
-    
+
     // Product Quantity Increment
     if (e.target.classList.contains('increment') && !e.target.hasAttribute('data-index')) {
         const button = e.target.classList.contains('increment') ? e.target : e.target.closest('.increment');
@@ -788,7 +1124,7 @@ document.addEventListener('click', function(e) {
         let quantity = parseInt(quantityElement.textContent);
         quantityElement.textContent = quantity + 1;
     }
-    
+
     // Product Quantity Decrement
     if (e.target.classList.contains('decrement') && !e.target.hasAttribute('data-index')) {
         const button = e.target.classList.contains('decrement') ? e.target : e.target.closest('.decrement');
@@ -798,17 +1134,17 @@ document.addEventListener('click', function(e) {
             quantityElement.textContent = quantity - 1;
         }
     }
-    
+
     // Add to Cart
     if (e.target.classList.contains('add-to-cart') || e.target.closest('.add-to-cart')) {
         const button = e.target.classList.contains('add-to-cart') ? e.target : e.target.closest('.add-to-cart');
         const product = button.getAttribute('data-product');
         const price = parseFloat(button.getAttribute('data-price'));
         const quantity = parseInt(button.parentElement.querySelector('.quantity span').textContent);
-        
+
         // Verifica se o produto já está no carrinho
         const existingItem = cart.find(item => item.product === product);
-        
+
         if (existingItem) {
             existingItem.quantity += quantity;
         } else {
@@ -818,18 +1154,18 @@ document.addEventListener('click', function(e) {
                 quantity
             });
         }
-        
+
         updateCart();
         cartModal.style.display = 'block';
     }
-    
+
     // Cart Item Increment
     if (e.target.classList.contains('increment') && e.target.hasAttribute('data-index')) {
         const index = parseInt(e.target.getAttribute('data-index'));
         cart[index].quantity++;
         updateCart();
     }
-    
+
     // Cart Item Decrement
     if (e.target.classList.contains('decrement') && e.target.hasAttribute('data-index')) {
         const index = parseInt(e.target.getAttribute('data-index'));
@@ -838,7 +1174,7 @@ document.addEventListener('click', function(e) {
             updateCart();
         }
     }
-    
+
     // Remove Item from Cart
     if (e.target.classList.contains('remove-item') || e.target.closest('.remove-item')) {
         const button = e.target.classList.contains('remove-item') ? e.target : e.target.closest('.remove-item');
@@ -852,13 +1188,13 @@ document.addEventListener('click', function(e) {
 checkoutForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     loadingOverlay.style.display = 'flex';
-    
+
     try {
         // Se não estiver logado, verifica se tem dados salvos
         if (!currentUser) {
             checkSavedUser();
         }
-        
+
         const orderDetails = {
             name: currentUser ? currentUser.name : document.getElementById('name').value,
             address: document.getElementById('address').value,
@@ -869,49 +1205,49 @@ checkoutForm.addEventListener('submit', async (e) => {
             total: cart.reduce((sum, item) => sum + (item.price * item.quantity), 0),
             userEmail: currentUser ? currentUser.email : null
         };
-        
+
         // Validação dos campos obrigatórios
         if (!orderDetails.name || !orderDetails.address || !orderDetails.deliveryLocation || !orderDetails.paymentMethod) {
             throw new Error('Por favor, preencha todos os campos obrigatórios');
         }
-        
+
         // Gerar PDF
         const pdfBlob = await generatePDF(orderDetails);
         const fileName = `Pedido_${orderDetails.name.replace(/ /g, '_')}_${Date.now()}.pdf`;
-        
+
         // Upload para o Drive
         const pdfLink = await uploadToDrive(pdfBlob, fileName);
-        
+
         // Mensagem para WhatsApp
         let message = `*NOVO PEDIDO FOX AÇAÍ*%0A%0A` +
-                     `*Cliente:* ${orderDetails.name}%0A` +
-                     `*Endereço:* ${orderDetails.address}%0A` +
-                     `*Local:* ${orderDetails.deliveryLocation}%0A` +
-                     `*Pagamento:* ${orderDetails.paymentMethod}%0A`;
-        
+            `*Cliente:* ${orderDetails.name}%0A` +
+            `*Endereço:* ${orderDetails.address}%0A` +
+            `*Local:* ${orderDetails.deliveryLocation}%0A` +
+            `*Pagamento:* ${orderDetails.paymentMethod}%0A`;
+
         if (currentUser && currentUser.email) {
             message += `*Email:* ${currentUser.email}%0A`;
         }
-        
+
         message += `*Total:* R$ ${orderDetails.total.toFixed(2)}%0A%0A` +
-                  `*Itens:*%0A`;
-        
+            `*Itens:*%0A`;
+
         orderDetails.items.forEach(item => {
             message += `- ${item.product} (${item.quantity}x): R$ ${(item.price * item.quantity).toFixed(2)}%0A`;
         });
-        
+
         if (pdfLink) {
             message += `%0A*COMPROVANTE:* ${pdfLink}`;
         }
-        
+
         // Limpar e redirecionar
         cart = [];
         updateCart();
         checkoutForm.reset();
         checkoutModal.style.display = 'none';
-        
+
         window.location.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${message}`;
-        
+
     } catch (error) {
         alert(error.message || 'Erro ao processar pedido. Tente novamente.');
         console.error(error);
@@ -928,25 +1264,25 @@ document.addEventListener('DOMContentLoaded', () => {
     script.async = true;
     script.defer = true;
     document.head.appendChild(script);
-    
+
     const jsPDFScript = document.createElement('script');
     jsPDFScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
     document.head.appendChild(jsPDFScript);
-    
+
     // Verifica se já está logado
     const isLoggedIn = checkSavedUser();
-    
+
     // Inicializa o Google Sign-In
     initializeGoogleSignIn(isLoggedIn);
-    
+
     // Renderizar seções
     renderCustomizationSection(); // Nova função para a seção de personalização
     renderCombos();
     renderSnacks();
-    
+
     // Atualizar carrinho
     updateCart();
-    
+
     // Adicionar evento de logout
     document.getElementById('logoutBtn')?.addEventListener('click', logout);
 });

@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FoxAçaí - O Melhor Açaí da Região</title>
+    <link rel="icon" href="./assets/logos/Logo-cabeca-hits.png">
     <link rel="stylesheet" href="./css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
@@ -26,9 +27,10 @@
             <nav id="navbar">
                 <ul>
                     <li><a href="#home">Home</a></li>
-                    <li><a href="#products">Produtos</a></li>
-                    <li><a href="#about">Sobre</a></li>
-                    <li><a href="#contact">Contato</a></li>
+                    <li><a href="#products">Especiais</a></li>
+                    <li><a href="#customize">Personalizar</a></li>
+                    <li><a href="#combos">Combos</a></li>
+                    <li><a href="#snacks">Salgados</a></li>
                 </ul>
 
             </nav>
@@ -45,15 +47,16 @@
             <h2>O Melhor Açaí da Região!</h2>
             <p>Experimente nosso açaí cremoso e saboroso, feito com frutas frescas e ingredientes de qualidade. Entrega
                 rápida e preço justo!</p>
+            <p style="font-size: 12px;">👇Clique nos butões abaixo e escolha seu açaí👇</p>
             <div class="button-hero">
-                <a href=""><button class="btn" id="menuBtn">Especiais</button></a>
-                <a href=""><button class="btn" id="menuBtn">Personalizar</button></a>
-                <a href=""><button class="btn" id="menuBtn">Combos</button></a>
-                <a href=""><button class="btn" id="menuBtn">Salgados</button></a>
+                <a href="#products"><button class="btn" id="menuBtn">Especiais</button></a>
+                <a href="#customize"><button class="btn" id="menuBtn">Personalizar</button></a>
+                <a href="#combos"><button class="btn" id="menuBtn">Combos</button></a>
+                <a href="#snacks"><button class="btn" id="menuBtn">Salgados</button></a>
             </div>
         </div>
     </section>
-    
+
 
     <!-- Products Section -->
     <section class="products" id="products">
@@ -64,12 +67,11 @@
             <!-- Product 1 -->
             <div class="product-card">
                 <div class="product-img">
-                    <img src="https://images.unsplash.com/photo-1603532648955-a039f2e5da2f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80"
-                        alt="Açaí 300ml">
+                    <img src="./assets/produtos/FERREIRO.jpg" alt="Açaí 300ml">
                 </div>
                 <div class="product-info">
-                    <h3>Copo 300ml</h3>
-                    <div class="price">R$ 12,00</div>
+                    <h3>Copo Ferreiro Rocher</h3>
+                    <div class="price">R$ 20,00</div>
                     <div class="restrictions">
                         <p><i class="fas fa-check-circle"></i> 2 cremes</p>
                         <p><i class="fas fa-check-circle"></i> 1 cobertura</p>
@@ -82,7 +84,7 @@
                             <span>1</span>
                             <button class="increment">+</button>
                         </div>
-                        <button class="add-to-cart" data-product="Copo 300ml" data-price="12.00">
+                        <button class="add-to-cart" data-product="Copo Ferreiro Rocher" data-price="20.00">
                             <i class="fas fa-shopping-cart"></i> Adicionar
                         </button>
                     </div>
@@ -96,8 +98,8 @@
                         alt="Açaí 400ml">
                 </div>
                 <div class="product-info">
-                    <h3>Copo 400ml</h3>
-                    <div class="price">R$ 16,00</div>
+                    <h3>Copo Oreo</h3>
+                    <div class="price">R$ 20,00</div>
                     <div class="restrictions">
                         <p><i class="fas fa-check-circle"></i> 2 cremes</p>
                         <p><i class="fas fa-check-circle"></i> 1 cobertura</p>
@@ -110,7 +112,7 @@
                             <span>1</span>
                             <button class="increment">+</button>
                         </div>
-                        <button class="add-to-cart" data-product="Copo 400ml" data-price="16.00">
+                        <button class="add-to-cart" data-product="Copo Oreo" data-price="20.00">
                             <i class="fas fa-shopping-cart"></i> Adicionar
                         </button>
                     </div>
@@ -120,8 +122,7 @@
             <!-- Product 3 -->
             <div class="product-card">
                 <div class="product-img">
-                    <img src="https://images.unsplash.com/photo-1602526430782-0a8a7d5af9d5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80"
-                        alt="Açaí 500ml">
+                    <img src="./assets/produtos/ROLETA.jpg" alt="Açaí 500ml">
                 </div>
                 <div class="product-info">
                     <h3>Copo 500ml</h3>
@@ -138,7 +139,7 @@
                             <span>1</span>
                             <button class="increment">+</button>
                         </div>
-                        <button class="add-to-cart" data-product="Copo 500ml" data-price="18.00">
+                        <button class="add-to-cart" data-product="Roleta" data-price="40.00">
                             <i class="fas fa-shopping-cart"></i> Adicionar
                         </button>
                     </div>
@@ -148,36 +149,36 @@
     </section>
 
     <!-- Nova seção de personalização -->
-<section class="products" id="customize">
-    <div class="section-title">
-        <h2>Personalize Seu Açaí</h2>
-    </div>
-    <div class="customize-container">
-        <!-- Coluna da Esquerda - Opções -->
-        <div class="customize-options">
-            <div class="option-group">
-                <h3>Base do Açaí</h3>
-                <div class="options-grid">
-                    <!-- Bases serão preenchidas via JavaScript -->
+    <section class="products" id="customize">
+        <div class="section-title">
+            <h2>Personalize Seu Açaí</h2>
+        </div>
+        <div class="customize-container">
+            <!-- Coluna da Esquerda - Opções -->
+            <div class="customize-options">
+                <div class="option-group">
+                    <h3>Base do Açaí</h3>
+                    <div class="options-grid">
+                        <!-- Bases serão preenchidas via JavaScript -->
+                    </div>
                 </div>
-            </div>
-            
-            <div class="option-group">
-                <h3>Coberturas</h3>
-                <div class="options-grid">
-                    <!-- Coberturas serão preenchidas via JavaScript -->
+
+                <div class="option-group">
+                    <h3>Coberturas</h3>
+                    <div class="options-grid">
+                        <!-- Coberturas serão preenchidas via JavaScript -->
+                    </div>
                 </div>
-            </div>
-            
-            <div class="option-group">
-                <h3>Frutas</h3>
-                <div class="options-grid">
-                    <!-- Frutas serão preenchidas via JavaScript -->
+
+                <div class="option-group">
+                    <h3>Frutas</h3>
+                    <div class="options-grid">
+                        <!-- Frutas serão preenchidas via JavaScript -->
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
 
 
 
@@ -394,6 +395,84 @@
             <div class="loading-text">Enviando pedido e gerando PDF...</div>
         </div>
     </div>
+
+
+
+    <!-- Footer -->
+    <footer class="footer" id="footer">
+        <div class="footer-container">
+            <div class="footer-brand">
+                <div class="logo-footer">
+                    <div class="foto-logo">
+                        <img src="./assets/logos/Logo-cabeca-hits.png" alt="Hits açaí logo">
+                    </div>
+                    <hr>
+                    <div class="texto-logo">
+                        <h1>Açaí <span>Hits</span></h1>
+                    </div>
+                </div>
+                <p>O melhor açaí da região com ingredientes de alta qualidade e sabores inesquecíveis.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-whatsapp"></i></a>
+                </div>
+            </div>
+            <div class="footer-links">
+                <h4>Links Rápidos</h4>
+                <ul>
+                    <li><a href="#">Início</a></li>
+                    <li><a href="#specials">Copos Especiais</a></li>
+                    <li><a href="#custom">Personalizar Açaí</a></li>
+                    <li><a href="#salgados">Salgados</a></li>
+                </ul>
+            </div>
+            <div class="footer-contact">
+                <h4>Contato</h4>
+                <ul>
+                    <li><i class="fas fa-phone"></i> (84) 99999-9999</li>
+                    <li><i class="fas fa-map-marker-alt"></i> Macau/RN - Brasil</li>
+                    <li><i class="fas fa-envelope"></i> contato@acaihits.com.br</li>
+                </ul>
+            </div>
+            <div class="footer-hours">
+                <h4>Horário de Funcionamento</h4>
+                <ul>
+                    <li>Segunda a Sábado: 14h - 22h</li>
+                    <li>Domingo: 16h - 22h</li>
+                    <li>Fechado na terça-feira</li>
+                </ul>
+            </div>
+
+            <div class="container2">
+                <div class="logoExcelencia">
+                    <a href="https://excelenciaweb.com.br">
+                        <img src="assets/images/LOGO BRANCA.png" alt="">
+                    </a>
+                    <hr>
+                    <div class="text-logo-ex">
+                        <h1>Excelência<span>Web</span>
+                        </h1>
+                        <p>Agência de sites</p>
+                    </div>
+                </div>
+                <div class="informa-excelencia">
+                    <h4>Contato</h4>
+                    <hr>
+                    <p><i class="fas fa-phone"></i> (84) 8499606-9152</p>
+                    <p><i class="fas fa-envelope"></i> contato@excelenciaweb.com.br</p>
+                </div>
+                <div class="redes-sociais-excelencia">
+                    <a href="https://wa.me/55849960069152"><i class="fab fa-whatsapp"></i></a>
+                    <a href="tel:84996002433"><i class="fas fa-phone-alt"></i></a>
+                    <a href="https://instagram.com/excelencia_web"> <i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 Açaí Hits. Todos os direitos reservados | Criado pela Excelência Web</p>
+        </div>
+    </footer>
 
     <script src="./js/script.js"></script>
 </body>
