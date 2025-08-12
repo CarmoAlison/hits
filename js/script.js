@@ -860,91 +860,98 @@ function updateCart() {
     cartTotal.textContent = `R$ ${total.toFixed(2)}`;
 }
 
+// Gerar PDF - VERSÃO CORRIGIDA
 async function generatePDF(orderDetails) {
     const { jsPDF } = window.jspdf;
-    
-    // Configurar papel com 80mm de largura (convertido para pontos: 80mm ≈ 227pt)
+
     const doc = new jsPDF({
         orientation: 'portrait',
-        unit: 'pt',
-        format: [100, 1000] // [width, height] (altura inicial de 1000pt)
+        unit: 'mm',
+        format: 'a5'
     });
 
-    // Configurações gerais
+    // Configurações
     doc.setFont('helvetica');
     doc.setTextColor(40, 40, 40);
-    const margin = 5; // Margem reduzida
-    let yPos = margin; // Posição vertical inicial
 
-    // Cabeçalho centralizado
+    // Cabeçalho
     doc.setFontSize(14);
     doc.setTextColor(111, 38, 205);
-    doc.text('AÇAÍ HITS - COMPROVANTE', doc.internal.pageSize.getWidth() / 2, yPos, { align: 'center' });
-    yPos += 20;
+    doc.text('FOX AÇAÍ - COMPROVANTE', 105, 15, { align: 'center' });
+    
+    // Linha divisória
+    doc.setLineWidth(0.5);
+    doc.line(20, 20, 190, 20);
 
     // Informações do cliente
     doc.setFontSize(10);
-    doc.setTextColor(40, 40, 40);
+    doc.setTextColor(0, 0, 0);
+    let y = 30;
     
-    const infoLines = [
-        `Data: ${new Date().toLocaleString('pt-BR')}`,
-        `Cliente: ${orderDetails.name}`,
-        `Endereço: ${orderDetails.address}`,
-        `Entrega: ${orderDetails.deliveryLocation}`,
-        `Pagamento: ${orderDetails.paymentMethod}`
-    ];
+    doc.text(`Data: ${new Date().toLocaleString('pt-BR')}`, 20, y);
+    doc.text(`Cliente: ${orderDetails.name}`, 20, y + 8);
+    doc.text(`Endereço: ${orderDetails.address}`, 20, y + 16);
+    doc.text(`Local de Entrega: ${orderDetails.deliveryLocation}`, 20, y + 24);
+    doc.text(`Método de Pagamento: ${orderDetails.paymentMethod}`, 20, y + 32);
     
-    infoLines.forEach(line => {
-        doc.text(line, margin, yPos, { maxWidth: 200 });
-        yPos += 15; // Espaçamento reduzido
-    });
-
-    // Usuário (se aplicável)
     if (currentUser) {
-        doc.text(`Usuário: ${currentUser.email}`, margin, yPos, { maxWidth: 200 });
-        yPos += 15;
+        doc.text(`Usuário: ${currentUser.email}`, 20, y + 40);
+        y += 8;
     }
 
-    // Título dos itens
-    yPos += 10; // Espaço extra
-    doc.setFontSize(12);
-    doc.text('ITENS DO PEDIDO', margin, yPos);
-    yPos += 15;
+    // Linha divisória
+    doc.line(20, y + 45, 190, y + 45);
+    y += 55;
 
-    // Lista de itens
+    // Itens do pedido
+    doc.setFontSize(12);
+    doc.text('ITENS DO PEDIDO', 105, y, { align: 'center' });
+    y += 10;
+    
     doc.setFontSize(10);
     orderDetails.items.forEach(item => {
-        const itemText = `- ${item.product} (${item.quantity}x)`;
-        const itemPrice = `R$ ${(item.price * item.quantity).toFixed(2)}`;
+        // Remover tags HTML e formatar descrição
+        const cleanDescription = item.product.replace(/<br>/g, ', ');
         
-        doc.text(itemText, margin, yPos, { maxWidth: 140 });
-        doc.text(itemPrice, doc.internal.pageSize.getWidth() - margin, yPos, { align: 'right' });
-        yPos += 12; // Espaçamento reduzido entre itens
+        // Quebrar texto em linhas se for muito longo
+        const maxWidth = 150;
+        const descriptionLines = doc.splitTextToSize(
+            `- ${cleanDescription} (${item.quantity}x)`, 
+            maxWidth
+        );
+        
+        descriptionLines.forEach(line => {
+            if (y > 250) { // Nova página se necessário
+                doc.addPage();
+                y = 20;
+            }
+            doc.text(line, 25, y);
+            y += 7;
+        });
+        
+        doc.text(`R$ ${(item.price * item.quantity).toFixed(2)}`, 180, y - 7, { align: 'right' });
     });
 
-    // Total
-    yPos += 15; // Espaço extra
+    // Totais
+    y += 10;
+    doc.line(20, y, 190, y);
+    y += 10;
+    
+    doc.setFontSize(11);
+    doc.text(`Subtotal: R$ ${orderDetails.subtotal.toFixed(2)}`, 180, y, { align: 'right' });
+    y += 8;
+    doc.text(`Taxa de entrega: R$ ${orderDetails.deliveryFee.toFixed(2)}`, 180, y, { align: 'right' });
+    y += 8;
     doc.setFontSize(12);
-    doc.text(
-        `TOTAL: R$ ${orderDetails.total.toFixed(2)}`, 
-        doc.internal.pageSize.getWidth() - margin, 
-        yPos, 
-        { align: 'right' }
-    );
-    yPos += 20;
+    doc.text(`TOTAL: R$ ${orderDetails.total.toFixed(2)}`, 180, y, { align: 'right' });
+    y += 15;
 
-    // Rodapé centralizado
+    // Rodapé
     doc.setFontSize(10);
-    doc.text('Obrigado pela preferência!', doc.internal.pageSize.getWidth() / 2, yPos, { align: 'center' });
-
-    // Ajustar altura final do documento
-    const finalHeight = yPos + margin;
-    doc.deletePage(1);
-    doc.addPage([227, finalHeight]);
+    doc.text('Obrigado pela preferência!', 105, y, { align: 'center' });
 
     return doc.output('blob');
 }
-
 // Upload para o Google Drive
 async function uploadToDrive(pdfBlob, fileName) {
     return new Promise((resolve) => {
@@ -1145,7 +1152,7 @@ checkoutForm.addEventListener('submit', async (e) => {
         const pdfLink = await uploadToDrive(pdfBlob, fileName);
 
         // Mensagem para WhatsApp
-        let message = `*NOVO PEDIDO AÇAÍ AÇAÍ*%0A%0A` +
+        let message = `*NOVO PEDIDO FOX AÇAÍ*%0A%0A` +
             `*Cliente:* ${orderDetails.name}%0A` +
             `*Endereço:* ${orderDetails.address}%0A` +
             `*Local:* ${orderDetails.deliveryLocation}%0A` +
