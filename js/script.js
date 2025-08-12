@@ -864,7 +864,7 @@ async function generatePDF(orderDetails) {
     const { jsPDF } = window.jspdf;
 
     // Configuração para comprovante (58mm de largura)
-    const width = 58; // mm
+    const width = 40; // mm
     const doc = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
@@ -878,24 +878,25 @@ async function generatePDF(orderDetails) {
     let y = margin;
 
     // Fonte menor para caber no comprovante
-    const fontSizeSmall = 6;
-    const fontSizeNormal = 7;
-    const fontSizeTitle = 8;
+    const fontSizeSmall = 2;
+    const fontSizeNormal = 4;
+    const fontSizeTitle = 6;
 
     // Cabeçalho
     doc.setFontSize(fontSizeTitle);
-    doc.setTextColor(111, 38, 205); // Roxo
-    doc.text('AÇAÍ HITS- COMPROVANTE', width / 2, y, { align: 'center' });
+    doc.setTextColor(111, 38, 205); 
+    y += 6;// Roxo
+    doc.text('AÇAÍ HITS - COMPROVANTE', width / 2, y, { align: 'center' });
     y += 5;
 
     // Linha divisória
-    doc.setLineWidth(0.2);
+    doc.setLineWidth(0.1);
     doc.line(margin, y, width - margin, y);
     y += 3;
 
     // Informações do cliente
     doc.setFontSize(fontSizeNormal);
-    doc.setTextColor(0, 0, 0); // Preto
+    doc.setTextColor(111, 38, 205); 
 
     doc.text(`Data: ${new Date().toLocaleString('pt-BR')}`, margin, y);
     y += 4;
