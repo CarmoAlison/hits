@@ -860,95 +860,125 @@ function updateCart() {
     cartTotal.textContent = `R$ ${total.toFixed(2)}`;
 }
 
-// Gerar PDF - VERSÃO CORRIGIDA
 async function generatePDF(orderDetails) {
     const { jsPDF } = window.jspdf;
 
+    // Configuração para comprovante (58mm de largura)
+    const width = 58; // mm
     const doc = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
-        format: 'a5'
+        format: [width, 300] // Largura fixa de 58mm, altura inicial estimada
     });
 
-    // Configurações
+    // Configurações gerais
     doc.setFont('helvetica');
-    doc.setTextColor(40, 40, 40);
+    doc.setTextColor(0, 0, 0); // Preto
+    const margin = 2; // Margem mínima
+    let y = margin;
+
+    // Fonte menor para caber no comprovante
+    const fontSizeSmall = 6;
+    const fontSizeNormal = 7;
+    const fontSizeTitle = 8;
 
     // Cabeçalho
-    doc.setFontSize(14);
-    doc.setTextColor(111, 38, 205);
-    doc.text('FOX AÇAÍ - COMPROVANTE', 105, 15, { align: 'center' });
-    
+    doc.setFontSize(fontSizeTitle);
+    doc.setTextColor(111, 38, 205); // Roxo
+    doc.text('FOX AÇAÍ - COMPROVANTE', width / 2, y, { align: 'center' });
+    y += 5;
+
     // Linha divisória
-    doc.setLineWidth(0.5);
-    doc.line(20, 20, 190, 20);
+    doc.setLineWidth(0.2);
+    doc.line(margin, y, width - margin, y);
+    y += 3;
 
     // Informações do cliente
-    doc.setFontSize(10);
-    doc.setTextColor(0, 0, 0);
-    let y = 30;
-    
-    doc.text(`Data: ${new Date().toLocaleString('pt-BR')}`, 20, y);
-    doc.text(`Cliente: ${orderDetails.name}`, 20, y + 8);
-    doc.text(`Endereço: ${orderDetails.address}`, 20, y + 16);
-    doc.text(`Local de Entrega: ${orderDetails.deliveryLocation}`, 20, y + 24);
-    doc.text(`Método de Pagamento: ${orderDetails.paymentMethod}`, 20, y + 32);
-    
+    doc.setFontSize(fontSizeNormal);
+    doc.setTextColor(0, 0, 0); // Preto
+
+    doc.text(`Data: ${new Date().toLocaleString('pt-BR')}`, margin, y);
+    y += 4;
+
+    doc.text(`Cliente: ${orderDetails.name}`, margin, y);
+    y += 4;
+
+    // Quebra endereço se necessário
+    const addressLines = doc.splitTextToSize(`Endereço: ${orderDetails.address}`, width - 2 * margin);
+    addressLines.forEach(line => {
+        doc.text(line, margin, y);
+        y += 4;
+    });
+
+    doc.text(`Local: ${orderDetails.deliveryLocation}`, margin, y);
+    y += 4;
+
+    doc.text(`Pagamento: ${orderDetails.paymentMethod}`, margin, y);
+    y += 4;
+
     if (currentUser) {
-        doc.text(`Usuário: ${currentUser.email}`, 20, y + 40);
-        y += 8;
+        doc.text(`Usuário: ${currentUser.email}`, margin, y);
+        y += 4;
     }
 
     // Linha divisória
-    doc.line(20, y + 45, 190, y + 45);
-    y += 55;
+    doc.line(margin, y, width - margin, y);
+    y += 4;
 
     // Itens do pedido
-    doc.setFontSize(12);
-    doc.text('ITENS DO PEDIDO', 105, y, { align: 'center' });
-    y += 10;
-    
-    doc.setFontSize(10);
+    doc.setFontSize(fontSizeTitle);
+    doc.text('ITENS DO PEDIDO', width / 2, y, { align: 'center' });
+    y += 5;
+
+    doc.setFontSize(fontSizeSmall);
     orderDetails.items.forEach(item => {
-        // Remover tags HTML e formatar descrição
-        const cleanDescription = item.product.replace(/<br>/g, ', ');
+        // Limpar formatação HTML
+        const cleanProduct = item.product.replace(/<br>/g, ' ');
         
-        // Quebrar texto em linhas se for muito longo
-        const maxWidth = 150;
-        const descriptionLines = doc.splitTextToSize(
-            `- ${cleanDescription} (${item.quantity}x)`, 
-            maxWidth
-        );
+        // Criar descrição compacta
+        const descText = `- ${cleanProduct} (${item.quantity}x)`;
+        const priceText = `R$ ${(item.price * item.quantity).toFixed(2)}`;
         
-        descriptionLines.forEach(line => {
-            if (y > 250) { // Nova página se necessário
-                doc.addPage();
-                y = 20;
-            }
-            doc.text(line, 25, y);
-            y += 7;
+        // Quebrar texto se necessário
+        const lines = doc.splitTextToSize(descText, width - 15 - margin); // Reserva espaço para preço
+        
+        lines.forEach(line => {
+            doc.text(line, margin, y);
+            y += 3;
         });
         
-        doc.text(`R$ ${(item.price * item.quantity).toFixed(2)}`, 180, y - 7, { align: 'right' });
+        // Preço alinhado à direita
+        doc.text(priceText, width - margin, y - 3, { align: 'right' });
+        
+        y += 2; // Espaço entre itens
     });
 
+    // Linha divisória
+    y += 2;
+    doc.line(margin, y, width - margin, y);
+    y += 4;
+
     // Totais
-    y += 10;
-    doc.line(20, y, 190, y);
-    y += 10;
+    doc.setFontSize(fontSizeNormal);
+    doc.text(`Subtotal: R$ ${orderDetails.subtotal.toFixed(2)}`, width - margin, y, { align: 'right' });
+    y += 4;
     
-    doc.setFontSize(11);
-    doc.text(`Subtotal: R$ ${orderDetails.subtotal.toFixed(2)}`, 180, y, { align: 'right' });
+    doc.text(`Taxa entrega: R$ ${orderDetails.deliveryFee.toFixed(2)}`, width - margin, y, { align: 'right' });
+    y += 4;
+    
+    doc.setFontSize(fontSizeTitle);
+    doc.text(`TOTAL: R$ ${orderDetails.total.toFixed(2)}`, width - margin, y, { align: 'right' });
     y += 8;
-    doc.text(`Taxa de entrega: R$ ${orderDetails.deliveryFee.toFixed(2)}`, 180, y, { align: 'right' });
-    y += 8;
-    doc.setFontSize(12);
-    doc.text(`TOTAL: R$ ${orderDetails.total.toFixed(2)}`, 180, y, { align: 'right' });
-    y += 15;
 
     // Rodapé
-    doc.setFontSize(10);
-    doc.text('Obrigado pela preferência!', 105, y, { align: 'center' });
+    doc.setFontSize(fontSizeSmall);
+    doc.text('Obrigado pela preferência!', width / 2, y, { align: 'center' });
+
+    // Ajustar altura final do documento
+    const pageHeight = doc.internal.pageSize.getHeight();
+    if (y > pageHeight - 10) {
+        doc.addPage([width, y + 10]); // Adiciona nova página se necessário
+    }
 
     return doc.output('blob');
 }
