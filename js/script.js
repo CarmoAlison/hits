@@ -885,7 +885,7 @@ async function generatePDF(orderDetails) {
     // Cabeçalho
     doc.setFontSize(fontSizeTitle);
     doc.setTextColor(111, 38, 205); // Roxo
-    doc.text('FOX AÇAÍ - COMPROVANTE', width / 2, y, { align: 'center' });
+    doc.text('AÇAÍ HITS- COMPROVANTE', width / 2, y, { align: 'center' });
     y += 5;
 
     // Linha divisória
