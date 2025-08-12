@@ -1352,6 +1352,7 @@ nav ul li a:hover {
     gap: 20px;
     text-align: center;
     margin-bottom: 30px;
+    background: linear-gradient(190deg, #6f26cd,#000000);
 }
 .customize-header2 {
    display: flex;
@@ -1364,9 +1365,21 @@ nav ul li a:hover {
 
 .listagem-customizar{
     padding: 10px;
-    box-shadow: 0 0 5px #bbbbbb;
+    box-shadow: 0 0 5px #000000;
     padding: 10px;
     border-radius: 20px;
+    background-color: #ffffff;
+    border: 2px solid #8bfd00;
+}
+.listagem-customizar:hover{
+    transition: .2s all ease-out;
+    transform: translateY(-5px);
+    cursor: pointer;
+    box-shadow: 0 0 20px #00ff4c;
+}
+.customize-header h2{
+    color: #ffffff;
+    font-size: 25px;
 }
 .listagem-customizar p{
     font-size: 18px;
@@ -1374,7 +1387,7 @@ nav ul li a:hover {
     color: #6f26cd;
 }
 .listagem-customizar ul{
-    padding: 10px;
+    padding: 20px;
     text-align: left;
 }
 .customize-header img{

@@ -40,6 +40,7 @@ const customizationOptions = {
         { id: 'Cop300', name: 'Copo 300ml', price: 12 },
         { id: 'Cop400', name: 'Copo 400ml', price: 16 },
         { id: 'Cop500', name: 'Copo 500ml', price: 18 },
+        { id: 'Roleta', name: 'Roleta', price: 40 },
     ],
     bases: [
         { id: 'base1', name: 'Açaí Tradicional', price: 0 },
@@ -127,13 +128,20 @@ const snacks = [
     },
     {
         id: 'snack4',
+        name: 'Pastel de forno',
+        price: 6,
+        description: 'Pastel assado recheado com carne de sol',
+        image: './assets/produtos/PASTELDEFORNO.jpg'
+    },
+    {
+        id: 'snack5',
         name: 'Empada de Frango',
         price: 6,
         description: 'Empada recheada com frango',
         image: './assets/produtos/EMPADA.jpg'
     },
     {
-        id: 'snack5',
+        id: 'snack6',
         name: 'Enroladinho',
         price: 6,
         description: 'Enrroladinho de queijo e presunto',
@@ -155,6 +163,12 @@ const restrictions = {
         cobertura: 1
     },
     Cop500: { // 500ml
+        base: 2,
+        topping: 5,
+        fruit: 2,
+        cobertura: 1
+    },
+    Roleta: { // 500ml
         base: 2,
         topping: 5,
         fruit: 2,
@@ -429,6 +443,15 @@ function renderCustomizationSection() {
             </div>
             <div class="listagem-customizar">
                 <p>Copo de 500ml</p>
+                <ul>
+                    <li>2 Cremes</li>
+                    <li>1 Cobertura</li>
+                    <li>2 Fruta</li>
+                    <li>5 Acompanhamentos</li>
+                </ul>
+            </div>
+            <div class="listagem-customizar">
+                <p>Roleta</p>
                 <ul>
                     <li>2 Cremes</li>
                     <li>1 Cobertura</li>
