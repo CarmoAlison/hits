@@ -214,14 +214,17 @@ function checkSavedUser() {
     return false;
 }
 
+// Atualize a função calculateDeliveryFee
 function calculateDeliveryFee(subtotal, deliveryLocation) {
     if (deliveryLocation === 'Ilha I' && subtotal < 26) {
         return 5;
     } else if (deliveryLocation === 'Ilha II' && subtotal < 36) {
-        return 7;
+        return 5; // Alterado de 7 para 5
     }
     return 0;
 }
+
+// Atualize a função updateCheckoutTotal para usar o novo cálculo
 function updateCheckoutTotal() {
     const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     const deliveryLocation = document.getElementById('deliveryLocation').value;
@@ -868,7 +871,7 @@ async function generatePDF(orderDetails) {
     const doc = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
-        format: [width, 300] // Largura fixa de 58mm, altura inicial estimada
+        format: [width, 100] // Largura fixa de 58mm, altura inicial estimada
     });
 
     // Configurações gerais
@@ -886,7 +889,7 @@ async function generatePDF(orderDetails) {
     doc.setFontSize(fontSizeTitle);
     doc.setTextColor(111, 38, 205); 
     y += 6;// Roxo
-    doc.text('AÇAÍ HITS - COMPROVANTE', width / 2, y, { align: 'center' });
+    doc.text('AÇAÍ HITS - COMANDA', width / 2, y, { align: 'center' });
     y += 5;
 
     // Linha divisória
@@ -1252,6 +1255,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Adicionar evento de logout
     document.getElementById('logoutBtn')?.addEventListener('click', logout);
+
+        // ADICIONE AQUI ↓
+    // Atualizar total quando mudar a ilha de entrega
+    document.getElementById('deliveryLocation').addEventListener('change', updateCheckoutTotal);
+    
+    // ADICIONE TAMBÉM AQUI ↓
+    // Atualizar total quando o modal de checkout for aberto
+    checkoutBtn.addEventListener('click', updateCheckoutTotal);
 });
 
 // Função global para o callback do Google
