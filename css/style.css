@@ -1104,17 +1104,12 @@ nav ul li a:hover {
     border-color: #c9b8f8;
 }
 
-.option-item.selected {
-    background-color: #168600;
-    color: white;
-    border-color: #c9b8f8;
-}
-
-.option-item.selected,
-.option-item.checked {
-    background-color: #168600;
-    color: white;
-    border-color: #c9b8f8;
+/* Substitua as regras existentes por estas */
+.options-grid .option-item.selected,
+.options-grid .option-item.checked {
+    background-color: #168600 !important;
+    color: white !important;
+    border-color: #168600 !important;
 }
 
 
@@ -1333,7 +1328,7 @@ nav ul li a:hover {
     }
 
     .button-hero button{
-        margin-top: 10px;
+        margin-top: 15px;
     }
 
     .hero{

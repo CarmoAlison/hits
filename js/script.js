@@ -109,35 +109,35 @@ const snacks = [
         name: 'Coxinha de Frango',
         price: 6,
         description: 'Coxinha recheado com frango',
-        image: './assets/produtos/coxinha.jpg'
+        image: './assets/produtos/COXINHA.jpg'
     },
     {
         id: 'snack2',
         name: 'Coxinha de carne',
         price: 6,
         description: 'Coxinha de carne de sol',
-        image: './assets/produtos/coxinha.jpg'
+        image: './assets/produtos/COXINHA.jpg'
     },
     {
         id: 'snack3',
         name: 'Pastel de forno',
         price: 6,
         description: 'Pastel assado recheado com frango',
-        image: './assets/produtos/pasteldeforno.jpg'
+        image: './assets/produtos/PASTELDEFORNO.jpg'
     },
     {
         id: 'snack4',
         name: 'Empada de Frango',
         price: 6,
         description: 'Empada recheada com frango',
-        image: './assets/produtos/empada.jpg'
+        image: './assets/produtos/EMPADA.jpg'
     },
     {
         id: 'snack5',
         name: 'Enroladinho',
         price: 6,
         description: 'Enrroladinho de queijo e presunto',
-        image: './assets/produtos/enroladinho.jpg'
+        image: './assets/produtos/ENROLADINHO.jpg'
     }
 ];
 
@@ -396,85 +396,6 @@ function trimSelectionsToRestriction(newRestriction) {
     if (removed) createToast('Algumas seleções foram removidas por trocar o copo (limite).');
 }
 
-// Substitua sua função handleOptionSelection pela versão abaixo
-function handleOptionSelection(e) {
-    const optionItem = e.currentTarget || e.target.closest('.option-item');
-    if (!optionItem) return;
-    const type = optionItem.dataset.type;
-    const id = optionItem.dataset.id;
-
-    // Obter restrições do copo atual
-    const restriction = restrictions[customCopo.id];
-
-    // Descobrir se a ação é adicionar (se ainda não está marcado)
-    const currentlyMarked = optionItem.classList.contains('selected') || optionItem.classList.contains('checked');
-    const isAdding = !currentlyMarked;
-
-    // Validações: se estiver tentando adicionar e já atingiu limite, bloqueia e mostra mensagem
-    if (isAdding) {
-        if (type === 'base' && customBase.length >= restriction.base) {
-            createToast(`Máximo de ${restriction.base} cremes selecionados!`);
-            flashItem(optionItem);
-            return;
-        }
-        if (type === 'topping' && customToppings.length >= restriction.topping) {
-            createToast(`Máximo de ${restriction.topping} acompanhamentos selecionados!`);
-            flashItem(optionItem);
-            return;
-        }
-        if (type === 'fruit' && customFruits.length >= restriction.fruit) {
-            createToast(`Máximo de ${restriction.fruit} frutas selecionadas!`);
-            flashItem(optionItem);
-            return;
-        }
-        if (type === 'cobertura' && customCobertura.length >= restriction.cobertura) {
-            createToast(`Máximo de ${restriction.cobertura} coberturas selecionadas!`);
-            flashItem(optionItem);
-            return;
-        }
-    }
-
-    // Atualiza estado primeiro, depois DOM via syncOptionClasses()
-    if (type === 'copo') {
-        // troca de copo (único)
-        customCopo = customizationOptions.Copos.find(c => c.id === id);
-        // Ajusta as seleções caso excedam as novas restrições
-        const newR = restrictions[customCopo.id];
-        trimSelectionsToRestriction(newR);
-    } else if (type === 'base') {
-        const itemObj = customizationOptions.bases.find(c => c.id === id);
-        const idx = customBase.findIndex(c => c.id === id);
-        if (idx !== -1) customBase.splice(idx, 1);
-        else customBase.push(itemObj);
-    } else if (type === 'topping') {
-        const itemObj = customizationOptions.toppings.find(t => t.id === id);
-        const idx = customToppings.findIndex(t => t.id === id);
-        if (idx !== -1) customToppings.splice(idx, 1);
-        else customToppings.push(itemObj);
-    } else if (type === 'fruit') {
-        const itemObj = customizationOptions.fruits.find(f => f.id === id);
-        const idx = customFruits.findIndex(f => f.id === id);
-        if (idx !== -1) customFruits.splice(idx, 1);
-        else customFruits.push(itemObj);
-    } else if (type === 'adicional') {
-        const itemObj = customizationOptions.adicionais.find(a => a.id === id);
-        const idx = customAdicionais.findIndex(a => a.id === id);
-        if (idx !== -1) customAdicionais.splice(idx, 1);
-        else customAdicionais.push(itemObj);
-    } else if (type === 'cobertura') {
-        const itemObj = customizationOptions.cobertura.find(r => r.id === id);
-        const idx = customCobertura.findIndex(r => r.id === id);
-        if (idx !== -1) customCobertura.splice(idx, 1);
-        else customCobertura.push(itemObj);
-    }
-
-    // Sincroniza as classes com o estado atualizado e atualiza resumo
-    syncOptionClasses();
-    updateCustomSummary();
-}
-
-
-
 // Função para renderizar a seção de personalização
 function renderCustomizationSection() {
     const optionsContainer = customizeSection.querySelector('.customize-options');
@@ -706,148 +627,80 @@ function updateCustomSummary() {
     }
 }
 
-
-
-// Copo de 300ml
-//  Dois cremes
-//  Três acompanhamento
-//  Uma Fruta
-//  Uma cobertura
-// Copo de 400ml
-//  Dois cremes
-//  Três acompanhamento
-//  Duas Fruta
-//  Uma cobertura
-// Copo de 500ml
-//  Dois cremes
-//  Cinco acompanhamento
-//  Duas Fruta
-//  Uma cobertura
 // Manipular seleção de opções
 function handleOptionSelection(e) {
-    const optionItem = e.currentTarget;
+    const optionItem = e.currentTarget || e.target.closest('.option-item');
+    if (!optionItem) return;
     const type = optionItem.dataset.type;
     const id = optionItem.dataset.id;
 
-    // Obter restrições para o copo atual
+    // Obter restrições do copo atual
     const restriction = restrictions[customCopo.id];
 
-    // Verificar se está tentando adicionar um novo item
-    const isAdding = !optionItem.classList.contains('selected');
+    // Descobrir se a ação é adicionar (se ainda não está marcado)
+    const currentlyMarked = optionItem.classList.contains('selected') || optionItem.classList.contains('checked');
+    const isAdding = !currentlyMarked;
 
+    // Validações: se estiver tentando adicionar e já atingiu limite, bloqueia e mostra mensagem
     if (isAdding) {
-        // Verificar limites antes de adicionar
-        switch (type) {
-            case 'base':
-                if (customBase.length >= restriction.base) {
-                    showLimitMessage('base', restriction.base);
-                    return;
-                }
-                break;
-
-            case 'topping':
-                if (customToppings.length >= restriction.topping) {
-                    showLimitMessage('topping', restriction.topping);
-                    return;
-                }
-                break;
-
-            case 'fruit':
-                if (customFruits.length >= restriction.fruit) {
-                    showLimitMessage('fruit', restriction.fruit);
-                    return;
-                }
-                break;
-
-            case 'cobertura':
-                if (customCobertura.length >= restriction.cobertura) {
-                    showLimitMessage('cobertura', restriction.cobertura);
-                    return;
-                }
-                break;
+        if (type === 'base' && customBase.length >= restriction.base) {
+            showLimitMessage('base', restriction.base);
+            flashItem(optionItem);
+            return;
+        }
+        if (type === 'topping' && customToppings.length >= restriction.topping) {
+            showLimitMessage('topping', restriction.topping);
+            flashItem(optionItem);
+            return;
+        }
+        if (type === 'fruit' && customFruits.length >= restriction.fruit) {
+            showLimitMessage('fruit', restriction.fruit);
+            flashItem(optionItem);
+            return;
+        }
+        if (type === 'cobertura' && customCobertura.length >= restriction.cobertura) {
+            showLimitMessage('cobertura', restriction.cobertura);
+            flashItem(optionItem);
+            return;
         }
     }
 
-    // Processar a seleção
+    // Atualiza estado primeiro, depois DOM via syncOptionClasses()
     if (type === 'copo') {
-        // Seleção única para copos
-        document.querySelectorAll(`.option-item[data-type="${type}"]`).forEach(item => {
-            item.classList.remove('selected');
-        });
-        optionItem.classList.add('selected');
+        // troca de copo (único)
         customCopo = customizationOptions.Copos.find(c => c.id === id);
-
-        // Aplicar novas restrições ao trocar o copo
-        const newRestriction = restrictions[customCopo.id];
-
-        // Remover itens excedentes
-        if (customBase.length > newRestriction.base) {
-            customBase.splice(newRestriction.base);
-        }
-
-        if (customToppings.length > newRestriction.topping) {
-            customToppings.splice(newRestriction.topping);
-        }
-
-        if (customFruits.length > newRestriction.fruit) {
-            customFruits.splice(newRestriction.fruit);
-        }
-
-        if (customCobertura.length > newRestriction.cobertura) {
-            customCobertura.splice(newRestriction.cobertura);
-        }
-
+        // Ajusta as seleções caso excedam as novas restrições
+        const newR = restrictions[customCopo.id];
+        trimSelectionsToRestriction(newR);
     } else if (type === 'base') {
-        // Seleção múltipla para cremes com limite
-        optionItem.classList.toggle('selected');
-
-        const base = customizationOptions.bases.find(c => c.id === id);
-        const index = customBase.findIndex(c => c.id === id);
-
-        if (index !== -1) {
-            customBase.splice(index, 1);
-        } else {
-            customBase.push(base);
-        }
-
+        const itemObj = customizationOptions.bases.find(c => c.id === id);
+        const idx = customBase.findIndex(c => c.id === id);
+        if (idx !== -1) customBase.splice(idx, 1);
+        else customBase.push(itemObj);
     } else if (type === 'topping') {
-        const topping = customizationOptions.toppings.find(t => t.id === id);
-        const index = customToppings.findIndex(t => t.id === id);
-
-        if (index !== -1) {
-            customToppings.splice(index, 1);
-        } else {
-            customToppings.push(topping);
-        }
-
+        const itemObj = customizationOptions.toppings.find(t => t.id === id);
+        const idx = customToppings.findIndex(t => t.id === id);
+        if (idx !== -1) customToppings.splice(idx, 1);
+        else customToppings.push(itemObj);
     } else if (type === 'fruit') {
-        const fruit = customizationOptions.fruits.find(f => f.id === id);
-        const index = customFruits.findIndex(f => f.id === id);
-
-        if (index !== -1) {
-            customFruits.splice(index, 1);
-        } else {
-            customFruits.push(fruit);
-        }
+        const itemObj = customizationOptions.fruits.find(f => f.id === id);
+        const idx = customFruits.findIndex(f => f.id === id);
+        if (idx !== -1) customFruits.splice(idx, 1);
+        else customFruits.push(itemObj);
     } else if (type === 'adicional') {
-        const adicional = customizationOptions.adicionais.find(a => a.id === id);
-        const index = customAdicionais.findIndex(a => a.id === id);
-
-        if (index !== -1) {
-            customAdicionais.splice(index, 1);
-        } else {
-            customAdicionais.push(adicional);
-        }
-    } else if (type === 'cobertura') { // CORREÇÃO AQUI
-        const cobertura = customizationOptions.cobertura.find(r => r.id === id);
-        const index = customCobertura.findIndex(r => r.id === id);
-
-        if (index !== -1) {
-            customCobertura.splice(index, 1);
-        } else {
-            customCobertura.push(cobertura);
-        }
+        const itemObj = customizationOptions.adicionais.find(a => a.id === id);
+        const idx = customAdicionais.findIndex(a => a.id === id);
+        if (idx !== -1) customAdicionais.splice(idx, 1);
+        else customAdicionais.push(itemObj);
+    } else if (type === 'cobertura') {
+        const itemObj = customizationOptions.cobertura.find(r => r.id === id);
+        const idx = customCobertura.findIndex(r => r.id === id);
+        if (idx !== -1) customCobertura.splice(idx, 1);
+        else customCobertura.push(itemObj);
     }
+
+    // Sincroniza as classes com o estado atualizado e atualiza resumo
+    syncOptionClasses();
     updateCustomSummary();
 }
 
@@ -1007,50 +860,87 @@ function updateCart() {
     cartTotal.textContent = `R$ ${total.toFixed(2)}`;
 }
 
-// Gerar PDF
 async function generatePDF(orderDetails) {
     const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
+    
+    // Configurar papel com 80mm de largura (convertido para pontos: 80mm ≈ 227pt)
+    const doc = new jsPDF({
+        orientation: 'portrait',
+        unit: 'pt',
+        format: [100, 1000] // [width, height] (altura inicial de 1000pt)
+    });
 
-    // Configurações
+    // Configurações gerais
     doc.setFont('helvetica');
     doc.setTextColor(40, 40, 40);
+    const margin = 5; // Margem reduzida
+    let yPos = margin; // Posição vertical inicial
 
-    // Cabeçalho
-    doc.setFontSize(18);
+    // Cabeçalho centralizado
+    doc.setFontSize(14);
     doc.setTextColor(111, 38, 205);
-    doc.text('FOX AÇAÍ - COMPROVANTE', 105, 20, { align: 'center' });
+    doc.text('AÇAÍ HITS - COMPROVANTE', doc.internal.pageSize.getWidth() / 2, yPos, { align: 'center' });
+    yPos += 20;
 
     // Informações do cliente
-    doc.setFontSize(12);
-    doc.text(`Data: ${new Date().toLocaleString('pt-BR')}`, 20, 30);
-    doc.text(`Cliente: ${orderDetails.name}`, 20, 40);
-    doc.text(`Endereço: ${orderDetails.address}`, 20, 50);
-    doc.text(`Entrega: ${orderDetails.deliveryLocation}`, 20, 60);
-    doc.text(`Pagamento: ${orderDetails.paymentMethod}`, 20, 70);
+    doc.setFontSize(10);
+    doc.setTextColor(40, 40, 40);
+    
+    const infoLines = [
+        `Data: ${new Date().toLocaleString('pt-BR')}`,
+        `Cliente: ${orderDetails.name}`,
+        `Endereço: ${orderDetails.address}`,
+        `Entrega: ${orderDetails.deliveryLocation}`,
+        `Pagamento: ${orderDetails.paymentMethod}`
+    ];
+    
+    infoLines.forEach(line => {
+        doc.text(line, margin, yPos, { maxWidth: 200 });
+        yPos += 15; // Espaçamento reduzido
+    });
+
+    // Usuário (se aplicável)
     if (currentUser) {
-        doc.text(`Usuário: ${currentUser.email}`, 20, 80);
+        doc.text(`Usuário: ${currentUser.email}`, margin, yPos, { maxWidth: 200 });
+        yPos += 15;
     }
 
-    // Itens
-    doc.setFontSize(14);
-    doc.text('ITENS DO PEDIDO', 20, 90);
+    // Título dos itens
+    yPos += 10; // Espaço extra
+    doc.setFontSize(12);
+    doc.text('ITENS DO PEDIDO', margin, yPos);
+    yPos += 15;
 
-    let y = 100;
+    // Lista de itens
+    doc.setFontSize(10);
     orderDetails.items.forEach(item => {
-        doc.setFontSize(12);
-        doc.text(`- ${item.product} (${item.quantity}x)`, 25, y);
-        doc.text(`R$ ${(item.price * item.quantity).toFixed(2)}`, 180, y, { align: 'right' });
-        y += 10;
+        const itemText = `- ${item.product} (${item.quantity}x)`;
+        const itemPrice = `R$ ${(item.price * item.quantity).toFixed(2)}`;
+        
+        doc.text(itemText, margin, yPos, { maxWidth: 140 });
+        doc.text(itemPrice, doc.internal.pageSize.getWidth() - margin, yPos, { align: 'right' });
+        yPos += 12; // Espaçamento reduzido entre itens
     });
 
     // Total
-    doc.setFontSize(14);
-    doc.text(`TOTAL: R$ ${orderDetails.total.toFixed(2)}`, 180, y + 20, { align: 'right' });
+    yPos += 15; // Espaço extra
+    doc.setFontSize(12);
+    doc.text(
+        `TOTAL: R$ ${orderDetails.total.toFixed(2)}`, 
+        doc.internal.pageSize.getWidth() - margin, 
+        yPos, 
+        { align: 'right' }
+    );
+    yPos += 20;
 
-    // Rodapé
+    // Rodapé centralizado
     doc.setFontSize(10);
-    doc.text('Obrigado pela preferência!', 105, 280, { align: 'center' });
+    doc.text('Obrigado pela preferência!', doc.internal.pageSize.getWidth() / 2, yPos, { align: 'center' });
+
+    // Ajustar altura final do documento
+    const finalHeight = yPos + margin;
+    doc.deletePage(1);
+    doc.addPage([227, finalHeight]);
 
     return doc.output('blob');
 }
@@ -1255,7 +1145,7 @@ checkoutForm.addEventListener('submit', async (e) => {
         const pdfLink = await uploadToDrive(pdfBlob, fileName);
 
         // Mensagem para WhatsApp
-        let message = `*NOVO PEDIDO FOX AÇAÍ*%0A%0A` +
+        let message = `*NOVO PEDIDO AÇAÍ AÇAÍ*%0A%0A` +
             `*Cliente:* ${orderDetails.name}%0A` +
             `*Endereço:* ${orderDetails.address}%0A` +
             `*Local:* ${orderDetails.deliveryLocation}%0A` +
