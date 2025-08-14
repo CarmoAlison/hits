@@ -48,16 +48,18 @@ const customizationOptions = {
         { id: 'base3', name: 'Ninho trunfado', price: 0 },
         { id: 'base4', name: 'Chocomalte', price: 0 },
         { id: 'base5', name: 'Cupuaçu', price: 0 },
+        { id: 'base6', name: 'Creme de Oreo', price: 0 },
+        { id: 'base7', name: 'Creme de Morango', price: 0 },
     ],
     toppings: [
         { id: 'top1', name: 'Leite em pó', price: 0 },
         { id: 'top2', name: 'Farinha Láctea', price: 0 },
-        { id: 'top3', name: 'Flocos de Arroz', price: 0 },
+        { id: 'top3', name: 'Jujuba', price: 0 },
         { id: 'top4', name: 'M&M', price: 0 },
         { id: 'top5', name: 'ChocoPower', price: 0 },
         { id: 'top6', name: 'Granola', price: 0 },
         { id: 'top7', name: 'Paçoca', price: 0 },
-        { id: 'top8', name: 'Granulado', price: 0 },
+        { id: 'top8', name: 'Machimelo', price: 0 },
         { id: 'top9', name: 'Coco', price: 0 },
         { id: 'top10', name: 'Amendoim', price: 0 },
         { id: 'top11', name: 'Gota de chocolate', price: 0 },
@@ -69,7 +71,10 @@ const customizationOptions = {
     fruits: [
         { id: 'fruit1', name: 'Banana', price: 0 },
         { id: 'fruit2', name: 'Morango', price: 0 },
-        { id: 'fruit3', name: 'Kiwi', price: 0 }
+        { id: 'fruit3', name: 'Kiwi', price: 0 },
+        { id: 'fruit3', name: 'Ameixa', price: 0 },
+        { id: 'fruit4', name: 'Cereja', price: 0 },
+        { id: 'fruit5', name: 'Uva', price: 0 },
     ],
     adicionais: [
         { id: 'Adic1', name: 'Nutella', price: 3.5 },
@@ -77,29 +82,29 @@ const customizationOptions = {
         { id: 'Adic3', name: 'kit Kat', price: 3 },
         { id: 'Adic4', name: 'Castanha', price: 2 },
         { id: 'Adic5', name: 'Creme de leitinho', price: 3 },
-        { id: 'Adic6', name: 'Batom', price: 2 }
+        { id: 'Adic6', name: 'Batom', price: 2 },
+        { id: 'Adic6', name: 'Creme Cook', price: 3 },
+        { id: 'Adic6', name: 'Ferreiro Rocher', price: 3 },
+        { id: 'Adic6', name: 'Ouro Branco', price: 3 },
+        { id: 'Adic6', name: 'Oreo', price: 3 },
     ],
     cobertura: [
         { id: 'cober1', name: 'Leite condensado', price: 0 },
         { id: 'cober2', name: 'Chocolate', price: 0 },
         { id: 'cober3', name: 'Morango', price: 0 },
         { id: 'cober4', name: 'Uva', price: 0 },
+        { id: 'cober5', name: 'BlueBarry', price: 0 },
+        { id: 'cober6', name: 'Tutti-fruitti', price: 0 },
+        { id: 'cober7', name: 'Menta', price: 0 },
     ]
 };
 
 const combos = [
     {
         id: 'combo1',
-        name: 'Combo Família',
-        price: 45,
-        description: '2 Açaís 500ml + 2 Salgados',
-        image: './assets/produtos/COMBO1.jpg'
-    },
-    {
-        id: 'combo2',
         name: 'Combo Casal',
-        price: 30,
-        description: '2 Açaís 400ml + 1 Salgado',
+        price: 45,
+        description: '2 VitaHits + 2 Salgados',
         image: './assets/produtos/COMBO1.jpg'
     }
 ];
