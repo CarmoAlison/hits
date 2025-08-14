@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FoxAçaí - O Melhor Açaí da Região</title>
+    <title>Açaí Hits - O Melhor Açaí da Região</title>
     <link rel="icon" href="./assets/logos/Logo-cabeca-hits.png">
     <link rel="stylesheet" href="./css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -72,7 +72,9 @@
                 </div>
                 <div class="product-info">
                     <h3>Copo Ouro Branco</h3>
-                    <div class="price">R$ 20,00</div>
+                    <div class="price">COPO DE 400ML - R$ 20,00</div>
+                    <div class="price">COPO DE 500ML - R$ 22,00</div>
+                    <br>
                     <div class="restrictions">
                         <p><i class="fas fa-check-circle"></i> 2 cremes</p>
                         <p><i class="fas fa-check-circle"></i> 1 cobertura</p>
@@ -85,8 +87,13 @@
                             <span>1</span>
                             <button class="increment">+</button>
                         </div>
-                        <button class="add-to-cart" data-product="Roleta" data-price="40.00">
-                            <i class="fas fa-shopping-cart"></i> Adicionar
+                        <button class="add-to-cart" data-product="Copo Ouro Branco" data-price="20.00"
+                            data-tipo="especial">
+                            <i class="fas fa-shopping-cart"></i> Copo 400ml
+                        </button>
+                        <button class="add-to-cart" data-product="Copo Ouro Branco" data-price="22.00"
+                            data-tipo="especial">
+                            <i class="fas fa-shopping-cart"></i> Copo 500ml
                         </button>
                     </div>
                 </div>
@@ -98,7 +105,9 @@
                 </div>
                 <div class="product-info">
                     <h3>Copo Ferreiro Rocher</h3>
-                    <div class="price">R$ 20,00</div>
+                    <div class="price">COPO DE 400ML - R$ 20,00</div>
+                    <div class="price">COPO DE 500ML - R$ 22,00</div>
+                    <br>
                     <div class="restrictions">
                         <p><i class="fas fa-check-circle"></i> 2 cremes</p>
                         <p><i class="fas fa-check-circle"></i> 1 cobertura</p>
@@ -111,8 +120,13 @@
                             <span>1</span>
                             <button class="increment">+</button>
                         </div>
-                        <button class="add-to-cart" data-product="Copo Ferreiro Rocher" data-price="20.00">
-                            <i class="fas fa-shopping-cart"></i> Adicionar
+                        <button class="add-to-cart" data-product="Copo Ferreiro Rocher" data-price="20.00"
+                            data-tipo="especial">
+                            <i class="fas fa-shopping-cart"></i> Copo 400ml
+                        </button>
+                        <button class="add-to-cart" data-product="Copo Ferreiro Rocher" data-price="22.00"
+                            data-tipo="especial">
+                            <i class="fas fa-shopping-cart"></i> Copo 500ml
                         </button>
                     </div>
                 </div>
@@ -121,12 +135,13 @@
             <!-- Product 2 -->
             <div class="product-card">
                 <div class="product-img">
-                    <img src="./assets/produtos/COPOOREO.png"
-                        alt="Açaí 400ml">
+                    <img src="./assets/produtos/COPOOREO.png" alt="Açaí 400ml">
                 </div>
                 <div class="product-info">
                     <h3>Copo Oreo</h3>
-                    <div class="price">R$ 20,00</div>
+                    <div class="price">COPO DE 400ML - R$ 20,00</div>
+                    <div class="price">COPO DE 500ML - R$ 22,00</div>
+                    <br>
                     <div class="restrictions">
                         <p><i class="fas fa-check-circle"></i> 2 cremes</p>
                         <p><i class="fas fa-check-circle"></i> 1 cobertura</p>
@@ -139,7 +154,33 @@
                             <span>1</span>
                             <button class="increment">+</button>
                         </div>
-                        <button class="add-to-cart" data-product="Copo Oreo" data-price="20.00">
+                        <button class="add-to-cart" data-product="Copo Oreo" data-price="20.00" data-tipo="especial">
+                            <i class="fas fa-shopping-cart"></i> Copo 4000ml
+                        </button>
+                        <button class="add-to-cart" data-product="Copo Oreo" data-price="22.00" data-tipo="especial">
+                            <i class="fas fa-shopping-cart"></i> Copo 500ml
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <!-- Product 2 -->
+            <div class="product-card">
+                <div class="product-img">
+                    <img src="./assets/produtos/VITAHITS.jpg" alt="VitaHits">
+                </div>
+                <div class="product-info">
+                    <h3>VitaHits</h3>
+                    <div class="price">R$ 20,00</div>
+                    <div class="restrictions">
+                        <p><i class="fas fa-check-circle"></i> 1 Cobertura</p>
+                    </div>
+                    <div class="product-actions">
+                        <div class="quantity">
+                            <button class="decrement">-</button>
+                            <span>1</span>
+                            <button class="increment">+</button>
+                        </div>
+                        <button class="add-to-cart" data-product="VitaHits" data-price="20.00" data-tipo="vitahits">
                             <i class="fas fa-shopping-cart"></i> Adicionar
                         </button>
                     </div>
@@ -147,9 +188,62 @@
             </div>
 
             <!-- Product 3 -->
-            
+
         </div>
     </section>
+
+    <!-- Modal de Acompanhamentos -->
+    <div id="acompanhamentosModal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="closeAcompanhamentos">&times;</span>
+            <h2 id="modalTitle">Personalize seu produto</h2>
+
+            <!-- Seção para cremes (apenas para produtos que precisam) -->
+            <div id="cremesSection" class="modal-section">
+                <h3>Escolha 2 cremes</h3>
+                <div id="cremesOptions" class="options-grid"></div>
+            </div>
+
+            <!-- Seção para coberturas (apenas para VitaHits) -->
+            <div id="coberturasSection" class="modal-section">
+                <h3>Escolha a cobertura</h3>
+                <div id="coberturasOptions" class="options-grid"></div>
+            </div>
+
+            <!-- Seção para acompanhamentos (apenas para os três primeiros) -->
+            <div id="acompanhamentosSection" class="modal-section">
+                <h3>Escolha até <span id="maxAcompanhamentos">3</span> acompanhamentos</h3>
+                <div id="acompanhamentosOptions" class="options-grid"></div>
+            </div>
+
+            <!-- Seção para adicionais -->
+            <div id="adicionaisSection" class="modal-section">
+                <h3>Adicionais</h3>
+                <div id="adicionaisOptions" class="options-grid"></div>
+            </div>
+
+            <p id="acompanhamentosMessage"></p>
+            <div class="modal-buttons">
+                <button id="cancelAcompanhamentos">Cancelar</button>
+                <button id="confirmAcompanhamentos">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Acompanhamentos -->
+    <div id="acompanhamentosModal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="closeAcompanhamentos">&times;</span>
+            <h2 id="modalTitle">Personalize seu produto</h2>
+
+            <div id="customizationSections"></div>
+
+            <div class="modal-buttons">
+                <button id="cancelAcompanhamentos">Cancelar</button>
+                <button id="confirmAcompanhamentos">Confirmar</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Nova seção de personalização -->
     <section class="products" id="customize">
@@ -230,7 +324,7 @@
         </div>
     </div>
 
-   
+
 
     <!-- Checkout Modal -->
     <div class="modal" id="checkoutModal">

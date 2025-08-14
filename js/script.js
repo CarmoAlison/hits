@@ -103,9 +103,13 @@ const combos = [
     {
         id: 'combo1',
         name: 'Combo Casal',
-        price: 45,
+        price: 40,
         description: '2 VitaHits + 2 Salgados',
-        image: './assets/produtos/COMBO1.jpg'
+        image: './assets/produtos/COMBO1.jpg',
+        items: {
+            vitahits: 2,
+            salgados: 2
+        }
     }
 ];
 
@@ -126,14 +130,14 @@ const snacks = [
     },
     {
         id: 'snack3',
-        name: 'Pastel de forno',
+        name: 'Pastel de forno - frango',
         price: 6,
         description: 'Pastel assado recheado com frango',
         image: './assets/produtos/PASTELDEFORNO.jpg'
     },
     {
         id: 'snack4',
-        name: 'Pastel de forno',
+        name: 'Pastel de forno - carne',
         price: 6,
         description: 'Pastel assado recheado com carne de sol',
         image: './assets/produtos/PASTELDEFORNO.jpg'
@@ -204,9 +208,595 @@ let customFruits = [];
 let customAdicionais = [];
 let customCobertura = [];
 let customQuantity = 1;
+// Variáveis para acompanhamentos
+// let currentProduct = null;
+// let selectedCremes = [];
+// let selectedCobertura = null;
+// let selectedAcompanhamentos = [];
+// let selectedAdicionais = [];
+// let isAddingToCart = false; // Controle de estado
+
+let currentProduct = null;
+let selectedCremes = [];
+let selectedCobertura = null;
+let selectedFrutas = [];
+let selectedAcompanhamentos = [];
+let selectedAdicionais = [];
+
 
 // User Management
 let currentUser = null;
+
+
+// Função para fechar o modal
+function closeCustomizationModal() {
+    document.getElementById('acompanhamentosModal').style.display = 'none';
+
+    // Resetar seleções
+    selectedCremes = [];
+    selectedCobertura = null;
+    selectedAcompanhamentos = [];
+    selectedAdicionais = [];
+
+    // Resetar inputs
+    document.querySelectorAll('#acompanhamentosModal input').forEach(input => {
+        input.checked = false;
+    });
+}
+
+
+// Função para adicionar produto ao carrinho (atualizada)
+function addCustomizedProductToCart() {
+    // Validações específicas
+    if (currentProduct.tipo === 'especial') {
+        if (selectedCremes.length !== 2) {
+            alert('Por favor, selecione exatamente 2 cremes!');
+            return false;
+        }
+
+        if (selectedFrutas.length > currentProduct.maxFrutas) {
+            alert(`Máximo de ${currentProduct.maxFrutas} frutas permitidas!`);
+            return false;
+        }
+    }
+
+    if (!selectedCobertura) {
+        alert('Por favor, selecione uma cobertura!');
+        return false;
+    }
+
+    if (currentProduct.tipo === 'especial' && selectedAcompanhamentos.length > currentProduct.maxAcompanhamentos) {
+        alert(`Máximo de ${currentProduct.maxAcompanhamentos} acompanhamentos permitidos!`);
+        return false;
+    }
+
+    // Montar descrição do produto
+    let description = currentProduct.name;
+    let finalPrice = currentProduct.basePrice;
+    const parts = [];
+
+    // Cremes
+    if (selectedCremes.length > 0) {
+        parts.push(`com ${selectedCremes.map(c => c.name).join(' e ')}`);
+    }
+
+    // Frutas
+    if (selectedFrutas.length > 0) {
+        parts.push(`frutas: ${selectedFrutas.map(f => f.name).join(', ')}`);
+    }
+
+    // Cobertura
+    if (selectedCobertura) {
+        parts.push(`cobertura: ${selectedCobertura.name}`);
+        finalPrice += selectedCobertura.price;
+    }
+
+    // Acompanhamentos
+    if (selectedAcompanhamentos.length > 0) {
+        parts.push(`acompanhamentos: ${selectedAcompanhamentos.map(t => t.name).join(', ')}`);
+        selectedAcompanhamentos.forEach(t => finalPrice += t.price);
+    }
+
+    // Adicionais
+    if (selectedAdicionais.length > 0) {
+        parts.push(`adicionais: ${selectedAdicionais.map(a => a.name).join(', ')}`);
+        selectedAdicionais.forEach(a => finalPrice += a.price);
+    }
+
+    // Juntar todas as partes
+    if (parts.length > 0) {
+        description += ` | ${parts.join(' | ')}`;
+    }
+
+    // Adicionar UM ÚNICO item ao carrinho
+    cart.push({
+        product: description,
+        price: finalPrice,
+        quantity: currentProduct.quantity
+    });
+
+    return true;
+}
+// Eventos para o modal - Registrados apenas uma vez
+document.getElementById('closeAcompanhamentos').addEventListener('click', closeCustomizationModal);
+document.getElementById('cancelAcompanhamentos').addEventListener('click', closeCustomizationModal);
+
+// Evento de confirmação do modal
+document.getElementById('confirmAcompanhamentos').addEventListener('click', function () {
+    const confirmButton = this;
+    confirmButton.disabled = true;
+
+    if (addCustomizedProductToCart()) {
+        closeCustomizationModal();
+        updateCart();
+        cartModal.style.display = 'block';
+    }
+
+    setTimeout(() => {
+        confirmButton.disabled = false;
+        isAddingToCart = false;
+    }, 1000);
+});
+
+// Função para preencher o modal - COMPLETA COM FRUTAS E COBERTURA
+function fillCustomizationModal() {
+    const container = document.getElementById('customizationSections');
+    container.innerHTML = '';
+
+    // Titulo dinâmico
+    document.getElementById('modalTitle').textContent = `Personalize seu ${currentProduct.name}`;
+
+    // Seção para cremes (apenas produtos especiais)
+    if (currentProduct.tipo === 'especial') {
+        container.innerHTML += `
+            <div class="modal-section">
+                <h3>Escolha 2 cremes</h3>
+                <div class="options-grid" id="cremesOptions"></div>
+            </div>
+        `;
+
+        // Preencher cremes
+        customizationOptions.bases.forEach(creme => {
+            const option = document.createElement('div');
+            option.className = 'option-item';
+            option.innerHTML = `
+                <input type="checkbox" id="creme_${creme.id}" 
+                       data-id="${creme.id}" data-price="${creme.price}">
+                <label for="creme_${creme.id}">${creme.name}</label>
+            `;
+            document.getElementById('cremesOptions').appendChild(option);
+        });
+    }
+
+    // Seção para frutas (apenas produtos especiais)
+    if (currentProduct.tipo === 'especial') {
+        container.innerHTML += `
+            <div class="modal-section">
+                <h3>Escolha até ${currentProduct.maxFrutas} frutas</h3>
+                <div class="options-grid" id="frutasOptions"></div>
+            </div>
+        `;
+
+        // Preencher frutas
+        customizationOptions.fruits.forEach(fruta => {
+            const option = document.createElement('div');
+            option.className = 'option-item';
+            option.innerHTML = `
+                <input type="checkbox" id="fruta_${fruta.id}" 
+                       data-id="${fruta.id}" data-price="${fruta.price}">
+                <label for="fruta_${fruta.id}">${fruta.name}</label>
+            `;
+            document.getElementById('frutasOptions').appendChild(option);
+        });
+    }
+
+    // Seção para cobertura (todos os produtos)
+    container.innerHTML += `
+        <div class="modal-section">
+            <h3>Escolha ${currentProduct.maxCoberturas} cobertura</h3>
+            <div class="options-grid" id="coberturasOptions"></div>
+        </div>
+    `;
+
+    // Preencher coberturas
+    customizationOptions.cobertura.forEach(cobertura => {
+        const option = document.createElement('div');
+        option.className = 'option-item';
+        option.innerHTML = `
+            <input type="radio" name="cobertura" id="cobertura_${cobertura.id}" 
+                   data-id="${cobertura.id}" data-price="${cobertura.price}">
+            <label for="cobertura_${cobertura.id}">${cobertura.name}</label>
+        `;
+        document.getElementById('coberturasOptions').appendChild(option);
+    });
+
+    // Seção para acompanhamentos (apenas produtos especiais)
+    if (currentProduct.tipo === 'especial') {
+        container.innerHTML += `
+            <div class="modal-section">
+                <h3>Escolha até ${currentProduct.maxAcompanhamentos} acompanhamentos</h3>
+                <div class="options-grid" id="acompanhamentosOptions"></div>
+            </div>
+        `;
+
+        // Preencher acompanhamentos
+        customizationOptions.toppings.forEach(topping => {
+            const option = document.createElement('div');
+            option.className = 'option-item';
+            option.innerHTML = `
+                <input type="checkbox" id="topping_${topping.id}" 
+                       data-id="${topping.id}" data-price="${topping.price}">
+                <label for="topping_${topping.id}">${topping.name}</label>
+            `;
+            document.getElementById('acompanhamentosOptions').appendChild(option);
+        });
+    }
+
+    // Seção para adicionais (todos os produtos)
+    container.innerHTML += `
+        <div class="modal-section">
+            <h3>Adicionais</h3>
+            <div class="options-grid" id="adicionaisOptions"></div>
+        </div>
+    `;
+
+    // Preencher adicionais
+    const adicionaisList = customizationOptions.adicionais;
+    adicionaisList.forEach(adicional => {
+        const option = document.createElement('div');
+        option.className = 'option-item';
+        option.innerHTML = `
+            <input type="checkbox" id="adicional_${adicional.id}" 
+                   data-id="${adicional.id}" data-price="${adicional.price}">
+            <label for="adicional_${adicional.id}">${adicional.name} (+R$ ${adicional.price.toFixed(2)})</label>
+        `;
+        document.getElementById('adicionaisOptions').appendChild(option);
+    });
+}
+
+// Preencher modal com as opções
+function fillCustomizationModal() {
+    const title = document.getElementById('modalTitle');
+    const cremesSection = document.getElementById('cremesSection');
+    const coberturasSection = document.getElementById('coberturasSection');
+    const acompanhamentosSection = document.getElementById('acompanhamentosSection');
+    const adicionaisSection = document.getElementById('adicionaisSection');
+
+    // Resetar visibilidade
+    cremesSection.style.display = 'none';
+    coberturasSection.style.display = 'none';
+    acompanhamentosSection.style.display = 'none';
+    adicionaisSection.style.display = 'none';
+
+    // Configurar baseado no tipo de produto
+    if (currentProduct.tipo === 'especial') {
+        title.textContent = `Personalize seu ${currentProduct.name}`;
+        cremesSection.style.display = 'block';
+        acompanhamentosSection.style.display = 'block';
+        adicionaisSection.style.display = 'block';
+
+        // Preencher cremes
+        const cremesContainer = document.getElementById('cremesOptions');
+        cremesContainer.innerHTML = '';
+        customizationOptions.bases.forEach(creme => {
+            const option = document.createElement('div');
+            option.className = 'option-item';
+            option.innerHTML = `
+                <input type="checkbox" id="creme_${creme.id}" 
+                       data-id="${creme.id}" data-price="${creme.price}">
+                <label for="creme_${creme.id}">${creme.name}</label>
+            `;
+            cremesContainer.appendChild(option);
+        });
+
+        // Preencher acompanhamentos
+        const acompanhamentosContainer = document.getElementById('acompanhamentosOptions');
+        acompanhamentosContainer.innerHTML = '';
+        customizationOptions.toppings.forEach(topping => {
+            const option = document.createElement('div');
+            option.className = 'option-item';
+            option.innerHTML = `
+                <input type="checkbox" id="topping_${topping.id}" 
+                       data-id="${topping.id}" data-price="${topping.price}">
+                <label for="topping_${topping.id}">${topping.name}</label>
+            `;
+            acompanhamentosContainer.appendChild(option);
+        });
+
+        // Atualizar limite de acompanhamentos
+        document.getElementById('maxAcompanhamentos').textContent = currentProduct.maxAcompanhamentos;
+
+    } else if (currentProduct.tipo === 'vitahits') {
+        title.textContent = `Personalize seu VitaHits`;
+        coberturasSection.style.display = 'block';
+        adicionaisSection.style.display = 'block';
+
+        // Preencher coberturas
+        const coberturasContainer = document.getElementById('coberturasOptions');
+        coberturasContainer.innerHTML = '';
+        customizationOptions.cobertura.forEach(cobertura => {
+            const option = document.createElement('div');
+            option.className = 'option-item';
+            option.innerHTML = `
+                <input type="radio" name="cobertura" id="cobertura_${cobertura.id}" 
+                       data-id="${cobertura.id}" data-price="${cobertura.price}">
+                <label for="cobertura_${cobertura.id}">${cobertura.name}</label>
+            `;
+            coberturasContainer.appendChild(option);
+        });
+    }
+
+    // Preencher adicionais (comuns a ambos)
+    const adicionaisContainer = document.getElementById('adicionaisOptions');
+    adicionaisContainer.innerHTML = ''; updateCustomizationMessage
+
+    // Adicionais específicos para VitaHits
+    const adicionaisEspecificos = currentProduct.tipo === 'vitahits' ?
+        customizationOptions.adicionais.filter(adicional =>
+            ['Creme de leitinho', 'Creme Cook', 'Nutella', 'Creme de avelã'].includes(adicional.name)
+        ) :
+        customizationOptions.adicionais;
+
+    adicionaisEspecificos.forEach(adicional => {
+        const option = document.createElement('div');
+        option.className = 'option-item';
+        option.innerHTML = `
+            <input type="checkbox" id="adicional_${adicional.id}" 
+                   data-id="${adicional.id}" data-price="${adicional.price}">
+            <label for="adicional_${adicional.id}">${adicional.name} (+R$ ${adicional.price.toFixed(2)})</label>
+        `;
+        adicionaisContainer.appendChild(option);
+    });
+
+    updateCustomizationMessage();
+}
+
+// Atualizar mensagem de seleção
+function updateCustomizationMessage() {
+    const messageEl = document.getElementById('acompanhamentosMessage');
+
+    if (currentProduct.tipo === 'especial') {
+        messageEl.textContent =
+            `Cremes: ${selectedCremes.length}/2 | ` +
+            `Acompanhamentos: ${selectedAcompanhamentos.length}/${currentProduct.maxAcompanhamentos}`;
+    } else if (currentProduct.tipo === 'vitahits') {
+        messageEl.textContent = selectedCobertura ?
+            `Cobertura selecionada: ${selectedCobertura.name}` :
+            'Selecione uma cobertura';
+    }
+}
+
+
+// Evento para seleção de opções (atualizado)
+document.getElementById('acompanhamentosModal').addEventListener('change', function (e) {
+    if (e.target.type === 'checkbox' || e.target.type === 'radio') {
+        const id = e.target.dataset.id;
+        const price = parseFloat(e.target.dataset.price);
+        const isChecked = e.target.checked;
+        const type = e.target.getAttribute('id').split('_')[0];
+
+        if (type === 'creme') {
+            const creme = customizationOptions.bases.find(c => c.id === id);
+            if (isChecked) {
+                if (selectedCremes.length < 2) {
+                    selectedCremes.push(creme);
+                } else {
+                    e.target.checked = false;
+                    alert('Máximo de 2 cremes permitidos!');
+                }
+            } else {
+                const index = selectedCremes.findIndex(c => c.id === id);
+                if (index !== -1) selectedCremes.splice(index, 1);
+            }
+        }
+        else if (type === 'fruta') {
+            const fruta = customizationOptions.fruits.find(f => f.id === id);
+            if (isChecked) {
+                if (selectedFrutas.length < currentProduct.maxFrutas) {
+                    selectedFrutas.push(fruta);
+                } else {
+                    e.target.checked = false;
+                    alert(`Máximo de ${currentProduct.maxFrutas} frutas permitidas!`);
+                }
+            } else {
+                const index = selectedFrutas.findIndex(f => f.id === id);
+                if (index !== -1) selectedFrutas.splice(index, 1);
+            }
+        }
+        else if (type === 'cobertura') {
+            const cobertura = customizationOptions.cobertura.find(c => c.id === id);
+            if (isChecked) {
+                selectedCobertura = cobertura;
+            }
+        }
+        else if (type === 'topping') {
+            const topping = customizationOptions.toppings.find(t => t.id === id);
+            if (isChecked) {
+                if (selectedAcompanhamentos.length < currentProduct.maxAcompanhamentos) {
+                    selectedAcompanhamentos.push(topping);
+                } else {
+                    e.target.checked = false;
+                    alert(`Máximo de ${currentProduct.maxAcompanhamentos} acompanhamentos permitidos!`);
+                }
+            } else {
+                const index = selectedAcompanhamentos.findIndex(t => t.id === id);
+                if (index !== -1) selectedAcompanhamentos.splice(index, 1);
+            }
+        }
+        else if (type === 'adicional') {
+            const adicional = customizationOptions.adicionais.find(a => a.id === id);
+            if (isChecked) {
+                selectedAdicionais.push(adicional);
+            } else {
+                const index = selectedAdicionais.findIndex(a => a.id === id);
+                if (index !== -1) selectedAdicionais.splice(index, 1);
+            }
+        }
+    }
+});
+
+
+// Eventos para o modal
+document.getElementById('closeAcompanhamentos').addEventListener('click', function () {
+    document.getElementById('acompanhamentosModal').style.display = 'none';
+});
+
+document.getElementById('cancelAcompanhamentos').addEventListener('click', function () {
+    document.getElementById('acompanhamentosModal').style.display = 'none';
+});
+
+document.getElementById('confirmAcompanhamentos').addEventListener('click', function () {
+    // Validações específicas para cada tipo de produto
+    if (currentProduct.tipo === 'especial') {
+        if (selectedCremes.length !== 2) {
+            alert('Por favor, selecione exatamente 2 cremes!');
+            return;
+        }
+    }
+    else if (currentProduct.tipo === 'vitahits') {
+        if (!selectedCobertura) {
+            alert('Por favor, selecione uma cobertura!');
+            return;
+        }
+    }
+
+    // Montar descrição do produto
+    let description = currentProduct.name;
+    let finalPrice = currentProduct.basePrice;
+
+    if (currentProduct.tipo === 'especial') {
+        description += ` com ${selectedCremes.map(c => c.name).join(' e ')}`;
+
+        if (selectedAcompanhamentos.length > 0) {
+            description += `, acompanhado de ${selectedAcompanhamentos.map(t => t.name).join(', ')}`;
+        }
+    }
+    else if (currentProduct.tipo === 'vitahits') {
+        description += ` com cobertura de ${selectedCobertura.name}`;
+    }
+
+    // Adicionais
+    if (selectedAdicionais.length > 0) {
+        description += ` e adicionais: ${selectedAdicionais.map(a => a.name).join(', ')}`;
+        selectedAdicionais.forEach(a => finalPrice += a.price);
+    }
+
+    // Calcular preço total
+    if (currentProduct.tipo === 'especial') {
+        selectedAcompanhamentos.forEach(t => finalPrice += t.price);
+    }
+
+    // Adicionar ao carrinho
+    cart.push({
+        product: description,
+        price: finalPrice,
+        quantity: currentProduct.quantity
+    });
+
+    // Fechar modal e atualizar carrinho
+    document.getElementById('acompanhamentosModal').style.display = 'none';
+    updateCart();
+    cartModal.style.display = 'block';
+
+    // Resetar seleções
+    selectedCremes = [];
+    selectedCobertura = null;
+    selectedAcompanhamentos = [];
+    selectedAdicionais = [];
+});
+
+// Evento de clique para adicionar produtos
+document.addEventListener('click', function (e) {
+    const button = e.target.closest('.add-to-cart');
+
+    if (button) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+
+        const product = button.getAttribute('data-product');
+        const price = parseFloat(button.getAttribute('data-price'));
+        const tipo = button.getAttribute('data-tipo') || 'especial'; // Padrão para especial
+        const quantity = parseInt(button.closest('.product-actions').querySelector('.quantity span').textContent);
+
+        // Combo
+        if (tipo === 'combo') {
+            const vitahitsCount = parseInt(button.getAttribute('data-vitahits'));
+            const salgadosCount = parseInt(button.getAttribute('data-salgados'));
+            
+            currentCombo = {
+                name: product,
+                basePrice: price,
+                vitahits: vitahitsCount,
+                salgados: salgadosCount,
+                quantity: quantity
+            };
+            // Inicializar seleções
+            comboVitahitsSelections = Array(vitahitsCount).fill().map(() => ({ cobertura: null }));
+            comboSalgadosSelections = Array(salgadosCount).fill().map(() => ({ salgado: null }));
+            comboAdicionais = [];
+            
+            fillComboModal();
+            document.getElementById('comboModal').style.display = 'block';
+            return;
+        }
+
+        // 1. Salgados são adicionados diretamente
+        if (tipo === 'salgado') {
+            cart.push({
+                product: product,
+                price: price,
+                quantity: quantity
+            });
+            updateCart();
+            cartModal.style.display = 'block';
+            return;
+        }
+
+        // 2. Configurar produto atual para personalização
+        let maxAcompanhamentos = 3;
+        let maxFrutas = 2;
+        let maxCoberturas = 1;
+
+        // Obter restrições do produto
+        const restrictionsDiv = button.closest('.product-card').querySelector('.restrictions');
+        if (restrictionsDiv) {
+            const restrictions = Array.from(restrictionsDiv.querySelectorAll('p'));
+
+            restrictions.forEach(p => {
+                if (p.textContent.includes('acompanhamentos')) {
+                    maxAcompanhamentos = parseInt(p.textContent.match(/\d+/)[0]);
+                }
+                if (p.textContent.includes('frutas')) {
+                    maxFrutas = parseInt(p.textContent.match(/\d+/)[0]);
+                }
+                if (p.textContent.includes('cobertura')) {
+                    maxCoberturas = parseInt(p.textContent.match(/\d+/)[0]);
+                }
+            });
+        }
+
+        currentProduct = {
+            name: product,
+            basePrice: price,
+            tipo: tipo,
+            maxAcompanhamentos: maxAcompanhamentos,
+            maxFrutas: maxFrutas,
+            maxCoberturas: maxCoberturas,
+            quantity: quantity
+        };
+
+        // Resetar seleções
+        selectedCremes = [];
+        selectedCobertura = null;
+        selectedFrutas = [];
+        selectedAcompanhamentos = [];
+        selectedAdicionais = [];
+
+        // Preencher e abrir modal
+        fillCustomizationModal();
+        document.getElementById('acompanhamentosModal').style.display = 'block';
+    }
+});
 
 // Check for saved user on load
 function checkSavedUser() {
@@ -782,7 +1372,7 @@ function addCustomToCart() {
     alert('Açaí personalizado adicionado ao carrinho!');
 }
 
-// Função para renderizar combos
+// Função para renderizar combos atualizada
 function renderCombos() {
     const container = combosSection.querySelector('.products-container');
 
@@ -801,13 +1391,221 @@ function renderCombos() {
                         <span>1</span>
                         <button class="increment">+</button>
                     </div>
-                    <button class="add-to-cart" data-product="${combo.name}" data-price="${combo.price}">
+                    <button class="add-to-cart" 
+                            data-product="${combo.name}" 
+                            data-price="${combo.price}"
+                            data-tipo="combo"
+                            data-vitahits="${combo.items.vitahits}"
+                            data-salgados="${combo.items.salgados}">
                         <i class="fas fa-shopping-cart"></i> Adicionar
                     </button>
                 </div>
             </div>
         </div>
     `).join('');
+}
+
+// Modal para personalização de combos
+const comboModalHTML = `
+<div id="comboModal" class="modal">
+    <div class="modal-content">
+        <span class="close" id="closeCombo">&times;</span>
+        <h2>Personalize seu Combo</h2>
+        
+        <div id="comboVitahitsContainer"></div>
+        
+        <div id="comboSalgadosContainer"></div>
+        
+        <div class="modal-section">
+            <h3>Adicionais Gerais</h3>
+            <div class="options-grid" id="comboAdicionaisOptions"></div>
+        </div>
+        
+        <div class="modal-buttons">
+            <button id="cancelCombo">Cancelar</button>
+            <button id="confirmCombo">Confirmar</button>
+        </div>
+    </div>
+</div>
+`;
+document.body.insertAdjacentHTML('beforeend', comboModalHTML);
+let currentCombo = null;
+let comboVitahitsSelections = [];
+let comboSalgadosSelections = [];
+let comboAdicionais = [];
+
+
+
+// Função para preencher o modal de combo
+function fillComboModal() {
+    document.getElementById('comboVitahitsContainer').innerHTML = '';
+    document.getElementById('comboSalgadosContainer').innerHTML = '';
+    
+    // Seção para VitaHits
+    for (let i = 1; i <= currentCombo.vitahits; i++) {
+        const vitahitsSection = document.createElement('div');
+        vitahitsSection.className = 'modal-section';
+        vitahitsSection.innerHTML = `
+            <h3>VitaHits ${i} - Escolha a cobertura</h3>
+            <div class="options-grid" id="vitahitsCobertura${i}"></div>
+        `;
+        document.getElementById('comboVitahitsContainer').appendChild(vitahitsSection);
+        
+        // Preencher opções de cobertura
+        const container = document.getElementById(`vitahitsCobertura${i}`);
+        customizationOptions.cobertura.forEach(cobertura => {
+            const option = document.createElement('div');
+            option.className = 'option-item';
+            option.innerHTML = `
+                <input type="radio" name="vitahits${i}_cobertura" 
+                       id="vitahits${i}_cobertura_${cobertura.id}" 
+                       data-vitahits-index="${i-1}"
+                       data-id="${cobertura.id}">
+                <label for="vitahits${i}_cobertura_${cobertura.id}">${cobertura.name}</label>
+            `;
+            container.appendChild(option);
+        });
+    }
+    
+    // Seção para Salgados
+    for (let i = 1; i <= currentCombo.salgados; i++) {
+        const salgadosSection = document.createElement('div');
+        salgadosSection.className = 'modal-section';
+        salgadosSection.innerHTML = `
+            <h3>Salgado ${i} - Escolha o tipo</h3>
+            <div class="options-grid" id="salgadosOptions${i}"></div>
+        `;
+        document.getElementById('comboSalgadosContainer').appendChild(salgadosSection);
+        
+        // Preencher opções de salgados
+        const container = document.getElementById(`salgadosOptions${i}`);
+        snacks.forEach(snack => {
+            const option = document.createElement('div');
+            option.className = 'option-item';
+            option.innerHTML = `
+                <input type="radio" name="salgado${i}" 
+                       id="salgado${i}_${snack.id}" 
+                       data-salgado-index="${i-1}"
+                       data-id="${snack.id}">
+                <label for="salgado${i}_${snack.id}">${snack.name}</label>
+            `;
+            container.appendChild(option);
+        });
+    }
+    
+    // Seção de adicionais
+    const adicionaisContainer = document.getElementById('comboAdicionaisOptions');
+    adicionaisContainer.innerHTML = '';
+    customizationOptions.adicionais.forEach(adicional => {
+        const option = document.createElement('div');
+        option.className = 'option-item';
+        option.innerHTML = `
+            <input type="checkbox" id="combo_adicional_${adicional.id}" 
+                   data-id="${adicional.id}" data-price="${adicional.price}">
+            <label for="combo_adicional_${adicional.id}">${adicional.name} (+R$ ${adicional.price.toFixed(2)})</label>
+        `;
+        adicionaisContainer.appendChild(option);
+    });
+}
+
+// Eventos para o modal de combo
+document.getElementById('closeCombo').addEventListener('click', closeComboModal);
+document.getElementById('cancelCombo').addEventListener('click', closeComboModal);
+
+document.getElementById('confirmCombo').addEventListener('click', function() {
+    // Verificar se todas as seleções foram feitas
+    const allVitahitsSelected = comboVitahitsSelections.every(v => v.cobertura !== null);
+    const allSalgadosSelected = comboSalgadosSelections.every(s => s.salgado !== null);
+    
+    if (!allVitahitsSelected || !allSalgadosSelected) {
+        alert('Por favor, selecione todas as opções para o combo!');
+        return;
+    }
+    
+    // Construir descrição do combo
+    let description = `${currentCombo.name}: `;
+    let finalPrice = currentCombo.basePrice;
+    
+    // Adicionar VitaHits
+    comboVitahitsSelections.forEach((v, i) => {
+        description += `\n- VitaHits ${i+1}: ${v.cobertura.name}`;
+    });
+    
+    // Adicionar Salgados
+    comboSalgadosSelections.forEach((s, i) => {
+        description += `\n- Salgado ${i+1}: ${s.salgado.name}`;
+        // Se o salgado tiver descrição, adicionar
+        if (s.salgado.description) {
+            description += ` (${s.salgado.description})`;
+        }
+    });
+    
+    // Adicionais
+    if (comboAdicionais.length > 0) {
+        description += `\n- Adicionais: ${comboAdicionais.map(a => a.name).join(', ')}`;
+        comboAdicionais.forEach(a => finalPrice += a.price);
+    }
+    
+    // Adicionar ao carrinho
+    cart.push({
+        product: description,
+        price: finalPrice,
+        quantity: currentCombo.quantity
+    });
+    
+    closeComboModal();
+    updateCart();
+    cartModal.style.display = 'block';
+});
+
+// Eventos de seleção no modal de combo
+document.getElementById('comboModal').addEventListener('change', function(e) {
+    const target = e.target;
+    
+    // Seleção de cobertura para VitaHits
+    if (target.name.startsWith('vitahits') && target.type === 'radio') {
+        const vitahitsIndex = parseInt(target.dataset.vitahitsIndex);
+        const coberturaId = target.dataset.id;
+        const cobertura = customizationOptions.cobertura.find(c => c.id === coberturaId);
+        
+        comboVitahitsSelections[vitahitsIndex] = {
+            ...comboVitahitsSelections[vitahitsIndex],
+            cobertura: cobertura
+        };
+    }
+    
+    // Seleção de salgados
+    if (target.name.startsWith('salgado') && target.type === 'radio') {
+        const salgadoIndex = parseInt(target.dataset.salgadoIndex);
+        const salgadoId = target.dataset.id;
+        const salgado = snacks.find(s => s.id === salgadoId);
+        
+        comboSalgadosSelections[salgadoIndex] = {
+            ...comboSalgadosSelections[salgadoIndex],
+            salgado: salgado
+        };
+    }
+    
+    // Seleção de adicionais
+    if (target.id.startsWith('combo_adicional') && target.type === 'checkbox') {
+        const adicionalId = target.dataset.id;
+        const adicional = customizationOptions.adicionais.find(a => a.id === adicionalId);
+        
+        if (target.checked) {
+            comboAdicionais.push(adicional);
+        } else {
+            const index = comboAdicionais.findIndex(a => a.id === adicionalId);
+            if (index !== -1) comboAdicionais.splice(index, 1);
+        }
+    }
+});
+
+function closeComboModal() {
+    document.getElementById('comboModal').style.display = 'none';
+    currentCombo = null;
+    comboVitahitsSelections = [];
+    comboSalgadosSelections = [];
+    comboAdicionais = [];
 }
 
 // Função para renderizar salgados
@@ -829,7 +1627,10 @@ function renderSnacks() {
                         <span>1</span>
                         <button class="increment">+</button>
                     </div>
-                    <button class="add-to-cart" data-product="${snack.name}" data-price="${snack.price}">
+                    <button class="add-to-cart" 
+                        data-product="${snack.name}" 
+                        data-price="${snack.price}"
+                        data-tipo="salgado">
                         <i class="fas fa-shopping-cart"></i> Adicionar
                     </button>
                 </div>
@@ -915,7 +1716,7 @@ async function generatePDF(orderDetails) {
 
     // Cabeçalho
     doc.setFontSize(fontSizeTitle);
-    doc.setTextColor(111, 38, 205); 
+    doc.setTextColor(111, 38, 205);
     y += 6;// Roxo
     doc.text('AÇAÍ HITS - COMANDA', width / 2, y, { align: 'center' });
     y += 5;
@@ -927,7 +1728,7 @@ async function generatePDF(orderDetails) {
 
     // Informações do cliente
     doc.setFontSize(fontSizeNormal);
-    doc.setTextColor(111, 38, 205); 
+    doc.setTextColor(111, 38, 205);
 
     doc.text(`Data: ${new Date().toLocaleString('pt-BR')}`, margin, y);
     y += 4;
@@ -966,22 +1767,22 @@ async function generatePDF(orderDetails) {
     orderDetails.items.forEach(item => {
         // Limpar formatação HTML
         const cleanProduct = item.product.replace(/<br>/g, ' ');
-        
+
         // Criar descrição compacta
         const descText = `- ${cleanProduct} (${item.quantity}x)`;
         const priceText = `R$ ${(item.price * item.quantity).toFixed(2)}`;
-        
+
         // Quebrar texto se necessário
         const lines = doc.splitTextToSize(descText, width - 15 - margin); // Reserva espaço para preço
-        
+
         lines.forEach(line => {
             doc.text(line, margin, y);
             y += 3;
         });
-        
+
         // Preço alinhado à direita
         doc.text(priceText, width - margin, y - 3, { align: 'right' });
-        
+
         y += 2; // Espaço entre itens
     });
 
@@ -994,10 +1795,10 @@ async function generatePDF(orderDetails) {
     doc.setFontSize(fontSizeNormal);
     doc.text(`Subtotal: R$ ${orderDetails.subtotal.toFixed(2)}`, width - margin, y, { align: 'right' });
     y += 4;
-    
+
     doc.text(`Taxa entrega: R$ ${orderDetails.deliveryFee.toFixed(2)}`, width - margin, y, { align: 'right' });
     y += 4;
-    
+
     doc.setFontSize(fontSizeTitle);
     doc.text(`TOTAL: R$ ${orderDetails.total.toFixed(2)}`, width - margin, y, { align: 'right' });
     y += 8;
@@ -1123,28 +1924,32 @@ document.addEventListener('click', function (e) {
         }
     }
 
-    // Add to Cart
+    // Add to Cart (Modificado para abrir modal de acompanhamentos)
     if (e.target.classList.contains('add-to-cart') || e.target.closest('.add-to-cart')) {
         const button = e.target.classList.contains('add-to-cart') ? e.target : e.target.closest('.add-to-cart');
         const product = button.getAttribute('data-product');
         const price = parseFloat(button.getAttribute('data-price'));
         const quantity = parseInt(button.parentElement.querySelector('.quantity span').textContent);
 
-        // Verifica se o produto já está no carrinho
-        const existingItem = cart.find(item => item.product === product);
+        // Obter máximo de acompanhamentos do produto
+        const restrictionsDiv = button.closest('.product-card').querySelector('.restrictions');
+        const acompanhamentosText = restrictionsDiv.querySelector('p:last-child').textContent;
+        const maxAcompanhamentos = parseInt(acompanhamentosText.match(/\d+/)[0]);
 
-        if (existingItem) {
-            existingItem.quantity += quantity;
-        } else {
-            cart.push({
-                product,
-                price,
-                quantity
-            });
-        }
+        // Armazenar produto atual
+        currentProduct = {
+            name: product,
+            basePrice: price,
+            maxAcompanhamentos: maxAcompanhamentos,
+            quantity: quantity
+        };
 
-        updateCart();
-        cartModal.style.display = 'block';
+        // Resetar seleções
+        currentAcompanhamentos = [];
+
+        // Preencher e abrir modal
+        fillAcompanhamentosModal();
+        document.getElementById('acompanhamentosModal').style.display = 'block';
     }
 
     // Cart Item Increment
@@ -1169,6 +1974,55 @@ document.addEventListener('click', function (e) {
         const index = parseInt(button.getAttribute('data-index'));
         cart.splice(index, 1);
         updateCart();
+    }
+});
+
+// Preencher modal de acompanhamentos
+function fillAcompanhamentosModal() {
+    const container = document.getElementById('acompanhamentosOptions');
+    container.innerHTML = '';
+
+    customizationOptions.toppings.forEach(topping => {
+        const option = document.createElement('div');
+        option.className = 'option-item';
+        option.dataset.id = topping.id;
+        option.innerHTML = `
+            <input type="checkbox" id="topping_${topping.id}" data-id="${topping.id}" data-price="${topping.price}">
+            <label for="topping_${topping.id}">${topping.name} ${topping.price > 0 ? `(+R$ ${topping.price.toFixed(2)})` : ''}</label>
+        `;
+        container.appendChild(option);
+    });
+
+    updateAcompanhamentosMessage();
+}
+
+// Atualizar mensagem de acompanhamentos
+function updateAcompanhamentosMessage() {
+    const messageEl = document.getElementById('acompanhamentosMessage');
+    messageEl.textContent = `Selecionados: ${currentAcompanhamentos.length} de ${currentProduct.maxAcompanhamentos}`;
+}
+
+// Evento para seleção de acompanhamentos
+document.getElementById('acompanhamentosOptions').addEventListener('change', function (e) {
+    if (e.target.type === 'checkbox') {
+        const toppingId = e.target.dataset.id;
+        const topping = customizationOptions.toppings.find(t => t.id === toppingId);
+
+        if (e.target.checked) {
+            if (currentAcompanhamentos.length < currentProduct.maxAcompanhamentos) {
+                currentAcompanhamentos.push(topping);
+            } else {
+                e.target.checked = false;
+                alert(`Máximo de ${currentProduct.maxAcompanhamentos} acompanhamentos permitidos!`);
+            }
+        } else {
+            const index = currentAcompanhamentos.findIndex(t => t.id === toppingId);
+            if (index !== -1) {
+                currentAcompanhamentos.splice(index, 1);
+            }
+        }
+
+        updateAcompanhamentosMessage();
     }
 });
 
@@ -1214,7 +2068,7 @@ checkoutForm.addEventListener('submit', async (e) => {
         const pdfLink = await uploadToDrive(pdfBlob, fileName);
 
         // Mensagem para WhatsApp
-        let message = `*NOVO PEDIDO FOX AÇAÍ*%0A%0A` +
+        let message = `*NOVO PEDIDO AÇAÍ HITS*%0A%0A` +
             `*Cliente:* ${orderDetails.name}%0A` +
             `*Endereço:* ${orderDetails.address}%0A` +
             `*Local:* ${orderDetails.deliveryLocation}%0A` +
@@ -1284,10 +2138,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Adicionar evento de logout
     document.getElementById('logoutBtn')?.addEventListener('click', logout);
 
-        // ADICIONE AQUI ↓
+    // ADICIONE AQUI ↓
     // Atualizar total quando mudar a ilha de entrega
     document.getElementById('deliveryLocation').addEventListener('change', updateCheckoutTotal);
-    
+
     // ADICIONE TAMBÉM AQUI ↓
     // Atualizar total quando o modal de checkout for aberto
     checkoutBtn.addEventListener('click', updateCheckoutTotal);
@@ -1295,3 +2149,42 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Função global para o callback do Google
 window.handleGoogleLogin = handleGoogleLogin;
+
+// Fechar modal de acompanhamentos
+document.getElementById('closeAcompanhamentos').addEventListener('click', function () {
+    document.getElementById('acompanhamentosModal').style.display = 'none';
+});
+
+// Cancelar acompanhamentos
+document.getElementById('cancelAcompanhamentos').addEventListener('click', function () {
+    document.getElementById('acompanhamentosModal').style.display = 'none';
+});
+
+// Confirmar acompanhamentos
+document.getElementById('confirmAcompanhamentos').addEventListener('click', function () {
+    const productName = currentProduct.name;
+    let finalPrice = currentProduct.basePrice;
+
+    // Calcular preço adicional
+    currentAcompanhamentos.forEach(topping => {
+        finalPrice += topping.price;
+    });
+
+    // Montar descrição do produto
+    let description = productName;
+    if (currentAcompanhamentos.length > 0) {
+        description += ` com ${currentAcompanhamentos.map(t => t.name).join(', ')}`;
+    }
+
+    // Adicionar ao carrinho
+    cart.push({
+        product: description,
+        price: finalPrice,
+        quantity: currentProduct.quantity
+    });
+
+    // Atualizar e fechar
+    updateCart();
+    document.getElementById('acompanhamentosModal').style.display = 'none';
+    cartModal.style.display = 'block';
+});
