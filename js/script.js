@@ -105,7 +105,7 @@ const combos = [
         name: 'Combo Casal',
         price: 40,
         description: '2 VitaHits + 2 Salgados',
-        image: './assets/produtos/COMBO1.jpg',
+        image: './assets/produtos/COMBOHITS.png',
         items: {
             vitahits: 2,
             salgados: 2
@@ -1695,123 +1695,188 @@ function updateCart() {
 async function generatePDF(orderDetails) {
     const { jsPDF } = window.jspdf;
 
-    // Configuração para comprovante (58mm de largura)
-    const width = 40; // mm
+    // Configuração para A4 (210x297mm)
     const doc = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
-        format: [width, 100] // Largura fixa de 58mm, altura inicial estimada
+        format: 'a4'
     });
 
-    // Configurações gerais
-    doc.setFont('helvetica');
-    doc.setTextColor(0, 0, 0); // Preto
-    const margin = 2; // Margem mínima
+    // Margens
+    const margin = 15;
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const maxWidth = pageWidth - 2 * margin;
     let y = margin;
 
-    // Fonte menor para caber no comprovante
-    const fontSizeSmall = 2;
-    const fontSizeNormal = 4;
-    const fontSizeTitle = 6;
+    // Cores do tema
+    const primaryColor = [111, 38, 205]; // Roxo
+    const secondaryColor = [255, 153, 0]; // Laranja
 
-    // Cabeçalho
-    doc.setFontSize(fontSizeTitle);
-    doc.setTextColor(111, 38, 205);
-    y += 6;// Roxo
-    doc.text('AÇAÍ HITS - COMANDA', width / 2, y, { align: 'center' });
+    // Função para carregar imagem como base64
+    const loadImage = (url) => {
+        return new Promise((resolve) => {
+            const img = new Image();
+            img.crossOrigin = "Anonymous";
+            img.src = url;
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+                const dataURL = canvas.toDataURL('image/png');
+                resolve(dataURL);
+            };
+            img.onerror = () => resolve(null); // Em caso de erro
+        });
+    };
+
+    // Carregar a logo
+    const logoData = await loadImage('./assets/logos/Logo-cabeca-hits.png');
+
+    // Cabeçalho com logo
+    if (logoData) {
+        const logoWidth = 40;
+        const logoHeight = (logoWidth * 150) / 300; // Proporção 2:1
+        const logoX = (pageWidth - logoWidth) / 2;
+        doc.addImage(logoData, 'PNG', logoX, y, logoWidth, logoHeight);
+        y += logoHeight + 10;
+    } else {
+        doc.setFontSize(20);
+        doc.setTextColor(...primaryColor);
+        doc.setFont('helvetica', 'bold');
+        doc.text('AÇAÍ HITS', pageWidth / 2, y + 10, { align: 'center' });
+        y += 20;
+    }
+
+    // Título
+    doc.setFontSize(18);
+    doc.setTextColor(...primaryColor);
+    doc.setFont('helvetica', 'bold');
+    doc.text('COMPROVANTE DE PEDIDO', pageWidth / 2, y, { align: 'center' });
+    y += 15;
+
+    // Informações da empresa
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    doc.text('Açaí Hits - Sabor e Qualidade', pageWidth / 2, y, { align: 'center' });
     y += 5;
+    doc.text('WhatsApp: (84) 99600-2433', pageWidth / 2, y, { align: 'center' });
+    y += 10;
 
-    // Linha divisória
-    doc.setLineWidth(0.1);
-    doc.line(margin, y, width - margin, y);
-    y += 3;
+    // Divisor
+    doc.setDrawColor(...primaryColor);
+    doc.setLineWidth(0.5);
+    doc.line(margin, y, pageWidth - margin, y);
+    y += 15;
 
     // Informações do cliente
-    doc.setFontSize(fontSizeNormal);
-    doc.setTextColor(111, 38, 205);
+    doc.setFontSize(12);
+    doc.setTextColor(0, 0, 0);
+    doc.setFont('helvetica', 'bold');
+    doc.text('DADOS DO CLIENTE', margin, y);
+    y += 8;
 
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'normal');
     doc.text(`Data: ${new Date().toLocaleString('pt-BR')}`, margin, y);
-    y += 4;
+    y += 7;
 
     doc.text(`Cliente: ${orderDetails.name}`, margin, y);
-    y += 4;
+    y += 7;
 
-    // Quebra endereço se necessário
-    const addressLines = doc.splitTextToSize(`Endereço: ${orderDetails.address}`, width - 2 * margin);
+    // Endereço (pode quebrar linha)
+    const addressLines = doc.splitTextToSize(`Endereço: ${orderDetails.address}`, maxWidth);
     addressLines.forEach(line => {
         doc.text(line, margin, y);
-        y += 4;
+        y += 7;
     });
 
     doc.text(`Local: ${orderDetails.deliveryLocation}`, margin, y);
-    y += 4;
+    y += 7;
 
     doc.text(`Pagamento: ${orderDetails.paymentMethod}`, margin, y);
-    y += 4;
-
-    if (currentUser) {
-        doc.text(`Usuário: ${currentUser.email}`, margin, y);
-        y += 4;
-    }
-
-    // Linha divisória
-    doc.line(margin, y, width - margin, y);
-    y += 4;
+    y += 15;
 
     // Itens do pedido
-    doc.setFontSize(fontSizeTitle);
-    doc.text('ITENS DO PEDIDO', width / 2, y, { align: 'center' });
-    y += 5;
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.text('ITENS DO PEDIDO', margin, y);
+    y += 10;
 
-    doc.setFontSize(fontSizeSmall);
+    // Cabeçalho da tabela
+    doc.setFillColor(...primaryColor);
+    doc.setTextColor(255, 255, 255);
+    doc.rect(margin, y, maxWidth, 8, 'F');
+    doc.text('Descrição', margin + 5, y + 5);
+    doc.text('Qtd', pageWidth - margin - 30, y + 5, { align: 'right' });
+    doc.text('Valor', pageWidth - margin - 5, y + 5, { align: 'right' });
+    y += 12;
+
+    // Itens
+    doc.setFontSize(10);
+    doc.setTextColor(0, 0, 0);
+    doc.setFont('helvetica', 'normal');
     orderDetails.items.forEach(item => {
-        // Limpar formatação HTML
-        const cleanProduct = item.product.replace(/<br>/g, ' ');
-
-        // Criar descrição compacta
-        const descText = `- ${cleanProduct} (${item.quantity}x)`;
-        const priceText = `R$ ${(item.price * item.quantity).toFixed(2)}`;
-
-        // Quebrar texto se necessário
-        const lines = doc.splitTextToSize(descText, width - 15 - margin); // Reserva espaço para preço
-
-        lines.forEach(line => {
-            doc.text(line, margin, y);
-            y += 3;
+        // Descrição (pode quebrar em várias linhas)
+        const descLines = doc.splitTextToSize(item.product, maxWidth - 40);
+        
+        // Calcular altura necessária
+        const itemHeight = Math.max(descLines.length * 5, 10);
+        
+        descLines.forEach((line, i) => {
+            doc.text(line, margin + 5, y + 5 + (i * 5));
         });
-
-        // Preço alinhado à direita
-        doc.text(priceText, width - margin, y - 3, { align: 'right' });
-
-        y += 2; // Espaço entre itens
+        
+        // Quantidade e valor
+        doc.text(`${item.quantity}x`, pageWidth - margin - 30, y + 5, { align: 'right' });
+        doc.text(`R$ ${(item.price * item.quantity).toFixed(2)}`, pageWidth - margin - 5, y + 5, { align: 'right' });
+        
+        // Linha divisória
+        doc.setDrawColor(200, 200, 200);
+        doc.setLineWidth(0.2);
+        doc.line(margin, y + itemHeight, pageWidth - margin, y + itemHeight);
+        
+        y += itemHeight + 5;
     });
 
-    // Linha divisória
-    y += 2;
-    doc.line(margin, y, width - margin, y);
-    y += 4;
+    y += 10;
 
     // Totais
-    doc.setFontSize(fontSizeNormal);
-    doc.text(`Subtotal: R$ ${orderDetails.subtotal.toFixed(2)}`, width - margin, y, { align: 'right' });
-    y += 4;
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.text('RESUMO DO PEDIDO', margin, y);
+    y += 15;
 
-    doc.text(`Taxa entrega: R$ ${orderDetails.deliveryFee.toFixed(2)}`, width - margin, y, { align: 'right' });
-    y += 4;
-
-    doc.setFontSize(fontSizeTitle);
-    doc.text(`TOTAL: R$ ${orderDetails.total.toFixed(2)}`, width - margin, y, { align: 'right' });
+    doc.setFontSize(11);
+    doc.text('Subtotal:', pageWidth - margin - 60, y, { align: 'right' });
+    doc.text(`R$ ${orderDetails.subtotal.toFixed(2)}`, pageWidth - margin - 5, y, { align: 'right' });
     y += 8;
 
-    // Rodapé
-    doc.setFontSize(fontSizeSmall);
-    doc.text('Obrigado pela preferência!', width / 2, y, { align: 'center' });
+    doc.text('Taxa de entrega:', pageWidth - margin - 60, y, { align: 'right' });
+    doc.text(`R$ ${orderDetails.deliveryFee.toFixed(2)}`, pageWidth - margin - 5, y, { align: 'right' });
+    y += 8;
 
-    // Ajustar altura final do documento
-    const pageHeight = doc.internal.pageSize.getHeight();
-    if (y > pageHeight - 10) {
-        doc.addPage([width, y + 10]); // Adiciona nova página se necessário
-    }
+    // Linha do total
+    doc.setDrawColor(0, 0, 0);
+    doc.setLineWidth(0.5);
+    doc.line(pageWidth - margin - 70, y, pageWidth - margin, y);
+    y += 2;
+
+    doc.setFontSize(13);
+    doc.setTextColor(...primaryColor);
+    doc.text('TOTAL:', pageWidth - margin - 60, y + 5, { align: 'right' });
+    doc.text(`R$ ${orderDetails.total.toFixed(2)}`, pageWidth - margin - 5, y + 5, { align: 'right' });
+    y += 15;
+
+    // Mensagem final
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    doc.text('Obrigado por escolher o Açaí Hits!', pageWidth / 2, y, { align: 'center' });
+    y += 5;
+    doc.text('Seu pedido será preparado com todo carinho.', pageWidth / 2, y, { align: 'center' });
+    y += 5;
+    doc.text('WhatsApp: (84) 99600-2433', pageWidth / 2, y, { align: 'center' });
 
     return doc.output('blob');
 }
