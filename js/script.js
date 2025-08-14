@@ -1804,43 +1804,40 @@ async function generatePDF(orderDetails) {
     doc.text('ITENS DO PEDIDO', margin, y);
     y += 10;
 
-    // Cabeçalho da tabela
-    doc.setFillColor(...primaryColor);
-    doc.setTextColor(255, 255, 255);
-    doc.rect(margin, y, maxWidth, 8, 'F');
-    doc.text('Descrição', margin + 5, y + 5);
-    doc.text('Qtd', pageWidth - margin - 30, y + 5, { align: 'right' });
-    doc.text('Valor', pageWidth - margin - 5, y + 5, { align: 'right' });
-    y += 12;
-
-    // Itens
-    doc.setFontSize(10);
-    doc.setTextColor(0, 0, 0);
-    doc.setFont('helvetica', 'normal');
+    // Formatar descrição dos itens
     orderDetails.items.forEach(item => {
-        // Descrição (pode quebrar em várias linhas)
-        const descLines = doc.splitTextToSize(item.product, maxWidth - 40);
+        // Dividir a descrição em componentes
+        const parts = item.product.split(' | ');
         
-        // Calcular altura necessária
-        const itemHeight = Math.max(descLines.length * 5, 10);
+        // Primeira parte (nome do produto)
+        doc.setFontSize(11);
+        doc.setFont('helvetica', 'bold');
+        doc.text(`${item.quantity}x ${parts[0]}`, margin, y);
+        y += 6;
         
-        descLines.forEach((line, i) => {
-            doc.text(line, margin + 5, y + 5 + (i * 5));
-        });
+        // Restante das partes (detalhes)
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+        for (let i = 1; i < parts.length; i++) {
+            // Remover vírgulas e substituir por quebras de linha
+            const cleanPart = parts[i].replace(/, /g, '\n   ');
+            const detailLines = doc.splitTextToSize(`   ${cleanPart}`, maxWidth);
+            
+            detailLines.forEach(line => {
+                doc.text(line, margin, y);
+                y += 5;
+            });
+        }
         
-        // Quantidade e valor
-        doc.text(`${item.quantity}x`, pageWidth - margin - 30, y + 5, { align: 'right' });
-        doc.text(`R$ ${(item.price * item.quantity).toFixed(2)}`, pageWidth - margin - 5, y + 5, { align: 'right' });
-        
-        // Linha divisória
-        doc.setDrawColor(200, 200, 200);
-        doc.setLineWidth(0.2);
-        doc.line(margin, y + itemHeight, pageWidth - margin, y + itemHeight);
-        
-        y += itemHeight + 5;
+        // Espaço entre itens
+        y += 8;
     });
 
-    y += 10;
+    // Divisor
+    doc.setDrawColor(200, 200, 200);
+    doc.setLineWidth(0.5);
+    doc.line(margin, y, pageWidth - margin, y);
+    y += 15;
 
     // Totais
     doc.setFontSize(12);
