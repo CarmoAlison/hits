@@ -1826,7 +1826,7 @@ async function generatePDF(orderDetails) {
             // Se tiver subcomponentes (ex: "adicionais: Nutella, Oreo")
             if (subParts.length > 1) {
                 const title = subParts[0] + ':';
-                const items = subParts[1].split(',').map(item => item.trim());
+                const items = subParts[1].split(/,\s*\n?\s*/).filter(item => item.trim() !== '');
 
                 // Imprimir título
                 doc.text(title, margin, y);
