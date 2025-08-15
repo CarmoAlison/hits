@@ -722,7 +722,7 @@ document.addEventListener('click', function (e) {
         if (tipo === 'combo') {
             const vitahitsCount = parseInt(button.getAttribute('data-vitahits'));
             const salgadosCount = parseInt(button.getAttribute('data-salgados'));
-            
+
             currentCombo = {
                 name: product,
                 basePrice: price,
@@ -734,7 +734,7 @@ document.addEventListener('click', function (e) {
             comboVitahitsSelections = Array(vitahitsCount).fill().map(() => ({ cobertura: null }));
             comboSalgadosSelections = Array(salgadosCount).fill().map(() => ({ salgado: null }));
             comboAdicionais = [];
-            
+
             fillComboModal();
             document.getElementById('comboModal').style.display = 'block';
             return;
@@ -1440,7 +1440,7 @@ let comboAdicionais = [];
 function fillComboModal() {
     document.getElementById('comboVitahitsContainer').innerHTML = '';
     document.getElementById('comboSalgadosContainer').innerHTML = '';
-    
+
     // Seção para VitaHits
     for (let i = 1; i <= currentCombo.vitahits; i++) {
         const vitahitsSection = document.createElement('div');
@@ -1450,7 +1450,7 @@ function fillComboModal() {
             <div class="options-grid" id="vitahitsCobertura${i}"></div>
         `;
         document.getElementById('comboVitahitsContainer').appendChild(vitahitsSection);
-        
+
         // Preencher opções de cobertura
         const container = document.getElementById(`vitahitsCobertura${i}`);
         customizationOptions.cobertura.forEach(cobertura => {
@@ -1459,14 +1459,14 @@ function fillComboModal() {
             option.innerHTML = `
                 <input type="radio" name="vitahits${i}_cobertura" 
                        id="vitahits${i}_cobertura_${cobertura.id}" 
-                       data-vitahits-index="${i-1}"
+                       data-vitahits-index="${i - 1}"
                        data-id="${cobertura.id}">
                 <label for="vitahits${i}_cobertura_${cobertura.id}">${cobertura.name}</label>
             `;
             container.appendChild(option);
         });
     }
-    
+
     // Seção para Salgados
     for (let i = 1; i <= currentCombo.salgados; i++) {
         const salgadosSection = document.createElement('div');
@@ -1476,7 +1476,7 @@ function fillComboModal() {
             <div class="options-grid" id="salgadosOptions${i}"></div>
         `;
         document.getElementById('comboSalgadosContainer').appendChild(salgadosSection);
-        
+
         // Preencher opções de salgados
         const container = document.getElementById(`salgadosOptions${i}`);
         snacks.forEach(snack => {
@@ -1485,14 +1485,14 @@ function fillComboModal() {
             option.innerHTML = `
                 <input type="radio" name="salgado${i}" 
                        id="salgado${i}_${snack.id}" 
-                       data-salgado-index="${i-1}"
+                       data-salgado-index="${i - 1}"
                        data-id="${snack.id}">
                 <label for="salgado${i}_${snack.id}">${snack.name}</label>
             `;
             container.appendChild(option);
         });
     }
-    
+
     // Seção de adicionais
     const adicionaisContainer = document.getElementById('comboAdicionaisOptions');
     adicionaisContainer.innerHTML = '';
@@ -1512,85 +1512,85 @@ function fillComboModal() {
 document.getElementById('closeCombo').addEventListener('click', closeComboModal);
 document.getElementById('cancelCombo').addEventListener('click', closeComboModal);
 
-document.getElementById('confirmCombo').addEventListener('click', function() {
+document.getElementById('confirmCombo').addEventListener('click', function () {
     // Verificar se todas as seleções foram feitas
     const allVitahitsSelected = comboVitahitsSelections.every(v => v.cobertura !== null);
     const allSalgadosSelected = comboSalgadosSelections.every(s => s.salgado !== null);
-    
+
     if (!allVitahitsSelected || !allSalgadosSelected) {
         alert('Por favor, selecione todas as opções para o combo!');
         return;
     }
-    
+
     // Construir descrição do combo
     let description = `${currentCombo.name}: `;
     let finalPrice = currentCombo.basePrice;
-    
+
     // Adicionar VitaHits
     comboVitahitsSelections.forEach((v, i) => {
-        description += `\n- VitaHits ${i+1}: ${v.cobertura.name}`;
+        description += `\n- VitaHits ${i + 1}: ${v.cobertura.name}`;
     });
-    
+
     // Adicionar Salgados
     comboSalgadosSelections.forEach((s, i) => {
-        description += `\n- Salgado ${i+1}: ${s.salgado.name}`;
+        description += `\n- Salgado ${i + 1}: ${s.salgado.name}`;
         // Se o salgado tiver descrição, adicionar
         if (s.salgado.description) {
             description += ` (${s.salgado.description})`;
         }
     });
-    
+
     // Adicionais
     if (comboAdicionais.length > 0) {
         description += `\n- Adicionais: ${comboAdicionais.map(a => a.name).join(', ')}`;
         comboAdicionais.forEach(a => finalPrice += a.price);
     }
-    
+
     // Adicionar ao carrinho
     cart.push({
         product: description,
         price: finalPrice,
         quantity: currentCombo.quantity
     });
-    
+
     closeComboModal();
     updateCart();
     cartModal.style.display = 'block';
 });
 
 // Eventos de seleção no modal de combo
-document.getElementById('comboModal').addEventListener('change', function(e) {
+document.getElementById('comboModal').addEventListener('change', function (e) {
     const target = e.target;
-    
+
     // Seleção de cobertura para VitaHits
     if (target.name.startsWith('vitahits') && target.type === 'radio') {
         const vitahitsIndex = parseInt(target.dataset.vitahitsIndex);
         const coberturaId = target.dataset.id;
         const cobertura = customizationOptions.cobertura.find(c => c.id === coberturaId);
-        
+
         comboVitahitsSelections[vitahitsIndex] = {
             ...comboVitahitsSelections[vitahitsIndex],
             cobertura: cobertura
         };
     }
-    
+
     // Seleção de salgados
     if (target.name.startsWith('salgado') && target.type === 'radio') {
         const salgadoIndex = parseInt(target.dataset.salgadoIndex);
         const salgadoId = target.dataset.id;
         const salgado = snacks.find(s => s.id === salgadoId);
-        
+
         comboSalgadosSelections[salgadoIndex] = {
             ...comboSalgadosSelections[salgadoIndex],
             salgado: salgado
         };
     }
-    
+
     // Seleção de adicionais
     if (target.id.startsWith('combo_adicional') && target.type === 'checkbox') {
         const adicionalId = target.dataset.id;
         const adicional = customizationOptions.adicionais.find(a => a.id === adicionalId);
-        
+
         if (target.checked) {
             comboAdicionais.push(adicional);
         } else {
@@ -1804,33 +1804,34 @@ async function generatePDF(orderDetails) {
     doc.text('ITENS DO PEDIDO', margin, y);
     y += 10;
 
-       orderDetails.items.forEach(item => {
+    // Substitua esta parte da função generatePDF()
+    orderDetails.items.forEach(item => {
         // Dividir a descrição em componentes principais
         const mainParts = item.product.split(' | ');
-        
+
         // Primeira parte (nome do produto)
         doc.setFontSize(11);
         doc.setFont('helvetica', 'bold');
         doc.text(`${item.quantity}x ${mainParts[0]}`, margin, y);
         y += 6;
-        
+
         // Restante das partes (detalhes)
         doc.setFontSize(10);
         doc.setFont('helvetica', 'normal');
-        
+
         for (let i = 1; i < mainParts.length; i++) {
             // Dividir cada parte em subcomponentes
             const subParts = mainParts[i].split(': ');
-            
+
             // Se tiver subcomponentes (ex: "adicionais: Nutella, Oreo")
             if (subParts.length > 1) {
                 const title = subParts[0] + ':';
                 const items = subParts[1].split(', ');
-                
+
                 // Imprimir título
                 doc.text(title, margin, y);
                 y += 5;
-                
+
                 // Imprimir cada item em linha separada
                 items.forEach(item => {
                     doc.text(`   • ${item.trim()}`, margin, y);
@@ -1842,7 +1843,7 @@ async function generatePDF(orderDetails) {
                 y += 5;
             }
         }
-        
+
         // Espaço entre itens
         y += 8;
     });
