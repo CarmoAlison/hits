@@ -1798,55 +1798,75 @@ async function generatePDF(orderDetails) {
     doc.text(`Pagamento: ${orderDetails.paymentMethod}`, margin, y);
     y += 15;
 
-    // Itens do pedido
+    // ITENS DO PEDIDO - Versão com HTML
     doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
     doc.text('ITENS DO PEDIDO', margin, y);
     y += 10;
 
-    // Substitua esta parte da função generatePDF()
+    // Criar HTML para os itens
+    let itemsHTML = `
+        <style>
+            .item-container { margin-bottom: 10px; }
+            .item-title { font-weight: bold; margin-bottom: 3px; font-size: 11px; }
+            .item-details { margin-left: 15px; }
+            .item-list { margin: 0; padding-left: 15px; }
+            .item-list li { margin-bottom: 2px; font-size: 10px; }
+            .item-section { margin-bottom: 5px; }
+        </style>
+        <div style="margin-left: 5px;">
+    `;
+
     orderDetails.items.forEach(item => {
-        // Dividir a descrição em componentes principais
-        const mainParts = item.product.split(' | ');
-
-        // Primeira parte (nome do produto)
-        doc.setFontSize(11);
-        doc.setFont('helvetica', 'bold');
-        doc.text(`${item.quantity}x ${mainParts[0]}`, margin, y);
-        y += 6;
-
-        // Restante das partes (detalhes)
-        doc.setFontSize(10);
-        doc.setFont('helvetica', 'normal');
-
-        for (let i = 1; i < mainParts.length; i++) {
-            // Dividir cada parte em subcomponentes
-            const subParts = mainParts[i].split(': ');
-
-            // Se tiver subcomponentes (ex: "adicionais: Nutella, Oreo")
-            if (subParts.length > 1) {
-                const title = subParts[0] + ':';
-                const items = subParts[1].split(', ');
-
-                // Imprimir título
-                doc.text(title, margin, y);
-                y += 5;
-
-                // Imprimir cada item em linha separada
-                items.forEach(item => {
-                    doc.text(`   • ${item.trim()}`, margin, y);
-                    y += 5;
-                });
+        // Processar a descrição do item
+        const parts = item.product.split(' | ');
+        
+        itemsHTML += `
+            <div class="item-container">
+                <div class="item-title">${item.quantity}x ${parts[0]}</div>
+                <div class="item-details">
+        `;
+        
+        // Adicionar os detalhes (acompanhamentos, adicionais, etc.)
+        for (let i = 1; i < parts.length; i++) {
+            const [title, items] = parts[i].includes(': ') ? parts[i].split(': ') : [parts[i], null];
+            
+            if (items) {
+                // Se tiver itens específicos (como acompanhamentos)
+                itemsHTML += `
+                    <div class="item-section">
+                        <b>${title}:</b>
+                        <ul class="item-list">
+                            ${items.split(', ').map(item => `<li>${item.trim()}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
             } else {
-                // Parte sem subcomponentes
-                doc.text(mainParts[i], margin, y);
-                y += 5;
+                // Se for apenas texto
+                itemsHTML += `
+                    <div class="item-section">${title}</div>
+                `;
             }
         }
-
-        // Espaço entre itens
-        y += 8;
+        
+        itemsHTML += `</div></div>`;
     });
+
+    itemsHTML += `</div>`;
+
+    // Adicionar o HTML ao PDF
+    await doc.html(itemsHTML, {
+        x: margin,
+        y: y,
+        width: maxWidth,
+        windowWidth: 800,
+        autoPaging: 'text',
+        margin: [0, 0, 0, 0],
+        html2canvas: { scale: 0.3 } // Ajuste de escala para melhor renderização
+    });
+
+    // Atualizar posição Y após renderizar o HTML
+    y = doc.lastAutoTable?.finalY || y + 100;
 
     // Divisor
     doc.setDrawColor(200, 200, 200);
