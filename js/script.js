@@ -1805,48 +1805,43 @@ async function generatePDF(orderDetails) {
     y += 10;
 
     // Substitua esta parte da função generatePDF()
-    orderDetails.items.forEach(item => {
-        // Dividir a descrição em componentes principais
-        const mainParts = item.product.split(' | ');
+orderDetails.items.forEach(item => {
+    // Dividir a descrição em componentes principais
+    const mainParts = item.product.split(' | ');
 
-        // Primeira parte (nome do produto)
-        doc.setFontSize(11);
-        doc.setFont('helvetica', 'bold');
-        doc.text(`${item.quantity}x ${mainParts[0]}`, margin, y);
-        y += 6;
+    // Nome do produto e quantidade
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.text(`${item.quantity}x ${mainParts[0]}`, margin, y);
+    y += 6;
 
-        // Restante das partes (detalhes)
-        doc.setFontSize(10);
-        doc.setFont('helvetica', 'normal');
+    // Detalhes do produto
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
 
-        for (let i = 1; i < mainParts.length; i++) {
-            // Dividir cada parte em subcomponentes
-            const subParts = mainParts[i].split(': ');
-
-            // Se tiver subcomponentes (ex: "adicionais: Nutella, Oreo")
-            if (subParts.length > 1) {
-                const title = subParts[0] + ':';
-                const items = subParts[1].split(/,\s*\n?\s*/).filter(item => item.trim() !== '');
-
-                // Imprimir título
-                doc.text(title, margin, y);
+    for (let i = 1; i < mainParts.length; i++) {
+        const subParts = mainParts[i].split(': ');
+        
+        if (subParts.length > 1) {
+            const title = subParts[0] + ':';
+            // Aqui está a mudança principal - dividir por vírgula e trim
+            const items = subParts[1].split(',').map(i => i.trim());
+            
+            doc.text(title, margin, y);
+            y += 5;
+            
+            // Cada item em nova linha com bullet point
+            items.forEach(it => {
+                doc.text(`   • ${it}`, margin, y);
                 y += 5;
-
-                // Imprimir cada item em linha separada
-                items.forEach(item => {
-                    doc.text(`   • ${item.trim()}`, margin, y);
-                    y += 5;
-                });
-            } else {
-                // Parte sem subcomponentes
-                doc.text(mainParts[i], margin, y);
-                y += 5;
-            }
+            });
+        } else {
+            doc.text(mainParts[i], margin, y);
+            y += 5;
         }
-
-        // Espaço entre itens
-        y += 8;
-    });
+    }
+    y += 8;
+});
 
     // Divisor
     doc.setDrawColor(200, 200, 200);
