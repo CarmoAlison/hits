@@ -1683,3 +1683,16 @@ nav ul li a:hover {
     color: #6f26cd;
     margin-bottom: 20px;
 }
+
+.cancelAcompanhamento,.confirmAcompanhamento{
+    padding: 10px;
+    border: none;
+    border-radius: 20px;
+    background-color: #5a1ea6;
+    color: #ffffff;
+}
+.cancelAcompanhamento:hover,.confirmAcompanhamento:hover{
+    transition: .2s all ease;
+    background-color: #ffffff;
+    color: #5a1ea6;
+}
