@@ -361,7 +361,11 @@ function fillCustomizationModal() {
             option.className = 'option-item';
             option.innerHTML = `
                 <input type="checkbox" id="creme_${creme.id}" 
-                       data-id="${creme.id}" data-price="${creme.price}">
+                       data-id="${creme.id}" data-price="${creme.price}"
+                       style="margin-right: 8px;
+    width: 20px;
+    height: 20px;
+    accent-color: #6f26cd;">
                 <label for="creme_${creme.id}">${creme.name}</label>
             `;
             document.getElementById('cremesOptions').appendChild(option);
@@ -383,7 +387,11 @@ function fillCustomizationModal() {
             option.className = 'option-item';
             option.innerHTML = `
                 <input type="checkbox" id="fruta_${fruta.id}" 
-                       data-id="${fruta.id}" data-price="${fruta.price}">
+                       data-id="${fruta.id}" data-price="${fruta.price}"
+                       style="margin-right: 8px;
+    width: 20px;
+    height: 20px;
+    accent-color: #6f26cd;">
                 <label for="fruta_${fruta.id}">${fruta.name}</label>
             `;
             document.getElementById('frutasOptions').appendChild(option);
@@ -404,7 +412,11 @@ function fillCustomizationModal() {
         option.className = 'option-item';
         option.innerHTML = `
             <input type="radio" name="cobertura" id="cobertura_${cobertura.id}" 
-                   data-id="${cobertura.id}" data-price="${cobertura.price}">
+                   data-id="${cobertura.id}" data-price="${cobertura.price}"
+                   style="margin-right: 8px;
+    width: 20px;
+    height: 20px;
+    accent-color: #6f26cd;">
             <label for="cobertura_${cobertura.id}">${cobertura.name}</label>
         `;
         document.getElementById('coberturasOptions').appendChild(option);
@@ -425,7 +437,11 @@ function fillCustomizationModal() {
             option.className = 'option-item';
             option.innerHTML = `
                 <input type="checkbox" id="topping_${topping.id}" 
-                       data-id="${topping.id}" data-price="${topping.price}">
+                       data-id="${topping.id}" data-price="${topping.price}"
+                       style="margin-right: 8px;
+    width: 20px;
+    height: 20px;
+    accent-color: #6f26cd;">
                 <label for="topping_${topping.id}">${topping.name}</label>
             `;
             document.getElementById('acompanhamentosOptions').appendChild(option);
@@ -447,7 +463,11 @@ function fillCustomizationModal() {
         option.className = 'option-item';
         option.innerHTML = `
             <input type="checkbox" id="adicional_${adicional.id}" 
-                   data-id="${adicional.id}" data-price="${adicional.price}">
+                   data-id="${adicional.id}" data-price="${adicional.price}"
+                   style="margin-right: 8px;
+    width: 20px;
+    height: 20px;
+    accent-color: #6f26cd;">
             <label for="adicional_${adicional.id}">${adicional.name} (+R$ ${adicional.price.toFixed(2)})</label>
         `;
         document.getElementById('adicionaisOptions').appendChild(option);
