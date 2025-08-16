@@ -1798,45 +1798,77 @@ async function generatePDF(orderDetails) {
     y += 15;
 
     // ITENS DO PEDIDO - VERSÃO REESCRITA
-    // ITENS DO PEDIDO - VERSÃO ATUALIZADA
+// Substitua a seção de ITENS DO PEDIDO por este código:
+
 doc.setFontSize(12);
 doc.setFont('helvetica', 'bold');
 doc.text('ITENS DO PEDIDO', margin, y);
 y += 10;
 
 orderDetails.items.forEach(item => {
-    // 1. Linha principal (quantidade + nome do produto)
+    // Verifica se é um item personalizado
+    const isCustomItem = item.product.includes('Açaí Personalizado');
+    
+    // Linha principal (quantidade + nome)
     doc.setFontSize(11);
     doc.setFont('helvetica', 'bold');
-    
-    // Extrai o nome base do produto (antes da primeira vírgula ou |)
-    const productName = item.product.split(/[,|]/)[0].trim();
-    doc.text(`${item.quantity}x ${productName}`, margin, y);
+    doc.text(`${item.quantity}x ${item.product.split('|')[0].trim()}`, margin, y);
     y += 6;
-    
-    // 2. Processa os complementos
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
-    
-    // Verifica se há complementos (após a primeira vírgula ou |)
-    if (item.product.includes(',') || item.product.includes('|')) {
-        // Pega toda a parte após o nome do produto
-        const complements = item.product.substring(item.product.indexOf(/[,|]/) + 1).trim();
+
+    // Processamento diferente para itens personalizados
+    if (isCustomItem) {
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
         
-        // Divide os complementos considerando vírgulas ou pontos e vírgula
-        const complementList = complements.split(/[,;]/).map(c => c.trim()).filter(c => c);
+        // Divide as partes do item personalizado
+        const parts = item.product.split('|').slice(1).map(p => p.trim());
         
-        // Adiciona cada complemento com bullet point
-        complementList.forEach(complement => {
-            doc.text(` • ${complement}`, margin + 5, y);
-            y += 5;
+        parts.forEach(part => {
+            // Remove marcações HTML se existirem
+            const cleanPart = part.replace(/<br>/g, '');
+            
+            // Se for uma lista de adicionais
+            if (part.includes('adicionais:')) {
+                const [title, items] = cleanPart.split(':').map(s => s.trim());
+                doc.text(` ${title}:`, margin, y);
+                y += 5;
+                
+                // Processa cada adicional
+                items.split(';').forEach(additional => {
+                    if (additional.trim()) {
+                        doc.text(`   • ${additional.trim()}`, margin + 5, y);
+                        y += 5;
+                    }
+                });
+            } 
+            // Complementos normais
+            else {
+                cleanPart.split(';').forEach(complement => {
+                    if (complement.trim()) {
+                        // Remove duplicatas de "Extra:"
+                        if (!complement.includes('Extra:') || !parts.some(p => p.includes('Extra:') && p !== part)) {
+                            doc.text(` • ${complement.trim()}`, margin + 5, y);
+                            y += 5;
+                        }
+                    }
+                });
+            }
         });
+    } else {
+        // Itens não personalizados
+        if (item.product.includes('|')) {
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'normal');
+            
+            const details = item.product.split('|')[1].trim();
+            doc.text(` • ${details}`, margin + 5, y);
+            y += 5;
+        }
     }
-    
+
     // Espaço entre itens
     y += 8;
 });
-
     // Divisor
     doc.setDrawColor(200, 200, 200);
     doc.setLineWidth(0.5);
