@@ -1799,6 +1799,7 @@ async function generatePDF(orderDetails) {
 
     // ITENS DO PEDIDO - VERSÃO REESCRITA
     // ITENS DO PEDIDO - VERSÃO ATUALIZADA
+// ITENS DO PEDIDO - VERSÃO CORRIGIDA
 doc.setFontSize(12);
 doc.setFont('helvetica', 'bold');
 doc.text('ITENS DO PEDIDO', margin, y);
@@ -1808,31 +1809,44 @@ orderDetails.items.forEach(item => {
     // 1. Linha principal (quantidade + nome do produto)
     doc.setFontSize(11);
     doc.setFont('helvetica', 'bold');
-    
-    // Extrai o nome base do produto (antes da primeira vírgula ou |)
-    const productName = item.product.split(/[,|]/)[0].trim();
-    doc.text(`${item.quantity}x ${productName}`, margin, y);
+    doc.text(`${item.quantity}x ${item.product.split('|')[0].trim()}`, margin, y);
     y += 6;
-    
-    // 2. Processa os complementos
+
+    // 2. Processar complementos e adicionais
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
-    
-    // Verifica se há complementos (após a primeira vírgula ou |)
-    if (item.product.includes(',') || item.product.includes('|')) {
-        // Pega toda a parte após o nome do produto
-        const complements = item.product.substring(item.product.indexOf(/[,|]/) + 1).trim();
+
+    // Verifica se há complementos (após o primeiro |)
+    if (item.product.includes('|')) {
+        const parts = item.product.split('|').slice(1).map(p => p.trim());
         
-        // Divide os complementos considerando vírgulas ou pontos e vírgula
-        const complementList = complements.split(/[,;]/).map(c => c.trim()).filter(c => c);
-        
-        // Adiciona cada complemento com bullet point
-        complementList.forEach(complement => {
-            doc.text(` • ${complement}`, margin + 5, y);
-            y += 5;
+        parts.forEach(part => {
+            // Se for uma lista de adicionais (contém "adicionais:")
+            if (part.includes('adicionais:')) {
+                const [title, items] = part.split(':').map(s => s.trim());
+                doc.text(` ${title}:`, margin, y);
+                y += 5;
+                
+                // Processa cada adicional
+                items.split(';').forEach(additional => {
+                    if (additional.trim()) {
+                        doc.text(`   • ${additional.trim()}`, margin + 5, y);
+                        y += 5;
+                    }
+                });
+            } 
+            // Complementos normais
+            else {
+                part.split(';').forEach(complement => {
+                    if (complement.trim()) {
+                        doc.text(` • ${complement.trim()}`, margin + 5, y);
+                        y += 5;
+                    }
+                });
+            }
         });
     }
-    
+
     // Espaço entre itens
     y += 8;
 });
