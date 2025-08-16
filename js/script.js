@@ -2134,30 +2134,54 @@ checkoutForm.addEventListener('submit', async (e) => {
         const pdfLink = await uploadToDrive(pdfBlob, fileName);
 
         // Mensagem para WhatsApp
-        let message = `*NOVO PEDIDO AÇAÍ HITS*%0A%0A` +
+                let message = `*NOVO PEDIDO AÇAÍ HITS*%0A%0A` +
             `*Cliente:* ${orderDetails.name}%0A` +
             `*Endereço:* ${orderDetails.address}%0A` +
             `*Local:* ${orderDetails.deliveryLocation}%0A` +
             `*Pagamento:* ${orderDetails.paymentMethod}%0A` +
             `*Subtotal:* R$ ${orderDetails.subtotal.toFixed(2)}%0A` +
-            `*Taxa de entrega:* R$ ${orderDetails.deliveryFee.toFixed(2)}%0A` + // Nova linha
-            `*Total:* R$ ${orderDetails.total.toFixed(2)}%0A%0A`
+            `*Taxa de entrega:* R$ ${orderDetails.deliveryFee.toFixed(2)}%0A` +
+            `*Total:* R$ ${orderDetails.total.toFixed(2)}%0A%0A` +
+            `*Itens:*%0A%0A`;
 
-        if (currentUser && currentUser.email) {
-            message += `*Email:* ${currentUser.email}%0A`;
-        }
-
-        message += `*Total:* R$ ${orderDetails.total.toFixed(2)}%0A%0A` +
-            `*Itens:*%0A`;
-
+        // Processar cada item do pedido para WhatsApp
         orderDetails.items.forEach(item => {
-            message += `- ${item.product} (${item.quantity}x): R$ ${(item.price * item.quantity).toFixed(2)}%0A`;
+            // Parte principal (quantidade + nome)
+            message += `*${item.quantity}x ${item.product.split('|')[0].trim()}*%0A`;
+            
+            // Processar complementos (se houver)
+            if (item.product.includes('|')) {
+                const parts = item.product.split('|').slice(1).map(p => p.trim());
+                
+                parts.forEach(part => {
+                    // Adicionais
+                    if (part.includes('adicionais:')) {
+                        const [title, items] = part.split(':').map(s => s.trim());
+                        message += `_${title}:_%0A`;
+                        
+                        items.split(';').forEach(additional => {
+                            if (additional.trim()) {
+                                message += `• ${additional.trim()}%0A`;
+                            }
+                        });
+                    } 
+                    // Outros complementos
+                    else {
+                        part.split(';').forEach(complement => {
+                            if (complement.trim()) {
+                                message += `- ${complement.trim()}%0A`;
+                            }
+                        });
+                    }
+                });
+            }
+            
+            message += `_Valor: R$ ${(item.price * item.quantity).toFixed(2)}_%0A%0A`;
         });
 
         if (pdfLink) {
             message += `%0A*COMPROVANTE:* ${pdfLink}`;
         }
-
         // Limpar e redirecionar
         cart = [];
         updateCart();
