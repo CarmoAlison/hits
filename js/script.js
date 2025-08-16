@@ -1693,7 +1693,7 @@ function updateCart() {
 }
 
 async function generatePDF(orderDetails) {
-      const { jsPDF } = window.jspdf;
+    const { jsPDF } = window.jspdf;
     
     // Configuração do documento
     const doc = new jsPDF({
@@ -1727,7 +1727,7 @@ async function generatePDF(orderDetails) {
                 const dataURL = canvas.toDataURL('image/png');
                 resolve(dataURL);
             };
-            img.onerror = () => resolve(null); // Em caso de erro
+            img.onerror = () => resolve(null);
         });
     };
 
@@ -1737,7 +1737,7 @@ async function generatePDF(orderDetails) {
     // Cabeçalho com logo
     if (logoData) {
         const logoWidth = 40;
-        const logoHeight = (logoWidth * 150) / 300; // Proporção 2:1
+        const logoHeight = (logoWidth * 150) / 300;
         const logoX = (pageWidth - logoWidth) / 2;
         doc.addImage(logoData, 'PNG', logoX, y, logoWidth, logoHeight);
         y += logoHeight + 10;
@@ -1785,7 +1785,6 @@ async function generatePDF(orderDetails) {
     doc.text(`Cliente: ${orderDetails.name}`, margin, y);
     y += 7;
 
-    // Endereço (pode quebrar linha)
     const addressLines = doc.splitTextToSize(`Endereço: ${orderDetails.address}`, maxWidth);
     addressLines.forEach(line => {
         doc.text(line, margin, y);
@@ -1798,55 +1797,64 @@ async function generatePDF(orderDetails) {
     doc.text(`Pagamento: ${orderDetails.paymentMethod}`, margin, y);
     y += 15;
 
-    // Itens do pedido
-doc.setFontSize(12);
-doc.setFont('helvetica', 'bold');
-doc.text('ITENS DO PEDIDO', margin, y);
-y += 10;
-
-orderDetails.items.forEach(item => {
-    // Dividir a descrição em componentes principais
-    const mainParts = item.product.split(' | ');
-
-    // Primeira parte (nome do produto)
-    doc.setFontSize(11);
+    // ITENS DO PEDIDO - VERSÃO REESCRITA
+    doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
-    doc.text(`${item.quantity}x ${mainParts[0]}`, margin, y);
-    y += 6;
+    doc.text('ITENS DO PEDIDO', margin, y);
+    y += 10;
 
-    // Restante das partes (detalhes)
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
-
-    for (let i = 1; i < mainParts.length; i++) {
-        // Verificar se é um campo com detalhes (contém ":")
-        if (mainParts[i].includes(': ')) {
-            const [title, details] = mainParts[i].split(': ');
+    orderDetails.items.forEach(item => {
+        // Processar cada item do pedido
+        const itemText = item.product;
+        
+        // Dividir em linhas principais (separadas por |)
+        const mainLines = itemText.split(' | ');
+        
+        // Primeira linha (quantidade e nome do produto)
+        doc.setFontSize(11);
+        doc.setFont('helvetica', 'bold');
+        doc.text(`${item.quantity}x ${mainLines[0]}`, margin, y);
+        y += 6;
+        
+        // Processar detalhes (restante das linhas)
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+        
+        for (let i = 1; i < mainLines.length; i++) {
+            const line = mainLines[i].trim();
             
-            // Imprimir título
-            doc.text(`${title}:`, margin, y);
-            y += 5;
-            
-            // Dividir os detalhes por ponto e vírgula
-            const detailItems = details.split('; ');
-            
-            // Imprimir cada item com bullet point
-            detailItems.forEach(detail => {
-                if (detail.trim()) { // Só adiciona se não for vazio
-                    doc.text(`   • ${detail.trim()}`, margin + 5, y);
-                    y += 5;
-                }
-            });
-        } else {
-            // Parte sem subcomponentes (imprime como está)
-            doc.text(mainParts[i], margin, y);
-            y += 5;
+            // Se a linha contém detalhes (ex: "adicionais: item1; item2")
+            if (line.includes(':') && line.includes(';')) {
+                const [category, items] = line.split(': ');
+                const itemList = items.split('; ');
+                
+                // Escrever a categoria
+                doc.text(`${category}:`, margin, y);
+                y += 5;
+                
+                // Escrever cada item com bullet
+                itemList.forEach(item => {
+                    if (item.trim()) {
+                        doc.text(` • ${item.trim()}`, margin + 5, y);
+                        y += 5;
+                    }
+                });
+            } 
+            // Se for apenas um par chave-valor simples (ex: "tamanho: 500ml")
+            else if (line.includes(':')) {
+                doc.text(line, margin, y);
+                y += 5;
+            } 
+            // Se for texto simples sem formatação
+            else {
+                doc.text(line, margin, y);
+                y += 5;
+            }
         }
-    }
-
-    // Espaço entre itens
-    y += 8;
-});
+        
+        // Espaço entre itens
+        y += 8;
+    });
 
     // Divisor
     doc.setDrawColor(200, 200, 200);
