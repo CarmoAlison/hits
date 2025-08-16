@@ -1798,63 +1798,44 @@ async function generatePDF(orderDetails) {
     y += 15;
 
     // ITENS DO PEDIDO - VERSÃO REESCRITA
-    doc.setFontSize(12);
-    doc.setFont('helvetica', 'bold');
-    doc.text('ITENS DO PEDIDO', margin, y);
-    y += 10;
+    // ITENS DO PEDIDO - VERSÃO ATUALIZADA
+doc.setFontSize(12);
+doc.setFont('helvetica', 'bold');
+doc.text('ITENS DO PEDIDO', margin, y);
+y += 10;
 
-    orderDetails.items.forEach(item => {
-        // Processar cada item do pedido
-        const itemText = item.product;
+orderDetails.items.forEach(item => {
+    // 1. Linha principal (quantidade + nome do produto)
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    
+    // Extrai o nome base do produto (antes da primeira vírgula ou |)
+    const productName = item.product.split(/[,|]/)[0].trim();
+    doc.text(`${item.quantity}x ${productName}`, margin, y);
+    y += 6;
+    
+    // 2. Processa os complementos
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    
+    // Verifica se há complementos (após a primeira vírgula ou |)
+    if (item.product.includes(',') || item.product.includes('|')) {
+        // Pega toda a parte após o nome do produto
+        const complements = item.product.substring(item.product.indexOf(/[,|]/) + 1).trim();
         
-        // Dividir em linhas principais (separadas por |)
-        const mainLines = itemText.split(' | ');
+        // Divide os complementos considerando vírgulas ou pontos e vírgula
+        const complementList = complements.split(/[,;]/).map(c => c.trim()).filter(c => c);
         
-        // Primeira linha (quantidade e nome do produto)
-        doc.setFontSize(11);
-        doc.setFont('helvetica', 'bold');
-        doc.text(`${item.quantity}x ${mainLines[0]}`, margin, y);
-        y += 6;
-        
-        // Processar detalhes (restante das linhas)
-        doc.setFontSize(10);
-        doc.setFont('helvetica', 'normal');
-        
-        for (let i = 1; i < mainLines.length; i++) {
-            const line = mainLines[i].trim();
-            
-            // Se a linha contém detalhes (ex: "adicionais: item1; item2")
-            if (line.includes(':') && line.includes(';')) {
-                const [category, items] = line.split(': ');
-                const itemList = items.split('; ');
-                
-                // Escrever a categoria
-                doc.text(`${category}:`, margin, y);
-                y += 5;
-                
-                // Escrever cada item com bullet
-                itemList.forEach(item => {
-                    if (item.trim()) {
-                        doc.text(` • ${item.trim()}`, margin + 5, y);
-                        y += 5;
-                    }
-                });
-            } 
-            // Se for apenas um par chave-valor simples (ex: "tamanho: 500ml")
-            else if (line.includes(':')) {
-                doc.text(line, margin, y);
-                y += 5;
-            } 
-            // Se for texto simples sem formatação
-            else {
-                doc.text(line, margin, y);
-                y += 5;
-            }
-        }
-        
-        // Espaço entre itens
-        y += 8;
-    });
+        // Adiciona cada complemento com bullet point
+        complementList.forEach(complement => {
+            doc.text(` • ${complement}`, margin + 5, y);
+            y += 5;
+        });
+    }
+    
+    // Espaço entre itens
+    y += 8;
+});
 
     // Divisor
     doc.setDrawColor(200, 200, 200);
