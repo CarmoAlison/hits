@@ -1442,8 +1442,10 @@ const comboModalHTML = `
         </div>
         
         <div class="modal-buttons">
-            <button id="cancelCombo">Cancelar</button>
-            <button id="confirmCombo">Confirmar</button>
+            <button id="cancelCombo" style="padding: 10px;border: none;border-radius: 20px;background-color: #5a1ea6;
+    color: #ffffff;">Cancelar</button>
+            <button id="confirmCombo" style="padding: 10px;border: none;border-radius: 20px;background-color: #5a1ea6;
+    color: #ffffff;">Confirmar</button>
         </div>
     </div>
 </div>
