@@ -59,7 +59,7 @@ const customizationOptions = {
         { id: 'top5', name: 'ChocoPower', price: 0 },
         { id: 'top6', name: 'Granola', price: 0 },
         { id: 'top7', name: 'Paçoca', price: 0 },
-        { id: 'top8', name: 'Machimelo', price: 0 },
+        { id: 'top8', name: 'Marshmallow', price: 0 },
         { id: 'top9', name: 'Coco', price: 0 },
         { id: 'top10', name: 'Amendoim', price: 0 },
         { id: 'top11', name: 'Gota de chocolate', price: 0 },
@@ -83,8 +83,72 @@ const customizationOptions = {
         { id: 'Adic4', name: 'Castanha', price: 2 },
         { id: 'Adic5', name: 'Creme de leitinho', price: 3 },
         { id: 'Adic6', name: 'Batom', price: 2 },
-        { id: 'Adic6', name: 'Creme Cook', price: 3 },
-        { id: 'Adic6', name: 'Ferreiro Rocher', price: 3 },
+        { id: 'Adic6', name: 'Creme Cookies', price: 3 },
+        { id: 'Adic6', name: 'Ferrero Rocher', price: 3 },
+        { id: 'Adic6', name: 'Ouro Branco', price: 3 },
+        { id: 'Adic6', name: 'Oreo', price: 3 },
+    ],
+    cobertura: [
+        { id: 'cober1', name: 'Leite condensado', price: 0 },
+        { id: 'cober2', name: 'Chocolate', price: 0 },
+        { id: 'cober3', name: 'Morango', price: 0 },
+        { id: 'cober4', name: 'Uva', price: 0 },
+        { id: 'cober5', name: 'BlueBarry', price: 0 },
+        { id: 'cober6', name: 'Tutti-fruitti', price: 0 },
+        { id: 'cober7', name: 'Menta', price: 0 },
+    ]
+};
+// Dados para as seções
+const customizationOptionsEspeciais = {
+    Copos: [
+        { id: 'Cop300', name: 'Copo 300ml', price: 12 },
+        { id: 'Cop400', name: 'Copo 400ml', price: 16 },
+        { id: 'Cop500', name: 'Copo 500ml', price: 18 },
+        { id: 'Roleta', name: 'Roleta', price: 40 },
+    ],
+    bases: [
+        { id: 'base1', name: 'Açaí Tradicional', price: 0 },
+        { id: 'base2', name: 'Ninho', price: 0 },
+        { id: 'base3', name: 'Ninho trunfado', price: 0 },
+        { id: 'base4', name: 'Chocomalte', price: 0 },
+        { id: 'base5', name: 'Cupuaçu', price: 0 },
+        { id: 'base6', name: 'Creme de Oreo', price: 0 },
+        { id: 'base7', name: 'Creme de Morango', price: 0 },
+    ],
+    toppings: [
+        { id: 'top1', name: 'Leite em pó (+ R$3,00)', price: 3 },
+        { id: 'top2', name: 'Farinha Láctea', price: 3 },
+        { id: 'top3', name: 'Jujuba', price: 3 },
+        { id: 'top4', name: 'M&M', price: 3 },
+        { id: 'top5', name: 'ChocoPower', price: 3 },
+        { id: 'top6', name: 'Granola', price: 3 },
+        { id: 'top7', name: 'Paçoca', price: 3 },
+        { id: 'top8', name: 'Marshmallow', price: 3 },
+        { id: 'top9', name: 'Coco', price: 3 },
+        { id: 'top10', name: 'Amendoim', price: 3 },
+        { id: 'top11', name: 'Gota de chocolate', price: 3 },
+        { id: 'top12', name: 'Canudinho', price: 3 },
+        { id: 'top13', name: 'Chocoball', price: 3 },
+        { id: 'top14', name: 'Creme de avelã', price: 3 },
+        { id: 'top15', name: 'Ovomaltine', price: 3 }
+    ],
+    fruits: [
+        { id: 'fruit1', name: 'Banana', price: 0 },
+        { id: 'fruit2', name: 'Morango', price: 0 },
+        { id: 'fruit3', name: 'Kiwi', price: 0 },
+        { id: 'fruit3', name: 'Ameixa', price: 0 },
+        { id: 'fruit4', name: 'Cereja', price: 0 },
+        { id: 'fruit5', name: 'Uva', price: 0 },
+    ],
+    adicionais: [
+        { id: 'Adic1', name: 'Nutella', price: 3.5 },
+        { id: 'Adic2', name: 'Oreo', price: 2 },
+        { id: 'Adic3', name: 'kit Kat', price: 3 },
+        { id: 'Adic4', name: 'Castanha', price: 2 },
+        { id: 'Adic5', name: 'Creme de leitinho', price: 3 },
+        { id: 'Adic6', name: 'Batom', price: 2 },
+        { id: 'Adic6', name: 'Creme Cookies', price: 3 },
+        { id: 'Adic6', name: 'Ferrero Rocher', price: 3 },
         { id: 'Adic6', name: 'Ouro Branco', price: 3 },
         { id: 'Adic6', name: 'Oreo', price: 3 },
     ],
@@ -245,11 +309,12 @@ function closeCustomizationModal() {
 }
 
 
-// Função para adicionar produto ao carrinho (atualizada)
+
+// Função para adicionar produto ao carrinho (atualizada para especiais)
 function addCustomizedProductToCart() {
     // Validações específicas
     if (currentProduct.tipo === 'especial') {
-        if (selectedCremes.length !== 2) {
+        if (selectedCremes.length > 2) {
             alert('Por favor, selecione exatamente 2 cremes!');
             return false;
         }
@@ -291,7 +356,7 @@ function addCustomizedProductToCart() {
         finalPrice += selectedCobertura.price;
     }
 
-    // Acompanhamentos
+    // Acompanhamentos (COM ACRÉSCIMO DE R$3,00 PARA ESPECIAIS)
     if (selectedAcompanhamentos.length > 0) {
         parts.push(`acompanhamentos: ${selectedAcompanhamentos.map(t => t.name).join(', ')}`);
         selectedAcompanhamentos.forEach(t => finalPrice += t.price);
@@ -338,7 +403,7 @@ document.getElementById('confirmAcompanhamentos').addEventListener('click', func
     }, 1000);
 });
 
-// Função para preencher o modal - COMPLETA COM FRUTAS E COBERTURA
+// Função para preencher o modal de personalização - MODIFICADA PARA ESPECIAIS
 function fillCustomizationModal() {
     const container = document.getElementById('customizationSections');
     container.innerHTML = '';
@@ -390,7 +455,7 @@ function fillCustomizationModal() {
         });
     }
 
-    // Seção para cobertura (todos os produtos)
+    // Seção para cobertura (todos os produtos) - ADICIONADA PARA ESPECIAIS
     container.innerHTML += `
         <div class="modal-section">
             <h3>Escolha ${currentProduct.maxCoberturas} cobertura</h3>
@@ -410,7 +475,7 @@ function fillCustomizationModal() {
         document.getElementById('coberturasOptions').appendChild(option);
     });
 
-    // Seção para acompanhamentos (apenas produtos especiais)
+    // Seção para acompanhamentos (apenas produtos especiais) - MODIFICADA PARA USAR OPÇÕES ESPECIAIS
     if (currentProduct.tipo === 'especial') {
         container.innerHTML += `
             <div class="modal-section">
@@ -419,8 +484,8 @@ function fillCustomizationModal() {
             </div>
         `;
 
-        // Preencher acompanhamentos
-        customizationOptions.toppings.forEach(topping => {
+        // Preencher acompanhamentos COM OPÇÕES ESPECIAIS (R$3,00 cada)
+        customizationOptionsEspeciais.toppings.forEach(topping => {
             const option = document.createElement('div');
             option.className = 'option-item';
             option.innerHTML = `
@@ -441,7 +506,7 @@ function fillCustomizationModal() {
     `;
 
     // Preencher adicionais
-    const adicionaisList = customizationOptions.adicionais;
+    const adicionaisList = customizationOptionsEspeciais.adicionais;
     adicionaisList.forEach(adicional => {
         const option = document.createElement('div');
         option.className = 'option-item';
@@ -453,7 +518,6 @@ function fillCustomizationModal() {
         document.getElementById('adicionaisOptions').appendChild(option);
     });
 }
-
 // Preencher modal com as opções
 function fillCustomizationModal() {
     const title = document.getElementById('modalTitle');
@@ -648,7 +712,7 @@ document.getElementById('cancelAcompanhamentos').addEventListener('click', funct
 document.getElementById('confirmAcompanhamentos').addEventListener('click', function () {
     // Validações específicas para cada tipo de produto
     if (currentProduct.tipo === 'especial') {
-        if (selectedCremes.length !== 2) {
+        if (selectedCremes.length > 2) {
             alert('Por favor, selecione exatamente 2 cremes!');
             return;
         }
