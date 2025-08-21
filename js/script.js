@@ -83,6 +83,7 @@ const customizationOptions = {
         { id: 'Adic4', name: 'Castanha', price: 2 },
         { id: 'Adic5', name: 'Creme de leitinho', price: 3 },
         { id: 'Adic6', name: 'Batom', price: 2 },
+
         { id: 'Adic6', name: 'Creme Cookies', price: 3 },
         { id: 'Adic6', name: 'Ferrero Rocher', price: 3 },
         { id: 'Adic6', name: 'Ouro Branco', price: 3 },
@@ -151,6 +152,12 @@ const customizationOptionsEspeciais = {
         { id: 'Adic6', name: 'Ferrero Rocher', price: 3 },
         { id: 'Adic6', name: 'Ouro Branco', price: 3 },
         { id: 'Adic6', name: 'Oreo', price: 3 },
+
+        { id: 'Adic7', name: 'Creme Cook', price: 3 },
+        { id: 'Adic8', name: 'Ferreiro Rocher', price: 3 },
+        { id: 'Adic9', name: 'Ouro Branco', price: 3 },
+        { id: 'Adic10', name: 'Oreo', price: 3 },
+
     ],
     cobertura: [
         { id: 'cober1', name: 'Leite condensado', price: 0 },
@@ -426,7 +433,11 @@ function fillCustomizationModal() {
             option.className = 'option-item';
             option.innerHTML = `
                 <input type="checkbox" id="creme_${creme.id}" 
-                       data-id="${creme.id}" data-price="${creme.price}">
+                       data-id="${creme.id}" data-price="${creme.price}"
+                       style="margin-right: 8px;
+    width: 20px;
+    height: 20px;
+    accent-color: #6f26cd;">
                 <label for="creme_${creme.id}">${creme.name}</label>
             `;
             document.getElementById('cremesOptions').appendChild(option);
@@ -448,7 +459,11 @@ function fillCustomizationModal() {
             option.className = 'option-item';
             option.innerHTML = `
                 <input type="checkbox" id="fruta_${fruta.id}" 
-                       data-id="${fruta.id}" data-price="${fruta.price}">
+                       data-id="${fruta.id}" data-price="${fruta.price}"
+                       style="margin-right: 8px;
+    width: 20px;
+    height: 20px;
+    accent-color: #6f26cd;">
                 <label for="fruta_${fruta.id}">${fruta.name}</label>
             `;
             document.getElementById('frutasOptions').appendChild(option);
@@ -469,7 +484,11 @@ function fillCustomizationModal() {
         option.className = 'option-item';
         option.innerHTML = `
             <input type="radio" name="cobertura" id="cobertura_${cobertura.id}" 
-                   data-id="${cobertura.id}" data-price="${cobertura.price}">
+                   data-id="${cobertura.id}" data-price="${cobertura.price}"
+                   style="margin-right: 8px;
+    width: 20px;
+    height: 20px;
+    accent-color: #6f26cd;">
             <label for="cobertura_${cobertura.id}">${cobertura.name}</label>
         `;
         document.getElementById('coberturasOptions').appendChild(option);
@@ -490,7 +509,11 @@ function fillCustomizationModal() {
             option.className = 'option-item';
             option.innerHTML = `
                 <input type="checkbox" id="topping_${topping.id}" 
-                       data-id="${topping.id}" data-price="${topping.price}">
+                       data-id="${topping.id}" data-price="${topping.price}"
+                       style="margin-right: 8px;
+    width: 20px;
+    height: 20px;
+    accent-color: #6f26cd;">
                 <label for="topping_${topping.id}">${topping.name}</label>
             `;
             document.getElementById('acompanhamentosOptions').appendChild(option);
@@ -512,7 +535,11 @@ function fillCustomizationModal() {
         option.className = 'option-item';
         option.innerHTML = `
             <input type="checkbox" id="adicional_${adicional.id}" 
-                   data-id="${adicional.id}" data-price="${adicional.price}">
+                   data-id="${adicional.id}" data-price="${adicional.price}"
+                   style="margin-right: 8px;
+    width: 20px;
+    height: 20px;
+    accent-color: #6f26cd;">
             <label for="adicional_${adicional.id}">${adicional.name} (+R$ ${adicional.price.toFixed(2)})</label>
         `;
         document.getElementById('adicionaisOptions').appendChild(option);
@@ -786,7 +813,7 @@ document.addEventListener('click', function (e) {
         if (tipo === 'combo') {
             const vitahitsCount = parseInt(button.getAttribute('data-vitahits'));
             const salgadosCount = parseInt(button.getAttribute('data-salgados'));
-            
+
             currentCombo = {
                 name: product,
                 basePrice: price,
@@ -798,7 +825,7 @@ document.addEventListener('click', function (e) {
             comboVitahitsSelections = Array(vitahitsCount).fill().map(() => ({ cobertura: null }));
             comboSalgadosSelections = Array(salgadosCount).fill().map(() => ({ salgado: null }));
             comboAdicionais = [];
-            
+
             fillComboModal();
             document.getElementById('comboModal').style.display = 'block';
             return;
@@ -1486,8 +1513,10 @@ const comboModalHTML = `
         </div>
         
         <div class="modal-buttons">
-            <button id="cancelCombo">Cancelar</button>
-            <button id="confirmCombo">Confirmar</button>
+            <button id="cancelCombo" style="padding: 10px;border: none;border-radius: 20px;background-color: #5a1ea6;
+    color: #ffffff;">Cancelar</button>
+            <button id="confirmCombo" style="padding: 10px;border: none;border-radius: 20px;background-color: #5a1ea6;
+    color: #ffffff;">Confirmar</button>
         </div>
     </div>
 </div>
@@ -1504,7 +1533,7 @@ let comboAdicionais = [];
 function fillComboModal() {
     document.getElementById('comboVitahitsContainer').innerHTML = '';
     document.getElementById('comboSalgadosContainer').innerHTML = '';
-    
+
     // Seção para VitaHits
     for (let i = 1; i <= currentCombo.vitahits; i++) {
         const vitahitsSection = document.createElement('div');
@@ -1514,7 +1543,7 @@ function fillComboModal() {
             <div class="options-grid" id="vitahitsCobertura${i}"></div>
         `;
         document.getElementById('comboVitahitsContainer').appendChild(vitahitsSection);
-        
+
         // Preencher opções de cobertura
         const container = document.getElementById(`vitahitsCobertura${i}`);
         customizationOptions.cobertura.forEach(cobertura => {
@@ -1523,14 +1552,14 @@ function fillComboModal() {
             option.innerHTML = `
                 <input type="radio" name="vitahits${i}_cobertura" 
                        id="vitahits${i}_cobertura_${cobertura.id}" 
-                       data-vitahits-index="${i-1}"
+                       data-vitahits-index="${i - 1}"
                        data-id="${cobertura.id}">
                 <label for="vitahits${i}_cobertura_${cobertura.id}">${cobertura.name}</label>
             `;
             container.appendChild(option);
         });
     }
-    
+
     // Seção para Salgados
     for (let i = 1; i <= currentCombo.salgados; i++) {
         const salgadosSection = document.createElement('div');
@@ -1540,7 +1569,7 @@ function fillComboModal() {
             <div class="options-grid" id="salgadosOptions${i}"></div>
         `;
         document.getElementById('comboSalgadosContainer').appendChild(salgadosSection);
-        
+
         // Preencher opções de salgados
         const container = document.getElementById(`salgadosOptions${i}`);
         snacks.forEach(snack => {
@@ -1549,14 +1578,14 @@ function fillComboModal() {
             option.innerHTML = `
                 <input type="radio" name="salgado${i}" 
                        id="salgado${i}_${snack.id}" 
-                       data-salgado-index="${i-1}"
+                       data-salgado-index="${i - 1}"
                        data-id="${snack.id}">
                 <label for="salgado${i}_${snack.id}">${snack.name}</label>
             `;
             container.appendChild(option);
         });
     }
-    
+
     // Seção de adicionais
     const adicionaisContainer = document.getElementById('comboAdicionaisOptions');
     adicionaisContainer.innerHTML = '';
@@ -1576,85 +1605,85 @@ function fillComboModal() {
 document.getElementById('closeCombo').addEventListener('click', closeComboModal);
 document.getElementById('cancelCombo').addEventListener('click', closeComboModal);
 
-document.getElementById('confirmCombo').addEventListener('click', function() {
+document.getElementById('confirmCombo').addEventListener('click', function () {
     // Verificar se todas as seleções foram feitas
     const allVitahitsSelected = comboVitahitsSelections.every(v => v.cobertura !== null);
     const allSalgadosSelected = comboSalgadosSelections.every(s => s.salgado !== null);
-    
+
     if (!allVitahitsSelected || !allSalgadosSelected) {
         alert('Por favor, selecione todas as opções para o combo!');
         return;
     }
-    
+
     // Construir descrição do combo
     let description = `${currentCombo.name}: `;
     let finalPrice = currentCombo.basePrice;
-    
+
     // Adicionar VitaHits
     comboVitahitsSelections.forEach((v, i) => {
-        description += `\n- VitaHits ${i+1}: ${v.cobertura.name}`;
+        description += `\n- VitaHits ${i + 1}: ${v.cobertura.name}`;
     });
-    
+
     // Adicionar Salgados
     comboSalgadosSelections.forEach((s, i) => {
-        description += `\n- Salgado ${i+1}: ${s.salgado.name}`;
+        description += `\n- Salgado ${i + 1}: ${s.salgado.name}`;
         // Se o salgado tiver descrição, adicionar
         if (s.salgado.description) {
             description += ` (${s.salgado.description})`;
         }
     });
-    
+
     // Adicionais
     if (comboAdicionais.length > 0) {
         description += `\n- Adicionais: ${comboAdicionais.map(a => a.name).join(', ')}`;
         comboAdicionais.forEach(a => finalPrice += a.price);
     }
-    
+
     // Adicionar ao carrinho
     cart.push({
         product: description,
         price: finalPrice,
         quantity: currentCombo.quantity
     });
-    
+
     closeComboModal();
     updateCart();
     cartModal.style.display = 'block';
 });
 
 // Eventos de seleção no modal de combo
-document.getElementById('comboModal').addEventListener('change', function(e) {
+document.getElementById('comboModal').addEventListener('change', function (e) {
     const target = e.target;
-    
+
     // Seleção de cobertura para VitaHits
     if (target.name.startsWith('vitahits') && target.type === 'radio') {
         const vitahitsIndex = parseInt(target.dataset.vitahitsIndex);
         const coberturaId = target.dataset.id;
         const cobertura = customizationOptions.cobertura.find(c => c.id === coberturaId);
-        
+
         comboVitahitsSelections[vitahitsIndex] = {
             ...comboVitahitsSelections[vitahitsIndex],
             cobertura: cobertura
         };
     }
-    
+
     // Seleção de salgados
     if (target.name.startsWith('salgado') && target.type === 'radio') {
         const salgadoIndex = parseInt(target.dataset.salgadoIndex);
         const salgadoId = target.dataset.id;
         const salgado = snacks.find(s => s.id === salgadoId);
-        
+
         comboSalgadosSelections[salgadoIndex] = {
             ...comboSalgadosSelections[salgadoIndex],
             salgado: salgado
         };
     }
-    
+
     // Seleção de adicionais
     if (target.id.startsWith('combo_adicional') && target.type === 'checkbox') {
         const adicionalId = target.dataset.id;
         const adicional = customizationOptions.adicionais.find(a => a.id === adicionalId);
-        
+
         if (target.checked) {
             comboAdicionais.push(adicional);
         } else {
@@ -1758,8 +1787,8 @@ function updateCart() {
 
 async function generatePDF(orderDetails) {
     const { jsPDF } = window.jspdf;
-
-    // Configuração para A4 (210x297mm)
+    
+    // Configuração do documento
     const doc = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
@@ -1791,7 +1820,7 @@ async function generatePDF(orderDetails) {
                 const dataURL = canvas.toDataURL('image/png');
                 resolve(dataURL);
             };
-            img.onerror = () => resolve(null); // Em caso de erro
+            img.onerror = () => resolve(null);
         });
     };
 
@@ -1801,7 +1830,7 @@ async function generatePDF(orderDetails) {
     // Cabeçalho com logo
     if (logoData) {
         const logoWidth = 40;
-        const logoHeight = (logoWidth * 150) / 300; // Proporção 2:1
+        const logoHeight = (logoWidth * 150) / 300;
         const logoX = (pageWidth - logoWidth) / 2;
         doc.addImage(logoData, 'PNG', logoX, y, logoWidth, logoHeight);
         y += logoHeight + 10;
@@ -1849,7 +1878,6 @@ async function generatePDF(orderDetails) {
     doc.text(`Cliente: ${orderDetails.name}`, margin, y);
     y += 7;
 
-    // Endereço (pode quebrar linha)
     const addressLines = doc.splitTextToSize(`Endereço: ${orderDetails.address}`, maxWidth);
     addressLines.forEach(line => {
         doc.text(line, margin, y);
@@ -1862,55 +1890,78 @@ async function generatePDF(orderDetails) {
     doc.text(`Pagamento: ${orderDetails.paymentMethod}`, margin, y);
     y += 15;
 
-    // Itens do pedido
-    doc.setFontSize(12);
-    doc.setFont('helvetica', 'bold');
-    doc.text('ITENS DO PEDIDO', margin, y);
-    y += 10;
+    // ITENS DO PEDIDO - VERSÃO REESCRITA
+// Substitua a seção de ITENS DO PEDIDO por este código:
 
-       orderDetails.items.forEach(item => {
-        // Dividir a descrição em componentes principais
-        const mainParts = item.product.split(' | ');
-        
-        // Primeira parte (nome do produto)
-        doc.setFontSize(11);
-        doc.setFont('helvetica', 'bold');
-        doc.text(`${item.quantity}x ${mainParts[0]}`, margin, y);
-        y += 6;
-        
-        // Restante das partes (detalhes)
+doc.setFontSize(12);
+doc.setFont('helvetica', 'bold');
+doc.text('ITENS DO PEDIDO', margin, y);
+y += 10;
+
+orderDetails.items.forEach(item => {
+    // Verifica se é um item personalizado
+    const isCustomItem = item.product.includes('Açaí Personalizado');
+    
+    // Linha principal (quantidade + nome)
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.text(`${item.quantity}x ${item.product.split('|')[0].trim()}`, margin, y);
+    y += 6;
+
+    // Processamento diferente para itens personalizados
+    if (isCustomItem) {
         doc.setFontSize(10);
         doc.setFont('helvetica', 'normal');
         
-        for (let i = 1; i < mainParts.length; i++) {
-            // Dividir cada parte em subcomponentes
-            const subParts = mainParts[i].split(': ');
-            
-            // Se tiver subcomponentes (ex: "adicionais: Nutella, Oreo")
-            if (subParts.length > 1) {
-                const title = subParts[0] + ':';
-                const items = subParts[1].split(', ');
-                
-                // Imprimir título
-                doc.text(title, margin, y);
-                y += 5;
-                
-                // Imprimir cada item em linha separada
-                items.forEach(item => {
-                    doc.text(`   • ${item.trim()}`, margin, y);
-                    y += 5;
-                });
-            } else {
-                // Parte sem subcomponentes
-                doc.text(mainParts[i], margin, y);
-                y += 5;
-            }
-        }
+        // Divide as partes do item personalizado
+        const parts = item.product.split('|').slice(1).map(p => p.trim());
         
-        // Espaço entre itens
-        y += 8;
-    });
+        parts.forEach(part => {
+            // Remove marcações HTML se existirem
+            const cleanPart = part.replace(/<br>/g, '');
+            
+            // Se for uma lista de adicionais
+            if (part.includes('adicionais:')) {
+                const [title, items] = cleanPart.split(':').map(s => s.trim());
+                doc.text(` ${title}:`, margin, y);
+                y += 5;
+                
+                // Processa cada adicional
+                items.split(';').forEach(additional => {
+                    if (additional.trim()) {
+                        doc.text(`   • ${additional.trim()}`, margin + 5, y);
+                        y += 5;
+                    }
+                });
+            } 
+            // Complementos normais
+            else {
+                cleanPart.split(';').forEach(complement => {
+                    if (complement.trim()) {
+                        // Remove duplicatas de "Extra:"
+                        if (!complement.includes('Extra:') || !parts.some(p => p.includes('Extra:') && p !== part)) {
+                            doc.text(` • ${complement.trim()}`, margin + 5, y);
+                            y += 5;
+                        }
+                    }
+                });
+            }
+        });
+    } else {
+        // Itens não personalizados
+        if (item.product.includes('|')) {
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'normal');
+            
+            const details = item.product.split('|')[1].trim();
+            doc.text(` • ${details}`, margin + 5, y);
+            y += 5;
+        }
+    }
 
+    // Espaço entre itens
+    y += 8;
+});
     // Divisor
     doc.setDrawColor(200, 200, 200);
     doc.setLineWidth(0.5);
@@ -2208,30 +2259,54 @@ checkoutForm.addEventListener('submit', async (e) => {
         const pdfLink = await uploadToDrive(pdfBlob, fileName);
 
         // Mensagem para WhatsApp
-        let message = `*NOVO PEDIDO AÇAÍ HITS*%0A%0A` +
+                let message = `*NOVO PEDIDO AÇAÍ HITS*%0A%0A` +
             `*Cliente:* ${orderDetails.name}%0A` +
             `*Endereço:* ${orderDetails.address}%0A` +
             `*Local:* ${orderDetails.deliveryLocation}%0A` +
             `*Pagamento:* ${orderDetails.paymentMethod}%0A` +
             `*Subtotal:* R$ ${orderDetails.subtotal.toFixed(2)}%0A` +
-            `*Taxa de entrega:* R$ ${orderDetails.deliveryFee.toFixed(2)}%0A` + // Nova linha
-            `*Total:* R$ ${orderDetails.total.toFixed(2)}%0A%0A`
+            `*Taxa de entrega:* R$ ${orderDetails.deliveryFee.toFixed(2)}%0A` +
+            `*Total:* R$ ${orderDetails.total.toFixed(2)}%0A%0A` +
+            `*Itens:*%0A%0A`;
 
-        if (currentUser && currentUser.email) {
-            message += `*Email:* ${currentUser.email}%0A`;
-        }
-
-        message += `*Total:* R$ ${orderDetails.total.toFixed(2)}%0A%0A` +
-            `*Itens:*%0A`;
-
+        // Processar cada item do pedido para WhatsApp
         orderDetails.items.forEach(item => {
-            message += `- ${item.product} (${item.quantity}x): R$ ${(item.price * item.quantity).toFixed(2)}%0A`;
+            // Parte principal (quantidade + nome)
+            message += `*${item.quantity}x ${item.product.split('|')[0].trim()}*%0A`;
+            
+            // Processar complementos (se houver)
+            if (item.product.includes('|')) {
+                const parts = item.product.split('|').slice(1).map(p => p.trim());
+                
+                parts.forEach(part => {
+                    // Adicionais
+                    if (part.includes('adicionais:')) {
+                        const [title, items] = part.split(':').map(s => s.trim());
+                        message += `_${title}:_%0A`;
+                        
+                        items.split(';').forEach(additional => {
+                            if (additional.trim()) {
+                                message += `• ${additional.trim()}%0A`;
+                            }
+                        });
+                    } 
+                    // Outros complementos
+                    else {
+                        part.split(';').forEach(complement => {
+                            if (complement.trim()) {
+                                message += `- ${complement.trim()}%0A`;
+                            }
+                        });
+                    }
+                });
+            }
+            
+            message += `_Valor: R$ ${(item.price * item.quantity).toFixed(2)}_%0A%0A`;
         });
 
         if (pdfLink) {
             message += `%0A*COMPROVANTE:* ${pdfLink}`;
         }
-
         // Limpar e redirecionar
         cart = [];
         updateCart();
