@@ -1838,22 +1838,43 @@ function updateCart() {
 async function generatePDF(orderDetails) {
     const { jsPDF } = window.jspdf;
 
-    // Configuração do documento para papel de 58mm de largura
+    // Calcular altura estimada necessária
+    const margin = 2;
+    let estimatedHeight = 80; // Altura base (cabeçalho, rodapé e totais)
+    
+    // Adicionar altura para cada item do pedido
+    orderDetails.items.forEach(item => {
+        estimatedHeight += 15; // Altura base por item
+        
+        // Se for um item personalizado, adicionar mais espaço
+        if (item.product.includes('Açaí Personalizado')) {
+            estimatedHeight += 10;
+        }
+        
+        // Se tiver muitos complementos, adicionar mais espaço
+        if (item.product.includes('|')) {
+            estimatedHeight += 5;
+        }
+    });
+    
+    // Adicionar margens
+    estimatedHeight += margin * 2;
+    
+    // Criar documento com altura calculada (mínimo de 80mm)
     const doc = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
-        format: [58, 297] // Largura fixa de 58mm, altura A4 (será ajustada)
+        format: [58, Math.max(estimatedHeight, 80)]
     });
 
-    // Margens reduzidas para papel estreito
-    const margin = 2;
+    // Resto do código permanece igual até a mensagem final
     const pageWidth = doc.internal.pageSize.getWidth();
     const maxWidth = pageWidth - 2 * margin;
     let y = margin;
 
     // Cores do tema
-    const primaryColor = [111, 38, 205]; // Roxo
-    const secondaryColor = [255, 153, 0]; // Laranja
+    const primaryColor = [111, 38, 205];
+    const secondaryColor = [255, 153, 0];
 
     // Função para carregar imagem como base64
     const loadImage = (url) => {
@@ -1879,13 +1900,13 @@ async function generatePDF(orderDetails) {
 
     // Cabeçalho com logo
     if (logoData) {
-        const logoWidth = 15; // Reduzido para caber em 58mm
+        const logoWidth = 15;
         const logoHeight = (logoWidth * 150) / 300;
         const logoX = (pageWidth - logoWidth) / 2;
         doc.addImage(logoData, 'PNG', logoX, y, logoWidth, logoHeight);
         y += logoHeight + 5;
     } else {
-        doc.setFontSize(10); // Reduzido
+        doc.setFontSize(10);
         doc.setTextColor(...primaryColor);
         doc.setFont('helvetica', 'bold');
         doc.text('AÇAÍ HITS', pageWidth / 2, y + 5, { align: 'center' });
@@ -1893,14 +1914,14 @@ async function generatePDF(orderDetails) {
     }
 
     // Título
-    doc.setFontSize(8); // Reduzido
+    doc.setFontSize(8);
     doc.setTextColor(...primaryColor);
     doc.setFont('helvetica', 'bold');
     doc.text('COMPROVANTE DE PEDIDO', pageWidth / 2, y, { align: 'center' });
     y += 5;
 
     // Informações da empresa
-    doc.setFontSize(6); // Reduzido
+    doc.setFontSize(6);
     doc.setTextColor(100, 100, 100);
     doc.text('Açaí Hits - Sabor e Qualidade', pageWidth / 2, y, { align: 'center' });
     y += 3;
@@ -1909,18 +1930,18 @@ async function generatePDF(orderDetails) {
 
     // Divisor
     doc.setDrawColor(...primaryColor);
-    doc.setLineWidth(0.3); // Mais fino
+    doc.setLineWidth(0.3);
     doc.line(margin, y, pageWidth - margin, y);
     y += 5;
 
     // Informações do cliente
-    doc.setFontSize(7); // Reduzido
+    doc.setFontSize(7);
     doc.setTextColor(0, 0, 0);
     doc.setFont('helvetica', 'bold');
     doc.text('DADOS DO CLIENTE', margin, y);
     y += 4;
 
-    doc.setFontSize(6); // Reduzido
+    doc.setFontSize(6);
     doc.setFont('helvetica', 'normal');
     doc.text(`Data: ${new Date().toLocaleString('pt-BR')}`, margin, y);
     y += 3.5;
@@ -1947,14 +1968,12 @@ async function generatePDF(orderDetails) {
     y += 5;
 
     orderDetails.items.forEach(item => {
-        // Verifica se é um item personalizado
         const isCustomItem = item.product.includes('Açaí Personalizado');
 
         // Linha principal (quantidade + nome)
         doc.setFontSize(6);
         doc.setFont('helvetica', 'bold');
         
-        // Quebra o nome do produto se for muito longo
         const productNameLines = doc.splitTextToSize(
             `${item.quantity}x ${item.product.split('|')[0].trim()}`, 
             maxWidth
@@ -1965,19 +1984,15 @@ async function generatePDF(orderDetails) {
             y += 3;
         });
 
-        // Processamento diferente para itens personalizados
         if (isCustomItem) {
             doc.setFontSize(5);
             doc.setFont('helvetica', 'normal');
 
-            // Divide as partes do item personalizado
             const parts = item.product.split('|').slice(1).map(p => p.trim());
 
             parts.forEach(part => {
-                // Remove marcações HTML se existirem
                 const cleanPart = part.replace(/<br>/g, '');
 
-                // Se for uma lista de adicionais
                 if (part.includes('adicionais:')) {
                     const [title, items] = cleanPart.split(':').map(s => s.trim());
                     const titleLines = doc.splitTextToSize(` ${title}:`, maxWidth);
@@ -1986,7 +2001,6 @@ async function generatePDF(orderDetails) {
                         y += 3;
                     });
 
-                    // Processa cada adicional
                     items.split(';').forEach(additional => {
                         if (additional.trim()) {
                             const additionalLines = doc.splitTextToSize(`   • ${additional.trim()}`, maxWidth - 3);
@@ -1996,12 +2010,9 @@ async function generatePDF(orderDetails) {
                             });
                         }
                     });
-                }
-                // Complementos normais
-                else {
+                } else {
                     cleanPart.split(';').forEach(complement => {
                         if (complement.trim()) {
-                            // Remove duplicatas de "Extra:"
                             if (!complement.includes('Extra:') || !parts.some(p => p.includes('Extra:') && p !== part)) {
                                 const complementLines = doc.splitTextToSize(` • ${complement.trim()}`, maxWidth - 3);
                                 complementLines.forEach(line => {
@@ -2014,7 +2025,6 @@ async function generatePDF(orderDetails) {
                 }
             });
         } else {
-            // Itens não personalizados
             if (item.product.includes('|')) {
                 doc.setFontSize(5);
                 doc.setFont('helvetica', 'normal');
@@ -2028,7 +2038,6 @@ async function generatePDF(orderDetails) {
             }
         }
 
-        // Espaço entre itens
         y += 3;
     });
     
@@ -2038,7 +2047,7 @@ async function generatePDF(orderDetails) {
     doc.line(margin, y, pageWidth - margin, y);
     y += 5;
 
-    // Totaisexa
+    // Totais
     doc.setFontSize(7);
     doc.setFont('helvetica', 'bold');
     doc.text('RESUMO DO PEDIDO', margin, y);
@@ -2076,7 +2085,6 @@ async function generatePDF(orderDetails) {
 
     return doc.output('blob');
 }
-
 // Upload para o Google Drive
 async function uploadToDrive(pdfBlob, fileName) {
     return new Promise((resolve) => {
