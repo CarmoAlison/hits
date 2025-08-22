@@ -358,8 +358,8 @@ function closeCustomizationModal() {
 function addCustomizedProductToCart() {
     // Validações específicas
     if (currentProduct.tipo === 'especial') {
-        if (selectedCremes.length >= 2) {
-            alert('Por favor, selecione exatamente 2 cremes!');
+        if (selectedCremes.length > 2) {
+            alert('Por favor, selecione até 2 cremes!');
             return false;
         }
 
@@ -744,8 +744,8 @@ document.getElementById('cancelAcompanhamentos').addEventListener('click', funct
 document.getElementById('confirmAcompanhamentos').addEventListener('click', function () {
     // Validações específicas para cada tipo de produto
     if (currentProduct.tipo === 'especial') {
-        if (selectedCremes.length >= 2) {
-            alert('Por favor, selecione exatamente 2 cremes!');
+        if (selectedCremes.length > 2) {
+            alert('Por favor, selecione até 2 cremes!');
             return;
         }
     }
@@ -2038,7 +2038,7 @@ async function generatePDF(orderDetails) {
     doc.line(margin, y, pageWidth - margin, y);
     y += 5;
 
-    // Totais
+    // Totaisexa
     doc.setFontSize(7);
     doc.setFont('helvetica', 'bold');
     doc.text('RESUMO DO PEDIDO', margin, y);
