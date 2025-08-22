@@ -68,6 +68,23 @@ const customizationOptions = {
         { id: 'top14', name: 'Creme de avelã', price: 0 },
         { id: 'top15', name: 'Ovomaltine', price: 0 }
     ],
+     toppingsCobrar: [
+        { id: 'top1', name: 'Leite em pó (+ R$3,00)', price: 3 },
+        { id: 'top2', name: 'Farinha Láctea', price: 3 },
+        { id: 'top3', name: 'Jujuba', price: 3 },
+        { id: 'top4', name: 'M&M', price: 3 },
+        { id: 'top5', name: 'ChocoPower', price: 3 },
+        { id: 'top6', name: 'Granola', price: 3 },
+        { id: 'top7', name: 'Paçoca', price: 3 },
+        { id: 'top8', name: 'Marshmallow', price: 3 },
+        { id: 'top9', name: 'Coco', price: 3 },
+        { id: 'top10', name: 'Amendoim', price: 3 },
+        { id: 'top11', name: 'Gota de chocolate', price: 3 },
+        { id: 'top12', name: 'Canudinho', price: 3 },
+        { id: 'top13', name: 'Chocoball', price: 3 },
+        { id: 'top14', name: 'Creme de avelã', price: 3 },
+        { id: 'top15', name: 'Ovomaltine', price: 3 }
+    ],
     fruits: [
         { id: 'fruit1', name: 'Banana', price: 0 },
         { id: 'fruit2', name: 'Morango', price: 0 },
@@ -117,6 +134,23 @@ const customizationOptionsEspeciais = {
         { id: 'base7', name: 'Creme de Morango', price: 0 },
     ],
     toppings: [
+        { id: 'top1', name: 'Leite em pó (+ R$3,00)', price: 3 },
+        { id: 'top2', name: 'Farinha Láctea', price: 3 },
+        { id: 'top3', name: 'Jujuba', price: 3 },
+        { id: 'top4', name: 'M&M', price: 3 },
+        { id: 'top5', name: 'ChocoPower', price: 3 },
+        { id: 'top6', name: 'Granola', price: 3 },
+        { id: 'top7', name: 'Paçoca', price: 3 },
+        { id: 'top8', name: 'Marshmallow', price: 3 },
+        { id: 'top9', name: 'Coco', price: 3 },
+        { id: 'top10', name: 'Amendoim', price: 3 },
+        { id: 'top11', name: 'Gota de chocolate', price: 3 },
+        { id: 'top12', name: 'Canudinho', price: 3 },
+        { id: 'top13', name: 'Chocoball', price: 3 },
+        { id: 'top14', name: 'Creme de avelã', price: 3 },
+        { id: 'top15', name: 'Ovomaltine', price: 3 }
+    ],
+    toppingsCobrar: [
         { id: 'top1', name: 'Leite em pó (+ R$3,00)', price: 3 },
         { id: 'top2', name: 'Farinha Láctea', price: 3 },
         { id: 'top3', name: 'Jujuba', price: 3 },
@@ -275,6 +309,7 @@ let cart = [];
 let customBase = [];
 let customCopo = customizationOptions.Copos[0];
 let customToppings = [];
+let customToppingsCobrar = [];
 let customFruits = [];
 let customAdicionais = [];
 let customCobertura = [];
@@ -293,10 +328,13 @@ let selectedCobertura = null;
 let selectedFrutas = [];
 let selectedAcompanhamentos = [];
 let selectedAdicionais = [];
+let selectedEspecialToppings = [];
+let currentProductWithEspecialToppings = null;
 
 
 // User Management
 let currentUser = null;
+
 
 
 // Função para fechar o modal
@@ -583,7 +621,7 @@ function fillCustomizationModal() {
         // Preencher acompanhamentos
         const acompanhamentosContainer = document.getElementById('acompanhamentosOptions');
         acompanhamentosContainer.innerHTML = '';
-        customizationOptions.toppings.forEach(topping => {
+        customizationOptions.toppingsCobrar.forEach(topping => {
             const option = document.createElement('div');
             option.className = 'option-item';
             option.innerHTML = `
@@ -1787,7 +1825,7 @@ function updateCart() {
 
 async function generatePDF(orderDetails) {
     const { jsPDF } = window.jspdf;
-    
+
     // Configuração do documento
     const doc = new jsPDF({
         orientation: 'portrait',
@@ -1891,77 +1929,77 @@ async function generatePDF(orderDetails) {
     y += 15;
 
     // ITENS DO PEDIDO - VERSÃO REESCRITA
-// Substitua a seção de ITENS DO PEDIDO por este código:
+    // Substitua a seção de ITENS DO PEDIDO por este código:
 
-doc.setFontSize(12);
-doc.setFont('helvetica', 'bold');
-doc.text('ITENS DO PEDIDO', margin, y);
-y += 10;
-
-orderDetails.items.forEach(item => {
-    // Verifica se é um item personalizado
-    const isCustomItem = item.product.includes('Açaí Personalizado');
-    
-    // Linha principal (quantidade + nome)
-    doc.setFontSize(11);
+    doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
-    doc.text(`${item.quantity}x ${item.product.split('|')[0].trim()}`, margin, y);
-    y += 6;
+    doc.text('ITENS DO PEDIDO', margin, y);
+    y += 10;
 
-    // Processamento diferente para itens personalizados
-    if (isCustomItem) {
-        doc.setFontSize(10);
-        doc.setFont('helvetica', 'normal');
-        
-        // Divide as partes do item personalizado
-        const parts = item.product.split('|').slice(1).map(p => p.trim());
-        
-        parts.forEach(part => {
-            // Remove marcações HTML se existirem
-            const cleanPart = part.replace(/<br>/g, '');
-            
-            // Se for uma lista de adicionais
-            if (part.includes('adicionais:')) {
-                const [title, items] = cleanPart.split(':').map(s => s.trim());
-                doc.text(` ${title}:`, margin, y);
-                y += 5;
-                
-                // Processa cada adicional
-                items.split(';').forEach(additional => {
-                    if (additional.trim()) {
-                        doc.text(`   • ${additional.trim()}`, margin + 5, y);
-                        y += 5;
-                    }
-                });
-            } 
-            // Complementos normais
-            else {
-                cleanPart.split(';').forEach(complement => {
-                    if (complement.trim()) {
-                        // Remove duplicatas de "Extra:"
-                        if (!complement.includes('Extra:') || !parts.some(p => p.includes('Extra:') && p !== part)) {
-                            doc.text(` • ${complement.trim()}`, margin + 5, y);
-                            y += 5;
-                        }
-                    }
-                });
-            }
-        });
-    } else {
-        // Itens não personalizados
-        if (item.product.includes('|')) {
+    orderDetails.items.forEach(item => {
+        // Verifica se é um item personalizado
+        const isCustomItem = item.product.includes('Açaí Personalizado');
+
+        // Linha principal (quantidade + nome)
+        doc.setFontSize(11);
+        doc.setFont('helvetica', 'bold');
+        doc.text(`${item.quantity}x ${item.product.split('|')[0].trim()}`, margin, y);
+        y += 6;
+
+        // Processamento diferente para itens personalizados
+        if (isCustomItem) {
             doc.setFontSize(10);
             doc.setFont('helvetica', 'normal');
-            
-            const details = item.product.split('|')[1].trim();
-            doc.text(` • ${details}`, margin + 5, y);
-            y += 5;
-        }
-    }
 
-    // Espaço entre itens
-    y += 8;
-});
+            // Divide as partes do item personalizado
+            const parts = item.product.split('|').slice(1).map(p => p.trim());
+
+            parts.forEach(part => {
+                // Remove marcações HTML se existirem
+                const cleanPart = part.replace(/<br>/g, '');
+
+                // Se for uma lista de adicionais
+                if (part.includes('adicionais:')) {
+                    const [title, items] = cleanPart.split(':').map(s => s.trim());
+                    doc.text(` ${title}:`, margin, y);
+                    y += 5;
+
+                    // Processa cada adicional
+                    items.split(';').forEach(additional => {
+                        if (additional.trim()) {
+                            doc.text(`   • ${additional.trim()}`, margin + 5, y);
+                            y += 5;
+                        }
+                    });
+                }
+                // Complementos normais
+                else {
+                    cleanPart.split(';').forEach(complement => {
+                        if (complement.trim()) {
+                            // Remove duplicatas de "Extra:"
+                            if (!complement.includes('Extra:') || !parts.some(p => p.includes('Extra:') && p !== part)) {
+                                doc.text(` • ${complement.trim()}`, margin + 5, y);
+                                y += 5;
+                            }
+                        }
+                    });
+                }
+            });
+        } else {
+            // Itens não personalizados
+            if (item.product.includes('|')) {
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'normal');
+
+                const details = item.product.split('|')[1].trim();
+                doc.text(` • ${details}`, margin + 5, y);
+                y += 5;
+            }
+        }
+
+        // Espaço entre itens
+        y += 8;
+    });
     // Divisor
     doc.setDrawColor(200, 200, 200);
     doc.setLineWidth(0.5);
@@ -2259,7 +2297,7 @@ checkoutForm.addEventListener('submit', async (e) => {
         const pdfLink = await uploadToDrive(pdfBlob, fileName);
 
         // Mensagem para WhatsApp
-                let message = `*NOVO PEDIDO AÇAÍ HITS*%0A%0A` +
+        let message = `*NOVO PEDIDO AÇAÍ HITS*%0A%0A` +
             `*Cliente:* ${orderDetails.name}%0A` +
             `*Endereço:* ${orderDetails.address}%0A` +
             `*Local:* ${orderDetails.deliveryLocation}%0A` +
@@ -2273,23 +2311,23 @@ checkoutForm.addEventListener('submit', async (e) => {
         orderDetails.items.forEach(item => {
             // Parte principal (quantidade + nome)
             message += `*${item.quantity}x ${item.product.split('|')[0].trim()}*%0A`;
-            
+
             // Processar complementos (se houver)
             if (item.product.includes('|')) {
                 const parts = item.product.split('|').slice(1).map(p => p.trim());
-                
+
                 parts.forEach(part => {
                     // Adicionais
                     if (part.includes('adicionais:')) {
                         const [title, items] = part.split(':').map(s => s.trim());
                         message += `_${title}:_%0A`;
-                        
+
                         items.split(';').forEach(additional => {
                             if (additional.trim()) {
                                 message += `• ${additional.trim()}%0A`;
                             }
                         });
-                    } 
+                    }
                     // Outros complementos
                     else {
                         part.split(';').forEach(complement => {
@@ -2300,7 +2338,7 @@ checkoutForm.addEventListener('submit', async (e) => {
                     }
                 });
             }
-            
+
             message += `_Valor: R$ ${(item.price * item.quantity).toFixed(2)}_%0A%0A`;
         });
 
