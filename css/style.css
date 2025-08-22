@@ -463,11 +463,12 @@ nav ul li a:hover {
     position: absolute;
     top: 15px;
     right: 15px;
-    font-size: 1.5rem;
+    font-size: 25px;
     cursor: pointer;
     color: #666;
     transition: color 0.3s ease;
 }
+
 
 .close-modal:hover {
     color: #333;
@@ -1736,4 +1737,27 @@ nav ul li a:hover {
 #acompanhamentos-total-value {
     color: #e74c3c;
     font-weight: bold;
+}
+
+/* Destaque para itens com preço */
+.option-item label {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.option-item .price-tag {
+    color: #e74c3c;
+    font-weight: bold;
+    margin-left: 10px;
+}
+
+/* Destaque para cobertura selecionada */
+.option-item input[type="radio"]:checked + label {
+    color: #6f26cd;
+    font-weight: bold;
+}
+
+.option-item input[type="radio"]:checked + label .price-tag {
+    color: #c0392b;
 }

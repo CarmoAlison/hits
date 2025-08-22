@@ -181,7 +181,7 @@
     <!-- Modal de Acompanhamentos -->
     <div id="acompanhamentosModal" class="modal">
         <div class="modal-content">
-            <span class="close" id="closeAcompanhamentos">&times;</span>
+            <span class="close" id="closeAcompanhamentos" style="font-size: 25px; cursor: pointer; border: .2px solid #5a1ea6; padding: 5px; border-radius: 50px;">&times;</span>
             <h2 id="modalTitle">Personalize seu produto</h2>
 
             <!-- Seção para cremes (apenas para produtos que precisam) -->
@@ -201,7 +201,7 @@
                 <h3>Escolha até <span id="maxAcompanhamentos">5</span> acompanhamentos</h3>
                 <div id="acompanhamentosOptions" class="options-grid"></div>
                 <!-- Adicione esta linha após a seção de acompanhamentos -->
-                
+
             </div>
 
             <!-- Seção para adicionais -->
@@ -211,6 +211,11 @@
             </div>
 
             <p id="acompanhamentosMessage"></p>
+            <!-- Adicione isso no final do modal, antes dos botões -->
+            <div class="modal-total">
+                <span>Total de adicionais: </span>
+                <span id="modal-total-value">R$ 0,00</span>
+            </div>
             <div class="modal-buttons">
                 <button id="cancelAcompanhamentos" style="padding: 10px;border: none;border-radius: 20px;background-color: #5a1ea6;
     color: #ffffff;">Cancelar</button>
