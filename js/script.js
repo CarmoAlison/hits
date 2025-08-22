@@ -418,10 +418,46 @@ function addCustomizedProductToCart() {
         description += ` | ${parts.join(' | ')}`;
     }
 
-    // Adicionar UM ÚNICO item ao carrinho
+
+
+    // Adicionar preço dos cremes
+    if (selectedCremes.length > 0) {
+        parts.push(`com ${selectedCremes.map(c => c.name).join(' e ')}`);
+    }
+
+    // Adicionar preço das frutas
+    if (selectedFrutas.length > 0) {
+        parts.push(`frutas: ${selectedFrutas.map(f => f.name).join(', ')}`);
+        selectedFrutas.forEach(f => totalPrice += f.price);
+    }
+
+    // Adicionar preço da cobertura
+    if (selectedCobertura) {
+        parts.push(`cobertura: ${selectedCobertura.name}`);
+        totalPrice += selectedCobertura.price;
+    }
+
+    // ADICIONAR PREÇO DOS ACOMPANHAMENTOS (R$ 3,00 cada)
+    if (selectedAcompanhamentos.length > 0) {
+        parts.push(`acompanhamentos: ${selectedAcompanhamentos.map(t => t.name).join(', ')}`);
+        selectedAcompanhamentos.forEach(t => totalPrice += t.price); // Já está configurado como 3.00
+    }
+
+    // Adicionar preço dos adicionais
+    if (selectedAdicionais.length > 0) {
+        parts.push(`adicionais: ${selectedAdicionais.map(a => a.name).join(', ')}`);
+        selectedAdicionais.forEach(a => totalPrice += a.price);
+    }
+
+    // Montar descrição final
+    if (parts.length > 0) {
+        description += ` | ${parts.join(' | ')}`;
+    }
+
+    // Adicionar ao carrinho
     cart.push({
         product: description,
-        price: finalPrice,
+        price: totalPrice,
         quantity: currentProduct.quantity
     });
 
@@ -449,6 +485,7 @@ document.getElementById('confirmAcompanhamentos').addEventListener('click', func
 });
 
 // Função para preencher o modal de personalização - MODIFICADA PARA ESPECIAIS
+// Função para preencher o modal de personalização - MODIFICADA PARA VITAHITS
 function fillCustomizationModal() {
     const container = document.getElementById('customizationSections');
     container.innerHTML = '';
@@ -472,18 +509,13 @@ function fillCustomizationModal() {
             option.innerHTML = `
                 <input type="checkbox" id="creme_${creme.id}" 
                        data-id="${creme.id}" data-price="${creme.price}"
-                       style="margin-right: 8px;
-    width: 20px;
-    height: 20px;
-    accent-color: #6f26cd;">
+                       style="margin-right: 8px; width: 20px; height: 20px; accent-color: #6f26cd;">
                 <label for="creme_${creme.id}">${creme.name}</label>
             `;
             document.getElementById('cremesOptions').appendChild(option);
         });
-    }
 
-    // Seção para frutas (apenas produtos especiais)
-    if (currentProduct.tipo === 'especial') {
+        // Seção para frutas (apenas produtos especiais)
         container.innerHTML += `
             <div class="modal-section">
                 <h3>Escolha até ${currentProduct.maxFrutas} frutas</h3>
@@ -498,17 +530,35 @@ function fillCustomizationModal() {
             option.innerHTML = `
                 <input type="checkbox" id="fruta_${fruta.id}" 
                        data-id="${fruta.id}" data-price="${fruta.price}"
-                       style="margin-right: 8px;
-    width: 20px;
-    height: 20px;
-    accent-color: #6f26cd;">
+                       style="margin-right: 8px; width: 20px; height: 20px; accent-color: #6f26cd;">
                 <label for="fruta_${fruta.id}">${fruta.name}</label>
             `;
             document.getElementById('frutasOptions').appendChild(option);
         });
+
+        // Seção para acompanhamentos (apenas produtos especiais)
+        container.innerHTML += `
+            <div class="modal-section">
+                <h3>Escolha até ${currentProduct.maxAcompanhamentos} acompanhamentos (+R$ 3,00 cada)</h3>
+                <div class="options-grid" id="acompanhamentosOptions"></div>
+            </div>
+        `;
+
+        // Preencher acompanhamentos COM OPÇÕES ESPECIAIS (R$3,00 cada)
+        customizationOptionsEspeciais.toppings.forEach(topping => {
+            const option = document.createElement('div');
+            option.className = 'option-item';
+            option.innerHTML = `
+                <input type="checkbox" id="topping_${topping.id}" 
+                       data-id="${topping.id}" data-price="${topping.price}"
+                       style="margin-right: 8px; width: 20px; height: 20px; accent-color: #6f26cd;">
+                <label for="topping_${topping.id}">${topping.name}</label>
+            `;
+            document.getElementById('acompanhamentosOptions').appendChild(option);
+        });
     }
 
-    // Seção para cobertura (todos os produtos) - ADICIONADA PARA ESPECIAIS
+    // Seção para cobertura (todos os produtos)
     container.innerHTML += `
         <div class="modal-section">
             <h3>Escolha ${currentProduct.maxCoberturas} cobertura</h3>
@@ -523,40 +573,11 @@ function fillCustomizationModal() {
         option.innerHTML = `
             <input type="radio" name="cobertura" id="cobertura_${cobertura.id}" 
                    data-id="${cobertura.id}" data-price="${cobertura.price}"
-                   style="margin-right: 8px;
-    width: 20px;
-    height: 20px;
-    accent-color: #6f26cd;">
+                   style="margin-right: 8px; width: 20px; height: 20px; accent-color: #6f26cd;">
             <label for="cobertura_${cobertura.id}">${cobertura.name}</label>
         `;
         document.getElementById('coberturasOptions').appendChild(option);
     });
-
-    // Seção para acompanhamentos (apenas produtos especiais) - MODIFICADA PARA USAR OPÇÕES ESPECIAIS
-    if (currentProduct.tipo === 'especial') {
-        container.innerHTML += `
-            <div class="modal-section">
-                <h3>Escolha até ${currentProduct.maxAcompanhamentos} acompanhamentos</h3>
-                <div class="options-grid" id="acompanhamentosOptions"></div>
-            </div>
-        `;
-
-        // Preencher acompanhamentos COM OPÇÕES ESPECIAIS (R$3,00 cada)
-        customizationOptionsEspeciais.toppings.forEach(topping => {
-            const option = document.createElement('div');
-            option.className = 'option-item';
-            option.innerHTML = `
-                <input type="checkbox" id="topping_${topping.id}" 
-                       data-id="${topping.id}" data-price="${topping.price}"
-                       style="margin-right: 8px;
-    width: 20px;
-    height: 20px;
-    accent-color: #6f26cd;">
-                <label for="topping_${topping.id}">${topping.name}</label>
-            `;
-            document.getElementById('acompanhamentosOptions').appendChild(option);
-        });
-    }
 
     // Seção para adicionais (todos os produtos)
     container.innerHTML += `
@@ -566,135 +587,62 @@ function fillCustomizationModal() {
         </div>
     `;
 
-    // Preencher adicionais
-    const adicionaisList = customizationOptionsEspeciais.adicionais;
-    adicionaisList.forEach(adicional => {
-        const option = document.createElement('div');
-        option.className = 'option-item';
-        option.innerHTML = `
-            <input type="checkbox" id="adicional_${adicional.id}" 
-                   data-id="${adicional.id}" data-price="${adicional.price}"
-                   style="margin-right: 8px;
-    width: 20px;
-    height: 20px;
-    accent-color: #6f26cd;">
-            <label for="adicional_${adicional.id}">${adicional.name} (+R$ ${adicional.price.toFixed(2)})</label>
-        `;
-        document.getElementById('adicionaisOptions').appendChild(option);
-    });
-}
-// Preencher modal com as opções
-function fillCustomizationModal() {
-    const title = document.getElementById('modalTitle');
-    const cremesSection = document.getElementById('cremesSection');
-    const coberturasSection = document.getElementById('coberturasSection');
-    const acompanhamentosSection = document.getElementById('acompanhamentosSection');
-    const adicionaisSection = document.getElementById('adicionaisSection');
-
-    // Resetar visibilidade
-    cremesSection.style.display = 'none';
-    coberturasSection.style.display = 'none';
-    acompanhamentosSection.style.display = 'none';
-    adicionaisSection.style.display = 'none';
-
-    // Configurar baseado no tipo de produto
-    if (currentProduct.tipo === 'especial') {
-        title.textContent = `Personalize seu ${currentProduct.name}`;
-        cremesSection.style.display = 'block';
-        acompanhamentosSection.style.display = 'block';
-        adicionaisSection.style.display = 'block';
-
-        // Preencher cremes
-        const cremesContainer = document.getElementById('cremesOptions');
-        cremesContainer.innerHTML = '';
-        customizationOptions.bases.forEach(creme => {
-            const option = document.createElement('div');
-            option.className = 'option-item';
-            option.innerHTML = `
-                <input type="checkbox" id="creme_${creme.id}" 
-                       data-id="${creme.id}" data-price="${creme.price}">
-                <label for="creme_${creme.id}">${creme.name}</label>
-            `;
-            cremesContainer.appendChild(option);
-        });
-
-        // Preencher acompanhamentos
-        const acompanhamentosContainer = document.getElementById('acompanhamentosOptions');
-        acompanhamentosContainer.innerHTML = '';
-        customizationOptions.toppingsCobrar.forEach(topping => {
-            const option = document.createElement('div');
-            option.className = 'option-item';
-            option.innerHTML = `
-                <input type="checkbox" id="topping_${topping.id}" 
-                       data-id="${topping.id}" data-price="${topping.price}">
-                <label for="topping_${topping.id}">${topping.name}</label>
-            `;
-            acompanhamentosContainer.appendChild(option);
-        });
-
-        // Atualizar limite de acompanhamentos
-        document.getElementById('maxAcompanhamentos').textContent = currentProduct.maxAcompanhamentos;
-
-    } else if (currentProduct.tipo === 'vitahits') {
-        title.textContent = `Personalize seu VitaHits`;
-        coberturasSection.style.display = 'block';
-        adicionaisSection.style.display = 'block';
-
-        // Preencher coberturas
-        const coberturasContainer = document.getElementById('coberturasOptions');
-        coberturasContainer.innerHTML = '';
-        customizationOptions.cobertura.forEach(cobertura => {
-            const option = document.createElement('div');
-            option.className = 'option-item';
-            option.innerHTML = `
-                <input type="radio" name="cobertura" id="cobertura_${cobertura.id}" 
-                       data-id="${cobertura.id}" data-price="${cobertura.price}">
-                <label for="cobertura_${cobertura.id}">${cobertura.name}</label>
-            `;
-            coberturasContainer.appendChild(option);
-        });
-    }
-
-    // Preencher adicionais (comuns a ambos)
+    // Preencher adicionais - Filtrado para VitaHits
     const adicionaisContainer = document.getElementById('adicionaisOptions');
-    adicionaisContainer.innerHTML = ''; updateCustomizationMessage
-
+    adicionaisContainer.innerHTML = '';
+    
     // Adicionais específicos para VitaHits
-    const adicionaisEspecificos = currentProduct.tipo === 'vitahits' ?
-        customizationOptions.adicionais.filter(adicional =>
-            ['Creme de leitinho', 'Creme Cook', 'Nutella', 'Creme de avelã'].includes(adicional.name)
-        ) :
-        customizationOptions.adicionais;
+    let adicionaisEspecificos;
+    if (currentProduct.tipo === 'vitahits') {
+        adicionaisEspecificos = customizationOptions.adicionais.filter(adicional =>
+            ['Nutella', 'Creme de leitinho', 'Creme Cookies'].includes(adicional.name)
+        );
+    } else {
+        adicionaisEspecificos = customizationOptions.adicionais;
+    }
 
     adicionaisEspecificos.forEach(adicional => {
         const option = document.createElement('div');
         option.className = 'option-item';
         option.innerHTML = `
             <input type="checkbox" id="adicional_${adicional.id}" 
-                   data-id="${adicional.id}" data-price="${adicional.price}">
+                   data-id="${adicional.id}" data-price="${adicional.price}"
+                   style="margin-right: 8px; width: 20px; height: 20px; accent-color: #6f26cd;">
             <label for="adicional_${adicional.id}">${adicional.name} (+R$ ${adicional.price.toFixed(2)})</label>
         `;
         adicionaisContainer.appendChild(option);
     });
 
+    // Atualizar mensagem inicial
     updateCustomizationMessage();
 }
 
-// Atualizar mensagem de seleção
 function updateCustomizationMessage() {
     const messageEl = document.getElementById('acompanhamentosMessage');
+    let message = '';
 
     if (currentProduct.tipo === 'especial') {
-        messageEl.textContent =
-            `Cremes: ${selectedCremes.length}/2 | ` +
-            `Acompanhamentos: ${selectedAcompanhamentos.length}/${currentProduct.maxAcompanhamentos}`;
+        const adicional = selectedAcompanhamentos.length * 3.00;
+        message = `Cremes: ${selectedCremes.length}/2 | ` +
+                 `Acompanhamentos: ${selectedAcompanhamentos.length}/${currentProduct.maxAcompanhamentos}` +
+                 (selectedAcompanhamentos.length > 0 ? ` (+R$ ${adicional.toFixed(2)})` : '');
     } else if (currentProduct.tipo === 'vitahits') {
-        messageEl.textContent = selectedCobertura ?
+        message = selectedCobertura ?
             `Cobertura selecionada: ${selectedCobertura.name}` :
             'Selecione uma cobertura';
     }
+
+    messageEl.textContent = message;
 }
 
+function calculateAcompanhamentosTotal() {
+    return selectedAcompanhamentos.reduce((total, topping) => total + topping.price, 0);
+}
+
+function updateAcompanhamentosTotal() {
+    const total = calculateAcompanhamentosTotal();
+    document.getElementById('acompanhamentos-total-value').textContent = `R$ ${total.toFixed(2)}`;
+}
 
 // Evento para seleção de opções (atualizado)
 document.getElementById('acompanhamentosModal').addEventListener('change', function (e) {
@@ -738,18 +686,24 @@ document.getElementById('acompanhamentosModal').addEventListener('change', funct
                 selectedCobertura = cobertura;
             }
         }
-        else if (type === 'topping') {
-            const topping = customizationOptions.toppings.find(t => t.id === id);
+         else if (type === 'topping') {
+            const topping = customizationOptionsEspeciais.toppings.find(t => t.id === id);
             if (isChecked) {
                 if (selectedAcompanhamentos.length < currentProduct.maxAcompanhamentos) {
                     selectedAcompanhamentos.push(topping);
+                    // Atualizar mensagem com preço adicional
+                    updateCustomizationMessage();
                 } else {
                     e.target.checked = false;
                     alert(`Máximo de ${currentProduct.maxAcompanhamentos} acompanhamentos permitidos!`);
                 }
             } else {
                 const index = selectedAcompanhamentos.findIndex(t => t.id === id);
-                if (index !== -1) selectedAcompanhamentos.splice(index, 1);
+                if (index !== -1) {
+                    selectedAcompanhamentos.splice(index, 1);
+                    // Atualizar mensagem com preço reduzido
+                    updateCustomizationMessage();
+                }
             }
         }
         else if (type === 'adicional') {
@@ -778,7 +732,7 @@ document.getElementById('confirmAcompanhamentos').addEventListener('click', func
     // Validações específicas para cada tipo de produto
     if (currentProduct.tipo === 'especial') {
         if (selectedCremes.length > 2) {
-            alert('Por favor, selecione exatamente 2 cremes!');
+            alert('Por favor, selecione até 2 cremes!');
             return;
         }
     }
@@ -792,6 +746,7 @@ document.getElementById('confirmAcompanhamentos').addEventListener('click', func
     // Montar descrição do produto
     let description = currentProduct.name;
     let finalPrice = currentProduct.basePrice;
+    let finalPriceAcompanhamento = currentProduct.basePrice;
 
     if (currentProduct.tipo === 'especial') {
         description += ` com ${selectedCremes.map(c => c.name).join(' e ')}`;
@@ -808,6 +763,10 @@ document.getElementById('confirmAcompanhamentos').addEventListener('click', func
     if (selectedAdicionais.length > 0) {
         description += ` e adicionais: ${selectedAdicionais.map(a => a.name).join(', ')}`;
         selectedAdicionais.forEach(a => finalPrice += a.price);
+    }
+    if (selectedAcompanhamentos.length > 0) {
+        description += ` e Acompanhamentos: ${selectedAcompanhamentos.map(a => a.name).join(', ')}`;
+        selectedAcompanhamentos.forEach(a => finalPriceAcompanhamento += a.price);
     }
 
     // Calcular preço total

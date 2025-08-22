@@ -1701,3 +1701,39 @@ nav ul li a:hover {
     width: 150px;
 
 }
+
+/* Estilo para itens com preço adicional */
+.option-item label {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.option-item .price-tag {
+    color: #e74c3c;
+    font-weight: bold;
+    margin-left: 10px;
+}
+
+/* Destaque para acompanhamentos selecionados */
+.option-item input:checked + label {
+    color: #6f26cd;
+    font-weight: bold;
+}
+
+.option-item input:checked + label .price-tag {
+    color: #c0392b;
+}
+.acompanhamentos-total {
+    background-color: #f8f9fa;
+    padding: 10px;
+    border-radius: 5px;
+    margin: 10px 0;
+    font-weight: bold;
+    border-left: 4px solid #6f26cd;
+}
+
+#acompanhamentos-total-value {
+    color: #e74c3c;
+    font-weight: bold;
+}
