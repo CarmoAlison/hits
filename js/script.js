@@ -68,7 +68,7 @@ const customizationOptions = {
         { id: 'top14', name: 'Creme de avelã', price: 0 },
         { id: 'top15', name: 'Ovomaltine', price: 0 }
     ],
-     toppingsCobrar: [
+    toppingsCobrar: [
         { id: 'top1', name: 'Leite em pó (+ R$3,00)', price: 3 },
         { id: 'top2', name: 'Farinha Láctea', price: 3 },
         { id: 'top3', name: 'Jujuba', price: 3 },
@@ -194,13 +194,13 @@ const customizationOptionsEspeciais = {
 
     ],
     cobertura: [
-        { id: 'cober1', name: 'Leite condensado', price: 0 },
-        { id: 'cober2', name: 'Chocolate', price: 0 },
-        { id: 'cober3', name: 'Morango', price: 0 },
-        { id: 'cober4', name: 'Uva', price: 0 },
-        { id: 'cober5', name: 'BlueBarry', price: 0 },
-        { id: 'cober6', name: 'Tutti-fruitti', price: 0 },
-        { id: 'cober7', name: 'Menta', price: 0 },
+        { id: 'cober1', name: 'Leite condensado', price: 3 },
+        { id: 'cober2', name: 'Chocolate', price: 3 },
+        { id: 'cober3', name: 'Morango', price: 3 },
+        { id: 'cober4', name: 'Uva', price: 3 },
+        { id: 'cober5', name: 'BlueBarry', price: 3 },
+        { id: 'cober6', name: 'Tutti-fruitti', price: 3 },
+        { id: 'cober7', name: 'Menta', price: 3 },
     ]
 };
 
@@ -590,7 +590,7 @@ function fillCustomizationModal() {
     // Preencher adicionais - Filtrado para VitaHits
     const adicionaisContainer = document.getElementById('adicionaisOptions');
     adicionaisContainer.innerHTML = '';
-    
+
     // Adicionais específicos para VitaHits
     let adicionaisEspecificos;
     if (currentProduct.tipo === 'vitahits') {
@@ -624,8 +624,8 @@ function updateCustomizationMessage() {
     if (currentProduct.tipo === 'especial') {
         const adicional = selectedAcompanhamentos.length * 3.00;
         message = `Cremes: ${selectedCremes.length}/2 | ` +
-                 `Acompanhamentos: ${selectedAcompanhamentos.length}/${currentProduct.maxAcompanhamentos}` +
-                 (selectedAcompanhamentos.length > 0 ? ` (+R$ ${adicional.toFixed(2)})` : '');
+            `Acompanhamentos: ${selectedAcompanhamentos.length}/${currentProduct.maxAcompanhamentos}` +
+            (selectedAcompanhamentos.length > 0 ? ` (+R$ ${adicional.toFixed(2)})` : '');
     } else if (currentProduct.tipo === 'vitahits') {
         message = selectedCobertura ?
             `Cobertura selecionada: ${selectedCobertura.name}` :
@@ -686,7 +686,7 @@ document.getElementById('acompanhamentosModal').addEventListener('change', funct
                 selectedCobertura = cobertura;
             }
         }
-         else if (type === 'topping') {
+        else if (type === 'topping') {
             const topping = customizationOptionsEspeciais.toppings.find(t => t.id === id);
             if (isChecked) {
                 if (selectedAcompanhamentos.length < currentProduct.maxAcompanhamentos) {
@@ -1781,19 +1781,18 @@ function updateCart() {
     const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     cartTotal.textContent = `R$ ${total.toFixed(2)}`;
 }
-
 async function generatePDF(orderDetails) {
     const { jsPDF } = window.jspdf;
-
-    // Configuração do documento
+    // Configuração do documento para papel de 58mm de largura
+    // Usaremos altura automática (mais tarde vamos ajustar)
     const doc = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
-        format: 'a4'
+        format: [58, 1000] // Largura fixa de 58mm, altura grande para conteúdo dinâmico
     });
 
-    // Margens
-    const margin = 15;
+    // Margens reduzidas para papel estreito
+    const margin = 2;
     const pageWidth = doc.internal.pageSize.getWidth();
     const maxWidth = pageWidth - 2 * margin;
     let y = margin;
@@ -1821,93 +1820,100 @@ async function generatePDF(orderDetails) {
         });
     };
 
-    // Carregar a logo
-    const logoData = await loadImage('./assets/logos/Logo-cabeca-hits.png');
+    // Carregar a logo (usando um placeholder para o exemplo)
+    const logoData = await loadImage('https://via.placeholder.com/150/6f26cd/FFFFFF?text=Açaí+Hits');
 
     // Cabeçalho com logo
     if (logoData) {
-        const logoWidth = 40;
+        const logoWidth = 15; // Reduzido para caber em 58mm
         const logoHeight = (logoWidth * 150) / 300;
         const logoX = (pageWidth - logoWidth) / 2;
         doc.addImage(logoData, 'PNG', logoX, y, logoWidth, logoHeight);
-        y += logoHeight + 10;
+        y += logoHeight + 5;
     } else {
-        doc.setFontSize(20);
+        doc.setFontSize(10); // Reduzido
         doc.setTextColor(...primaryColor);
         doc.setFont('helvetica', 'bold');
-        doc.text('AÇAÍ HITS', pageWidth / 2, y + 10, { align: 'center' });
-        y += 20;
+        doc.text('AÇAÍ HITS', pageWidth / 2, y + 5, { align: 'center' });
+        y += 8;
     }
 
     // Título
-    doc.setFontSize(18);
+    doc.setFontSize(8); // Reduzido
     doc.setTextColor(...primaryColor);
     doc.setFont('helvetica', 'bold');
     doc.text('COMPROVANTE DE PEDIDO', pageWidth / 2, y, { align: 'center' });
-    y += 15;
+    y += 5;
 
     // Informações da empresa
-    doc.setFontSize(10);
+    doc.setFontSize(6); // Reduzido
     doc.setTextColor(100, 100, 100);
     doc.text('Açaí Hits - Sabor e Qualidade', pageWidth / 2, y, { align: 'center' });
-    y += 5;
+    y += 3;
     doc.text('WhatsApp: (84) 99600-2433', pageWidth / 2, y, { align: 'center' });
-    y += 10;
+    y += 5;
 
     // Divisor
     doc.setDrawColor(...primaryColor);
-    doc.setLineWidth(0.5);
+    doc.setLineWidth(0.3); // Mais fino
     doc.line(margin, y, pageWidth - margin, y);
-    y += 15;
+    y += 5;
 
     // Informações do cliente
-    doc.setFontSize(12);
+    doc.setFontSize(7); // Reduzido
     doc.setTextColor(0, 0, 0);
     doc.setFont('helvetica', 'bold');
     doc.text('DADOS DO CLIENTE', margin, y);
-    y += 8;
+    y += 4;
 
-    doc.setFontSize(11);
+    doc.setFontSize(6); // Reduzido
     doc.setFont('helvetica', 'normal');
     doc.text(`Data: ${new Date().toLocaleString('pt-BR')}`, margin, y);
-    y += 7;
+    y += 3.5;
 
     doc.text(`Cliente: ${orderDetails.name}`, margin, y);
-    y += 7;
+    y += 3.5;
 
     const addressLines = doc.splitTextToSize(`Endereço: ${orderDetails.address}`, maxWidth);
     addressLines.forEach(line => {
         doc.text(line, margin, y);
-        y += 7;
+        y += 3.5;
     });
 
     doc.text(`Local: ${orderDetails.deliveryLocation}`, margin, y);
-    y += 7;
+    y += 3.5;
 
     doc.text(`Pagamento: ${orderDetails.paymentMethod}`, margin, y);
-    y += 15;
+    y += 5;
 
-    // ITENS DO PEDIDO - VERSÃO REESCRITA
-    // Substitua a seção de ITENS DO PEDIDO por este código:
-
-    doc.setFontSize(12);
+    // ITENS DO PEDIDO
+    doc.setFontSize(7);
     doc.setFont('helvetica', 'bold');
     doc.text('ITENS DO PEDIDO', margin, y);
-    y += 10;
+    y += 5;
 
     orderDetails.items.forEach(item => {
         // Verifica se é um item personalizado
         const isCustomItem = item.product.includes('Açaí Personalizado');
 
         // Linha principal (quantidade + nome)
-        doc.setFontSize(11);
+        doc.setFontSize(6);
         doc.setFont('helvetica', 'bold');
-        doc.text(`${item.quantity}x ${item.product.split('|')[0].trim()}`, margin, y);
-        y += 6;
+
+        // Quebra o nome do produto se for muito longo
+        const productNameLines = doc.splitTextToSize(
+            `${item.quantity}x ${item.product.split('|')[0].trim()}`,
+            maxWidth
+        );
+
+        productNameLines.forEach(line => {
+            doc.text(line, margin, y);
+            y += 3;
+        });
 
         // Processamento diferente para itens personalizados
         if (isCustomItem) {
-            doc.setFontSize(10);
+            doc.setFontSize(5);
             doc.setFont('helvetica', 'normal');
 
             // Divide as partes do item personalizado
@@ -1920,14 +1926,20 @@ async function generatePDF(orderDetails) {
                 // Se for uma lista de adicionais
                 if (part.includes('adicionais:')) {
                     const [title, items] = cleanPart.split(':').map(s => s.trim());
-                    doc.text(` ${title}:`, margin, y);
-                    y += 5;
+                    const titleLines = doc.splitTextToSize(` ${title}:`, maxWidth);
+                    titleLines.forEach(line => {
+                        doc.text(line, margin, y);
+                        y += 3;
+                    });
 
                     // Processa cada adicional
                     items.split(';').forEach(additional => {
                         if (additional.trim()) {
-                            doc.text(`   • ${additional.trim()}`, margin + 5, y);
-                            y += 5;
+                            const additionalLines = doc.splitTextToSize(`   • ${additional.trim()}`, maxWidth - 3);
+                            additionalLines.forEach(line => {
+                                doc.text(line, margin + 3, y);
+                                y += 3;
+                            });
                         }
                     });
                 }
@@ -1937,8 +1949,11 @@ async function generatePDF(orderDetails) {
                         if (complement.trim()) {
                             // Remove duplicatas de "Extra:"
                             if (!complement.includes('Extra:') || !parts.some(p => p.includes('Extra:') && p !== part)) {
-                                doc.text(` • ${complement.trim()}`, margin + 5, y);
-                                y += 5;
+                                const complementLines = doc.splitTextToSize(` • ${complement.trim()}`, maxWidth - 3);
+                                complementLines.forEach(line => {
+                                    doc.text(line, margin + 3, y);
+                                    y += 3;
+                                });
                             }
                         }
                     });
@@ -1947,62 +1962,72 @@ async function generatePDF(orderDetails) {
         } else {
             // Itens não personalizados
             if (item.product.includes('|')) {
-                doc.setFontSize(10);
+                doc.setFontSize(5);
                 doc.setFont('helvetica', 'normal');
 
                 const details = item.product.split('|')[1].trim();
-                doc.text(` • ${details}`, margin + 5, y);
-                y += 5;
+                const detailsLines = doc.splitTextToSize(` • ${details}`, maxWidth - 3);
+                detailsLines.forEach(line => {
+                    doc.text(line, margin + 3, y);
+                    y += 3;
+                });
             }
         }
 
         // Espaço entre itens
-        y += 8;
+        y += 3;
     });
+
     // Divisor
     doc.setDrawColor(200, 200, 200);
-    doc.setLineWidth(0.5);
+    doc.setLineWidth(0.3);
     doc.line(margin, y, pageWidth - margin, y);
-    y += 15;
+    y += 5;
 
     // Totais
-    doc.setFontSize(12);
+    doc.setFontSize(7);
     doc.setFont('helvetica', 'bold');
     doc.text('RESUMO DO PEDIDO', margin, y);
-    y += 15;
+    y += 5;
 
-    doc.setFontSize(11);
-    doc.text('Subtotal:', pageWidth - margin - 60, y, { align: 'right' });
-    doc.text(`R$ ${orderDetails.subtotal.toFixed(2)}`, pageWidth - margin - 5, y, { align: 'right' });
-    y += 8;
+    doc.setFontSize(6);
+    doc.text('Subtotal:', pageWidth - margin - 20, y, { align: 'right' });
+    doc.text(`R$ ${orderDetails.subtotal.toFixed(2)}`, pageWidth - margin, y, { align: 'right' });
+    y += 4;
 
-    doc.text('Taxa de entrega:', pageWidth - margin - 60, y, { align: 'right' });
-    doc.text(`R$ ${orderDetails.deliveryFee.toFixed(2)}`, pageWidth - margin - 5, y, { align: 'right' });
-    y += 8;
+    doc.text('Taxa de entrega:', pageWidth - margin - 20, y, { align: 'right' });
+    doc.text(`R$ ${orderDetails.deliveryFee.toFixed(2)}`, pageWidth - margin, y, { align: 'right' });
+    y += 4;
 
     // Linha do total
     doc.setDrawColor(0, 0, 0);
-    doc.setLineWidth(0.5);
-    doc.line(pageWidth - margin - 70, y, pageWidth - margin, y);
+    doc.setLineWidth(0.3);
+    doc.line(pageWidth - margin - 25, y, pageWidth - margin, y);
     y += 2;
 
-    doc.setFontSize(13);
+    doc.setFontSize(8);
     doc.setTextColor(...primaryColor);
-    doc.text('TOTAL:', pageWidth - margin - 60, y + 5, { align: 'right' });
-    doc.text(`R$ ${orderDetails.total.toFixed(2)}`, pageWidth - margin - 5, y + 5, { align: 'right' });
-    y += 15;
+    doc.text('TOTAL:', pageWidth - margin - 20, y + 3, { align: 'right' });
+    doc.text(`R$ ${orderDetails.total.toFixed(2)}`, pageWidth - margin, y + 3, { align: 'right' });
+    y += 8;
 
     // Mensagem final
-    doc.setFontSize(10);
+    doc.setFontSize(5);
     doc.setTextColor(100, 100, 100);
     doc.text('Obrigado por escolher o Açaí Hits!', pageWidth / 2, y, { align: 'center' });
-    y += 5;
+    y += 3;
     doc.text('Seu pedido será preparado com todo carinho.', pageWidth / 2, y, { align: 'center' });
-    y += 5;
+    y += 3;
     doc.text('WhatsApp: (84) 99600-2433', pageWidth / 2, y, { align: 'center' });
+
+    // Ajustar a altura do documento com base no conteúdo
+    doc.deletePage(1); // Remover página em branco inicial
+    doc.addPage([58, y + margin]); // Criar página com altura exata do conteúdo
 
     return doc.output('blob');
 }
+
+
 // Upload para o Google Drive
 async function uploadToDrive(pdfBlob, fileName) {
     return new Promise((resolve) => {
