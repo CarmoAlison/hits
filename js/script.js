@@ -101,10 +101,10 @@ const customizationOptions = {
         { id: 'Adic5', name: 'Creme de leitinho', price: 3 },
         { id: 'Adic6', name: 'Batom', price: 2 },
 
-        { id: 'Adic6', name: 'Creme Cookies', price: 3 },
-        { id: 'Adic6', name: 'Ferrero Rocher', price: 3 },
-        { id: 'Adic6', name: 'Ouro Branco', price: 3 },
-        { id: 'Adic6', name: 'Oreo', price: 3 },
+        { id: 'Adic7', name: 'Creme Cookies', price: 3 },
+        { id: 'Adic8', name: 'Ferrero Rocher', price: 3 },
+        { id: 'Adic9', name: 'Ouro Branco', price: 3 },
+        { id: 'Adic10', name: 'Oreo', price: 3 },
     ],
     cobertura: [
         { id: 'cober1', name: 'Leite condensado', price: 0 },
@@ -182,10 +182,10 @@ const customizationOptionsEspeciais = {
         { id: 'Adic4', name: 'Castanha', price: 2 },
         { id: 'Adic5', name: 'Creme de leitinho', price: 3 },
         { id: 'Adic6', name: 'Batom', price: 2 },
-        { id: 'Adic6', name: 'Creme Cookies', price: 3 },
-        { id: 'Adic6', name: 'Ferrero Rocher', price: 3 },
-        { id: 'Adic6', name: 'Ouro Branco', price: 3 },
-        { id: 'Adic6', name: 'Oreo', price: 3 },
+        { id: 'Adic7', name: 'Creme Cookies', price: 3 },
+        { id: 'Adic8', name: 'Ferrero Rocher', price: 3 },
+        { id: 'Adic9', name: 'Ouro Branco', price: 3 },
+        { id: 'Adic10', name: 'Oreo', price: 3 },
 
         { id: 'Adic7', name: 'Creme Cook', price: 3 },
         { id: 'Adic8', name: 'Ferreiro Rocher', price: 3 },
@@ -1835,39 +1835,19 @@ function updateCart() {
     const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     cartTotal.textContent = `R$ ${total.toFixed(2)}`;
 }
+
 async function generatePDF(orderDetails) {
     const { jsPDF } = window.jspdf;
 
-    // Calcular altura estimada necessária
-    const margin = 2;
-    let estimatedHeight = 80; // Altura base (cabeçalho, rodapé e totais)
-    
-    // Adicionar altura para cada item do pedido
-    orderDetails.items.forEach(item => {
-        estimatedHeight += 15; // Altura base por item
-        
-        // Se for um item personalizado, adicionar mais espaço
-        if (item.product.includes('Açaí Personalizado')) {
-            estimatedHeight += 10;
-        }
-        
-        // Se tiver muitos complementos, adicionar mais espaço
-        if (item.product.includes('|')) {
-            estimatedHeight += 5;
-        }
-    });
-    
-    // Adicionar margens
-    estimatedHeight += margin * 2;
-    
-    // Criar documento com altura calculada (mínimo de 80mm)
+    // Configuração do documento para papel de 58mm de largura com altura dinâmica
     const doc = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
-        format: [58, Math.max(estimatedHeight, 80)]
+        format: [58, 297] // Altura inicial, será ajustada
     });
 
-    // Resto do código permanece igual até a mensagem final
+    // Margens aumentadas para melhor legibilidade
+    const margin = 3;
     const pageWidth = doc.internal.pageSize.getWidth();
     const maxWidth = pageWidth - 2 * margin;
     let y = margin;
@@ -1900,78 +1880,78 @@ async function generatePDF(orderDetails) {
 
     // Cabeçalho com logo
     if (logoData) {
-        const logoWidth = 15;
+        const logoWidth = 20; // Aumentado para melhor visibilidade
         const logoHeight = (logoWidth * 150) / 300;
         const logoX = (pageWidth - logoWidth) / 2;
         doc.addImage(logoData, 'PNG', logoX, y, logoWidth, logoHeight);
-        y += logoHeight + 5;
+        y += logoHeight + 8; // Mais espaço após a logo
     } else {
-        doc.setFontSize(10);
+        doc.setFontSize(12); // Aumentado
         doc.setTextColor(...primaryColor);
         doc.setFont('helvetica', 'bold');
-        doc.text('AÇAÍ HITS', pageWidth / 2, y + 5, { align: 'center' });
-        y += 8;
+        doc.text('AÇAÍ HITS', pageWidth / 2, y + 6, { align: 'center' });
+        y += 10;
     }
 
     // Título
-    doc.setFontSize(8);
+    doc.setFontSize(10); // Aumentado
     doc.setTextColor(...primaryColor);
     doc.setFont('helvetica', 'bold');
     doc.text('COMPROVANTE DE PEDIDO', pageWidth / 2, y, { align: 'center' });
-    y += 5;
+    y += 7;
 
     // Informações da empresa
-    doc.setFontSize(6);
+    doc.setFontSize(8); // Aumentado
     doc.setTextColor(100, 100, 100);
     doc.text('Açaí Hits - Sabor e Qualidade', pageWidth / 2, y, { align: 'center' });
-    y += 3;
+    y += 4;
     doc.text('WhatsApp: (84) 99600-2433', pageWidth / 2, y, { align: 'center' });
-    y += 5;
+    y += 8;
 
     // Divisor
     doc.setDrawColor(...primaryColor);
-    doc.setLineWidth(0.3);
+    doc.setLineWidth(0.5); // Mais espesso
     doc.line(margin, y, pageWidth - margin, y);
-    y += 5;
+    y += 8;
 
     // Informações do cliente
-    doc.setFontSize(7);
+    doc.setFontSize(9); // Aumentado
     doc.setTextColor(0, 0, 0);
     doc.setFont('helvetica', 'bold');
     doc.text('DADOS DO CLIENTE', margin, y);
-    y += 4;
+    y += 6;
 
-    doc.setFontSize(6);
+    doc.setFontSize(8); // Aumentado
     doc.setFont('helvetica', 'normal');
     doc.text(`Data: ${new Date().toLocaleString('pt-BR')}`, margin, y);
-    y += 3.5;
+    y += 5;
 
     doc.text(`Cliente: ${orderDetails.name}`, margin, y);
-    y += 3.5;
+    y += 5;
 
     const addressLines = doc.splitTextToSize(`Endereço: ${orderDetails.address}`, maxWidth);
     addressLines.forEach(line => {
         doc.text(line, margin, y);
-        y += 3.5;
+        y += 5;
     });
 
     doc.text(`Local: ${orderDetails.deliveryLocation}`, margin, y);
-    y += 3.5;
+    y += 5;
 
     doc.text(`Pagamento: ${orderDetails.paymentMethod}`, margin, y);
-    y += 5;
+    y += 10; // Mais espaço antes da próxima seção
 
     // ITENS DO PEDIDO
-    doc.setFontSize(7);
+    doc.setFontSize(9); // Aumentado
     doc.setFont('helvetica', 'bold');
     doc.text('ITENS DO PEDIDO', margin, y);
-    y += 5;
+    y += 7;
 
-    orderDetails.items.forEach(item => {
+    orderDetails.items.forEach((item, index) => {
         const isCustomItem = item.product.includes('Açaí Personalizado');
 
         // Linha principal (quantidade + nome)
-        doc.setFontSize(6);
+        doc.setFontSize(8); // Aumentado
         doc.setFont('helvetica', 'bold');
         
         const productNameLines = doc.splitTextToSize(
@@ -1981,11 +1961,12 @@ async function generatePDF(orderDetails) {
         
         productNameLines.forEach(line => {
             doc.text(line, margin, y);
-            y += 3;
+            y += 5; // Mais espaço entre linhas
         });
 
+        // Processamento diferente para itens personalizados
         if (isCustomItem) {
-            doc.setFontSize(5);
+            doc.setFontSize(7); // Aumentado
             doc.setFont('helvetica', 'normal');
 
             const parts = item.product.split('|').slice(1).map(p => p.trim());
@@ -1993,31 +1974,36 @@ async function generatePDF(orderDetails) {
             parts.forEach(part => {
                 const cleanPart = part.replace(/<br>/g, '');
 
+                // Se for uma lista de adicionais
                 if (part.includes('adicionais:')) {
                     const [title, items] = cleanPart.split(':').map(s => s.trim());
                     const titleLines = doc.splitTextToSize(` ${title}:`, maxWidth);
                     titleLines.forEach(line => {
                         doc.text(line, margin, y);
-                        y += 3;
+                        y += 5;
                     });
 
+                    // Processa cada adicional
                     items.split(';').forEach(additional => {
                         if (additional.trim()) {
-                            const additionalLines = doc.splitTextToSize(`   • ${additional.trim()}`, maxWidth - 3);
+                            const additionalLines = doc.splitTextToSize(`   • ${additional.trim()}`, maxWidth - 5);
                             additionalLines.forEach(line => {
-                                doc.text(line, margin + 3, y);
-                                y += 3;
+                                doc.text(line, margin + 5, y);
+                                y += 5;
                             });
                         }
                     });
-                } else {
+                }
+                // Complementos normais
+                else {
                     cleanPart.split(';').forEach(complement => {
                         if (complement.trim()) {
+                            // Remove duplicatas de "Extra:"
                             if (!complement.includes('Extra:') || !parts.some(p => p.includes('Extra:') && p !== part)) {
-                                const complementLines = doc.splitTextToSize(` • ${complement.trim()}`, maxWidth - 3);
+                                const complementLines = doc.splitTextToSize(` • ${complement.trim()}`, maxWidth - 5);
                                 complementLines.forEach(line => {
-                                    doc.text(line, margin + 3, y);
-                                    y += 3;
+                                    doc.text(line, margin + 5, y);
+                                    y += 5;
                                 });
                             }
                         }
@@ -2025,66 +2011,82 @@ async function generatePDF(orderDetails) {
                 }
             });
         } else {
+            // Itens não personalizados
             if (item.product.includes('|')) {
-                doc.setFontSize(5);
+                doc.setFontSize(7); // Aumentado
                 doc.setFont('helvetica', 'normal');
 
                 const details = item.product.split('|')[1].trim();
-                const detailsLines = doc.splitTextToSize(` • ${details}`, maxWidth - 3);
+                const detailsLines = doc.splitTextToSize(` • ${details}`, maxWidth - 5);
                 detailsLines.forEach(line => {
-                    doc.text(line, margin + 3, y);
-                    y += 3;
+                    doc.text(line, margin + 5, y);
+                    y += 5;
                 });
             }
         }
 
-        y += 3;
+        // Espaço entre itens - aumentado para 8mm
+        y += 8;
+        
+        // Adicionar linha divisória entre itens (exceto após o último)
+        if (index < orderDetails.items.length - 1) {
+            doc.setDrawColor(200, 200, 200);
+            doc.setLineWidth(0.2);
+            doc.line(margin, y, pageWidth - margin, y);
+            y += 5;
+        }
     });
     
-    // Divisor
-    doc.setDrawColor(200, 200, 200);
-    doc.setLineWidth(0.3);
+    // Divisor antes dos totais
+    doc.setDrawColor(...primaryColor);
+    doc.setLineWidth(0.5);
     doc.line(margin, y, pageWidth - margin, y);
-    y += 5;
+    y += 8;
 
     // Totais
-    doc.setFontSize(7);
+    doc.setFontSize(9); // Aumentado
     doc.setFont('helvetica', 'bold');
     doc.text('RESUMO DO PEDIDO', margin, y);
-    y += 5;
+    y += 7;
 
-    doc.setFontSize(6);
-    doc.text('Subtotal:', pageWidth - margin - 20, y, { align: 'right' });
+    doc.setFontSize(8); // Aumentado
+    doc.text('Subtotal:', pageWidth - margin - 25, y, { align: 'right' });
     doc.text(`R$ ${orderDetails.subtotal.toFixed(2)}`, pageWidth - margin, y, { align: 'right' });
-    y += 4;
+    y += 6;
 
-    doc.text('Taxa de entrega:', pageWidth - margin - 20, y, { align: 'right' });
+    doc.text('Taxa de entrega:', pageWidth - margin - 25, y, { align: 'right' });
     doc.text(`R$ ${orderDetails.deliveryFee.toFixed(2)}`, pageWidth - margin, y, { align: 'right' });
-    y += 4;
+    y += 6;
 
     // Linha do total
     doc.setDrawColor(0, 0, 0);
-    doc.setLineWidth(0.3);
-    doc.line(pageWidth - margin - 25, y, pageWidth - margin, y);
-    y += 2;
+    doc.setLineWidth(0.5);
+    doc.line(pageWidth - margin - 30, y, pageWidth - margin, y);
+    y += 4;
 
-    doc.setFontSize(8);
+    doc.setFontSize(10); // Aumentado
     doc.setTextColor(...primaryColor);
-    doc.text('TOTAL:', pageWidth - margin - 20, y + 3, { align: 'right' });
-    doc.text(`R$ ${orderDetails.total.toFixed(2)}`, pageWidth - margin, y + 3, { align: 'right' });
-    y += 8;
+    doc.text('TOTAL:', pageWidth - margin - 25, y + 4, { align: 'right' });
+    doc.text(`R$ ${orderDetails.total.toFixed(2)}`, pageWidth - margin, y + 4, { align: 'right' });
+    y += 10;
+
+    // Adicionar 5 linhas de espaço para impressão
+    for (let i = 0; i < 5; i++) {
+        y += 5;
+    }
 
     // Mensagem final
-    doc.setFontSize(5);
+    doc.setFontSize(7); // Aumentado
     doc.setTextColor(100, 100, 100);
     doc.text('Obrigado por escolher o Açaí Hits!', pageWidth / 2, y, { align: 'center' });
-    y += 3;
+    y += 5;
     doc.text('Seu pedido será preparado com todo carinho.', pageWidth / 2, y, { align: 'center' });
-    y += 3;
+    y += 5;
     doc.text('WhatsApp: (84) 99600-2433', pageWidth / 2, y, { align: 'center' });
 
     return doc.output('blob');
 }
+
 // Upload para o Google Drive
 async function uploadToDrive(pdfBlob, fileName) {
     return new Promise((resolve) => {
