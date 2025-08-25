@@ -1839,253 +1839,183 @@ function updateCart() {
 async function generatePDF(orderDetails) {
     const { jsPDF } = window.jspdf;
 
-    // Configuração do documento para papel de 58mm de largura com altura dinâmica
+    // Configuração do documento para papel de 80mm de largura (comum para impressoras térmicas)
     const doc = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
-        format: [58, 297] // Altura inicial, será ajustada
+        format: [80, 1000] // Altura dinâmica com largura fixa de 80mm
     });
 
-    // Margens aumentadas para melhor legibilidade
-    const margin = 3;
+    const margin = 2;
     const pageWidth = doc.internal.pageSize.getWidth();
     const maxWidth = pageWidth - 2 * margin;
     let y = margin;
 
     // Cores do tema
     const primaryColor = [111, 38, 205];
-    const secondaryColor = [255, 153, 0];
 
-    // Função para carregar imagem como base64
-    const loadImage = (url) => {
-        return new Promise((resolve) => {
-            const img = new Image();
-            img.crossOrigin = "Anonymous";
-            img.src = url;
-            img.onload = () => {
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-                canvas.width = img.width;
-                canvas.height = img.height;
-                ctx.drawImage(img, 0, 0);
-                const dataURL = canvas.toDataURL('image/png');
-                resolve(dataURL);
-            };
-            img.onerror = () => resolve(null);
-        });
-    };
-
-    // Carregar a logo
-    const logoData = await loadImage('./assets/logos/Logo-cabeca-hits.png');
-
-    // Cabeçalho com logo
-    if (logoData) {
-        const logoWidth = 20; // Aumentado para melhor visibilidade
-        const logoHeight = (logoWidth * 150) / 300;
-        const logoX = (pageWidth - logoWidth) / 2;
-        doc.addImage(logoData, 'PNG', logoX, y, logoWidth, logoHeight);
-        y += logoHeight + 8; // Mais espaço após a logo
-    } else {
-        doc.setFontSize(12); // Aumentado
-        doc.setTextColor(...primaryColor);
-        doc.setFont('helvetica', 'bold');
-        doc.text('AÇAÍ HITS', pageWidth / 2, y + 6, { align: 'center' });
-        y += 10;
-    }
-
-    // Título
-    doc.setFontSize(10); // Aumentado
+    // Estilo do cabeçalho
+    doc.setFontSize(10);
     doc.setTextColor(...primaryColor);
     doc.setFont('helvetica', 'bold');
-    doc.text('COMPROVANTE DE PEDIDO', pageWidth / 2, y, { align: 'center' });
-    y += 7;
-
-    // Informações da empresa
-    doc.setFontSize(8); // Aumentado
-    doc.setTextColor(100, 100, 100);
-    doc.text('Açaí Hits - Sabor e Qualidade', pageWidth / 2, y, { align: 'center' });
+    doc.text('AÇAÍ HITS - SABOR E QUALIDADE', pageWidth / 2, y, { align: 'center' });
     y += 4;
+    
+    doc.setFontSize(8);
+    doc.setTextColor(0, 0, 0);
+    doc.text('COMPROVANTE DE PEDIDO', pageWidth / 2, y, { align: 'center' });
+    y += 4;
+    
+    doc.setTextColor(100, 100, 100);
     doc.text('WhatsApp: (84) 99600-2433', pageWidth / 2, y, { align: 'center' });
-    y += 8;
+    y += 6;
 
-    // Divisor
+    // Linha divisória
     doc.setDrawColor(...primaryColor);
-    doc.setLineWidth(0.5); // Mais espesso
+    doc.setLineWidth(0.3);
     doc.line(margin, y, pageWidth - margin, y);
-    y += 8;
+    y += 5;
 
     // Informações do cliente
-    doc.setFontSize(9); // Aumentado
+    doc.setFontSize(8);
     doc.setTextColor(0, 0, 0);
     doc.setFont('helvetica', 'bold');
     doc.text('DADOS DO CLIENTE', margin, y);
-    y += 6;
+    y += 4;
 
-    doc.setFontSize(8); // Aumentado
     doc.setFont('helvetica', 'normal');
     doc.text(`Data: ${new Date().toLocaleString('pt-BR')}`, margin, y);
-    y += 5;
-
+    y += 3;
+    
     doc.text(`Cliente: ${orderDetails.name}`, margin, y);
-    y += 5;
-
+    y += 3;
+    
     const addressLines = doc.splitTextToSize(`Endereço: ${orderDetails.address}`, maxWidth);
     addressLines.forEach(line => {
         doc.text(line, margin, y);
-        y += 5;
+        y += 3;
     });
-
+    
     doc.text(`Local: ${orderDetails.deliveryLocation}`, margin, y);
+    y += 3;
+    
+    doc.text(`Pagamento: ${orderDetails.paymentMethod}`, margin, y);
     y += 5;
 
-    doc.text(`Pagamento: ${orderDetails.paymentMethod}`, margin, y);
-    y += 10; // Mais espaço antes da próxima seção
+    // Linha divisória
+    doc.line(margin, y, pageWidth - margin, y);
+    y += 5;
 
-    // ITENS DO PEDIDO
-    doc.setFontSize(9); // Aumentado
+    // Itens do pedido
     doc.setFont('helvetica', 'bold');
     doc.text('ITENS DO PEDIDO', margin, y);
-    y += 7;
+    y += 4;
 
     orderDetails.items.forEach((item, index) => {
-        const isCustomItem = item.product.includes('Açaí Personalizado');
-
-        // Linha principal (quantidade + nome)
-        doc.setFontSize(8); // Aumentado
+        doc.setFont('helvetica', 'normal');
+        
+        // Nome do produto e quantidade
         doc.setFont('helvetica', 'bold');
+        const productLine = `${item.quantity}x ${item.product.split('|')[0].trim()}`;
+        doc.text(productLine, margin, y);
+        y += 3;
         
-        const productNameLines = doc.splitTextToSize(
-            `${item.quantity}x ${item.product.split('|')[0].trim()}`, 
-            maxWidth
-        );
-        
-        productNameLines.forEach(line => {
-            doc.text(line, margin, y);
-            y += 5; // Mais espaço entre linhas
-        });
-
-        // Processamento diferente para itens personalizados
-        if (isCustomItem) {
-            doc.setFontSize(7); // Aumentado
+        // Verifica se é um item personalizado
+        if (item.product.includes('Açaí Personalizado') || item.product.includes('com') || item.product.includes('acompanhamento')) {
             doc.setFont('helvetica', 'normal');
-
-            const parts = item.product.split('|').slice(1).map(p => p.trim());
-
-            parts.forEach(part => {
-                const cleanPart = part.replace(/<br>/g, '');
-
-                // Se for uma lista de adicionais
-                if (part.includes('adicionais:')) {
-                    const [title, items] = cleanPart.split(':').map(s => s.trim());
-                    const titleLines = doc.splitTextToSize(` ${title}:`, maxWidth);
-                    titleLines.forEach(line => {
-                        doc.text(line, margin, y);
-                        y += 5;
-                    });
-
-                    // Processa cada adicional
-                    items.split(';').forEach(additional => {
-                        if (additional.trim()) {
-                            const additionalLines = doc.splitTextToSize(`   • ${additional.trim()}`, maxWidth - 5);
-                            additionalLines.forEach(line => {
-                                doc.text(line, margin + 5, y);
-                                y += 5;
-                            });
-                        }
-                    });
-                }
-                // Complementos normais
-                else {
-                    cleanPart.split(';').forEach(complement => {
-                        if (complement.trim()) {
-                            // Remove duplicatas de "Extra:"
-                            if (!complement.includes('Extra:') || !parts.some(p => p.includes('Extra:') && p !== part)) {
-                                const complementLines = doc.splitTextToSize(` • ${complement.trim()}`, maxWidth - 5);
-                                complementLines.forEach(line => {
-                                    doc.text(line, margin + 5, y);
-                                    y += 5;
-                                });
-                            }
-                        }
+            doc.setFontSize(7);
+            
+            // Processa os detalhes do item
+            const details = item.product.split('|').slice(1);
+            
+            details.forEach(detail => {
+                const cleanDetail = detail.trim();
+                if (cleanDetail) {
+                    const detailLines = doc.splitTextToSize(`- ${cleanDetail}`, maxWidth - 5);
+                    detailLines.forEach(line => {
+                        doc.text(line, margin + 2, y);
+                        y += 3;
                     });
                 }
             });
-        } else {
-            // Itens não personalizados
-            if (item.product.includes('|')) {
-                doc.setFontSize(7); // Aumentado
-                doc.setFont('helvetica', 'normal');
-
-                const details = item.product.split('|')[1].trim();
-                const detailsLines = doc.splitTextToSize(` • ${details}`, maxWidth - 5);
-                detailsLines.forEach(line => {
-                    doc.text(line, margin + 5, y);
-                    y += 5;
+            
+            doc.setFontSize(8);
+        } 
+        // Para produtos especiais (não personalizados)
+        else if (item.product.includes('com') || item.product.includes('acompanhamento')) {
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(7);
+            
+            const parts = item.product.split('com');
+            if (parts.length > 1) {
+                const accompaniments = parts[1].trim();
+                const accompanimentLines = doc.splitTextToSize(`- ${accompaniments}`, maxWidth - 5);
+                accompanimentLines.forEach(line => {
+                    doc.text(line, margin + 2, y);
+                    y += 3;
                 });
             }
+            
+            doc.setFontSize(8);
         }
-
-        // Espaço entre itens - aumentado para 8mm
-        y += 8;
         
-        // Adicionar linha divisória entre itens (exceto após o último)
+        // Preço do item
+        doc.text(`R$ ${(item.price * item.quantity).toFixed(2)}`, pageWidth - margin, y, { align: 'right' });
+        y += 4;
+        
+        // Linha divisória entre itens (exceto o último)
         if (index < orderDetails.items.length - 1) {
             doc.setDrawColor(200, 200, 200);
-            doc.setLineWidth(0.2);
+            doc.setLineWidth(0.1);
             doc.line(margin, y, pageWidth - margin, y);
-            y += 5;
+            y += 4;
         }
     });
-    
-    // Divisor antes dos totais
-    doc.setDrawColor(...primaryColor);
-    doc.setLineWidth(0.5);
-    doc.line(margin, y, pageWidth - margin, y);
-    y += 8;
 
-    // Totais
-    doc.setFontSize(9); // Aumentado
+    // Linha divisória antes do resumo
+    doc.setDrawColor(...primaryColor);
+    doc.setLineWidth(0.3);
+    doc.line(margin, y, pageWidth - margin, y);
+    y += 5;
+
+    // Resumo do pedido
     doc.setFont('helvetica', 'bold');
     doc.text('RESUMO DO PEDIDO', margin, y);
-    y += 7;
+    y += 4;
 
-    doc.setFontSize(8); // Aumentado
-    doc.text('Subtotal:', pageWidth - margin - 25, y, { align: 'right' });
+    doc.setFont('helvetica', 'normal');
+    doc.text('Subtotal:', pageWidth - margin - 20, y, { align: 'right' });
     doc.text(`R$ ${orderDetails.subtotal.toFixed(2)}`, pageWidth - margin, y, { align: 'right' });
-    y += 6;
+    y += 4;
 
-    doc.text('Taxa de entrega:', pageWidth - margin - 25, y, { align: 'right' });
+    doc.text('Taxa de entrega:', pageWidth - margin - 20, y, { align: 'right' });
     doc.text(`R$ ${orderDetails.deliveryFee.toFixed(2)}`, pageWidth - margin, y, { align: 'right' });
-    y += 6;
+    y += 4;
 
     // Linha do total
     doc.setDrawColor(0, 0, 0);
-    doc.setLineWidth(0.5);
-    doc.line(pageWidth - margin - 30, y, pageWidth - margin, y);
-    y += 4;
+    doc.setLineWidth(0.2);
+    doc.line(pageWidth - margin - 25, y, pageWidth - margin, y);
+    y += 3;
 
-    doc.setFontSize(10); // Aumentado
-    doc.setTextColor(...primaryColor);
-    doc.text('TOTAL:', pageWidth - margin - 25, y + 4, { align: 'right' });
-    doc.text(`R$ ${orderDetails.total.toFixed(2)}`, pageWidth - margin, y + 4, { align: 'right' });
-    y += 10;
-
-    // Adicionar 5 linhas de espaço para impressão
-    for (let i = 0; i < 5; i++) {
-        y += 5;
-    }
+    doc.setFont('helvetica', 'bold');
+    doc.text('TOTAL:', pageWidth - margin - 20, y, { align: 'right' });
+    doc.text(`R$ ${orderDetails.total.toFixed(2)}`, pageWidth - margin, y, { align: 'right' });
+    y += 8;
 
     // Mensagem final
-    doc.setFontSize(7); // Aumentado
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7);
     doc.setTextColor(100, 100, 100);
     doc.text('Obrigado por escolher o Açaí Hits!', pageWidth / 2, y, { align: 'center' });
-    y += 5;
+    y += 3;
     doc.text('Seu pedido será preparado com todo carinho.', pageWidth / 2, y, { align: 'center' });
-    y += 5;
+    y += 3;
     doc.text('WhatsApp: (84) 99600-2433', pageWidth / 2, y, { align: 'center' });
 
     return doc.output('blob');
 }
+
 
 // Upload para o Google Drive
 async function uploadToDrive(pdfBlob, fileName) {
